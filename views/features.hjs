@@ -30,19 +30,19 @@
 						<h3 class="text-center">Tilklipning</h3>
 						<div class="form-group">
 							<label>Horisontal forskydelse (left) [%]</label>
-							<input class="form-control" type="text" name="left" value="0.1">
+							<input class="form-control" type="text" name="left" value="0.37">
 						</div>
 						<div class="form-group">
 							<label>Vertikal forskydelse (top) [%]</label>
-							<input class="form-control" type="text" name="top" value="0.3">
+							<input class="form-control" type="text" name="top" value="0.44">
 						</div>
 						<div class="form-group">
 							<label>Bredde (width) [%]</label>
-							<input class="form-control" type="text" name="width" value="0.6">
+							<input class="form-control" type="text" name="width" value="0.09">
 						</div>
 						<div class="form-group">
 							<label>Højde (height) [%]</label>
-							<input class="form-control" type="text" name="height" value="0.4">
+							<input class="form-control" type="text" name="height" value="0.12">
 						</div>
 						<div class="form-group">
 							<label>Størrelse [px]</label>
