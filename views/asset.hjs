@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Natmus Cropper</title>
+		<link rel="stylesheet" href="/stylesheets/style.css" />
+		<link rel="stylesheet" href="/stylesheets/imgareaselect-default.css" />
+		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
+		<script type="text/javascript">
+		window.CIP_JSESSIONID = "{{ jsessionid }}";
+		window.CATALOG_ALIAS = "{{ catalog_alias }}";
+		window.ASSET_ID = "{{ asset_id }}";
+		</script>
+		<script type="text/javascript" src="/javascripts/cip.min.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery.imgareaselect.min.js"></script>
+		<script type="text/javascript" src="/javascripts/asset.js"></script>
+	</head>
+	<body id="asset-template">
+		<div class="container">
+			<h1>Asset {{ asset_id }} i {{ catalog_alias }}</h1>
+			<hr>
+			<div class="row controls">
+				<div class="col-md-9 canvas">
+					<img id="asset" src="{{ asset_image_url }}">
+					<div class="outlines">
+					</div>
+				</div>
+				<div class="col-md-3">
+					<h3>Udskæringer</h3>
+					<div class="suggestions"></div>
+					<div class="text-center">
+						<button id="add-suggestion-button" class="btn btn-success">Tilføj udskæring</button>
+					</div>
+				</div>
+			</div>
+			<hr>
+			<div class="row controls">
+				<div class="col-md-6 text-left">
+					<button id="back" class="btn"><span class="glyphicon glyphicon-arrow-left"></span> Tilbage</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

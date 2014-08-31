@@ -31,14 +31,30 @@ form {
 	}
 	.suggestions, .metadata {
 		position: absolute;
-		left: 0;
-		top: 0;
-		right: 0;
-		bottom: 0;
+		left: 15px;
+		right: 15px;
+		bottom: 15px;
 		text-align: center;
 	}
 	.metadata {
-		text-align: center;
+		text-align: right;
+		padding: 10px;
+		.suggestion_count {
+			color: #EEE;
+			background-color: fade(@brand-primary, 80%);
+			border: 1px solid @brand-primary;
+			border-radius: 50%;
+			width: 1.5em;
+			display: inline-block;
+			text-align: center;
+		}
+	}
+	.suggestions {
+		top: 15px;
+		.suggestion {
+			position: absolute;
+			border: 1px solid @brand-primary;
+		}
 	}
 	img {
 		display: block;
@@ -46,5 +62,93 @@ form {
 		padding: 3px;
 		border: 1px solid #D0D0D0;
 		background-color: #F0F0F0;
+	}
+}
+
+/* asset.hjs */
+body#asset-template {
+	.canvas {
+		.outlines {
+			position: absolute;
+			left: 15px;
+			right: 15px;
+			top: 0;
+			bottom: 0;
+			.outline {
+				position: absolute;
+				border: 1px solid @brand-primary;
+				cursor: pointer;
+				&.hover {
+					background-color: fade(@brand-primary, 10%);
+				}
+			}
+		}
+		img {
+			display: block;
+			margin: auto;
+			/*
+			padding: 3px;
+			border: 1px solid #D0D0D0;
+			*/
+			background-color: #F0F0F0;
+			width: 100%;
+		}
+		&.editing {
+			.outlines {
+				display: none;
+			}
+		}
+	}
+
+	.suggestions {
+		.suggestion {
+			border: 1px solid #DDD;
+			border-radius: 5px;
+			background-color: #EEE;
+			margin-bottom: 10px;
+			position: relative;
+			display: block;
+			min-height: 106px;
+			line-height: 106px;
+			img {
+				padding: 2px;
+				margin: 4px;
+				border: 1px solid #C0C0C0;
+				background-color: #D0D0D0;
+			}
+			.controls {
+				line-height: initial;
+				float: right;
+				height: 100%;
+				padding: 8px;
+				button {
+					clear: right;
+					float: right;
+					margin-top: 3px;
+				}
+			}
+			.arrow {
+				color: @brand-primary;
+				opacity: 0.0;
+				position: absolute;
+				top: 0;
+				left: 0;
+				line-height: 106px;
+				font-size: 2em;
+				-webkit-transition: all 0.3s ease-in-out;
+				-moz-transition: all 0.3s ease-in-out;
+				-o-transition: all 0.3s ease-in-out;
+				transition: all 0.3s ease-in-out;
+			}
+			&.hover, &.editing {
+				.arrow {
+					opacity: 1.0;
+					left: -1em;
+				}
+				img {
+					border-color: @brand-primary;
+				}
+			}
+		}
 	}
 }

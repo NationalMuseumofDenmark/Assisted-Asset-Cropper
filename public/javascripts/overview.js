@@ -95,10 +95,28 @@
 			asset: asset,
 			success: function(suggestions) {
 				var aspect_ratio = this.asset.fields[HORIZONTAL_RESOLUTION] / this.asset.fields[VERTICAL_RESOLUTION];
-				this.$asset.find('.metadata').text(suggestions.length + "suggestion" + ((suggestions.length > 1 || suggestions == 0) ? "s" : ""));
+				var $suggestion_count = $("<span>").
+					addClass("suggestion_count")
+					.text(suggestions.length);
+				this.$asset.find('.metadata').append($suggestion_count);
 				for(s in suggestions) {
 					var suggestion = suggestions[s];
 					console.log(suggestion);
+					suggestion.left *= 100;
+					suggestion.top *= 100;
+					suggestion.width *= 100;
+					suggestion.height *= 100;
+
+					var $suggestion = $("<div>").
+						addClass('suggestion').
+						css({
+							left: suggestion.left + "%",
+							top: suggestion.top + "%",
+							width: suggestion.width + "%",
+							height: suggestion.height + "%"
+						});
+					this.$asset.find('.suggestions').
+						append($suggestion);
 				}
 			},
 			complete: function() {
@@ -115,17 +133,18 @@
 			// One more, please
 			get_next_asset( result, function(asset) {
 				if(asset !== null) {
-					$asset = $("<div>").
+					$asset = $("<a>").
+						attr('href', '/asset/' + result.catalog.alias + "/" + asset.fields.id).
 						addClass("asset").
 						addClass("col-md-" + ASSET_COL_WIDTH);
-
-					$asset_metadata = $("<div>").
-						appendTo($asset).
-						addClass("metadata");
 
 					$asset_suggestions = $("<div>").
 						appendTo($asset).
 						addClass("suggestions");
+
+					$asset_metadata = $("<div>").
+						appendTo($asset).
+						addClass("metadata");
 
 					$asset_image = $("<img>").
 						appendTo($asset).
@@ -172,7 +191,7 @@
 			$assets.data('search-result', result);
 			// Search result is in.
 			load_more_assets( result, $assets, function( $assets ) {
-				return $assets.length >= 12;
+				return $assets.length >= 6 * 10;
 			} );
 		} );
 	});

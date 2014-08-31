@@ -2,10 +2,25 @@ var express = require('express');
 var http = require('http');
 var cropSuggestions = require('../lib/crop-suggestions.js');
 var router = express.Router();
+var cip = require('../lib/cip-natmus');
 
 var DEFAULT_THUMBNAIL_SIZE = 200;
 
-/* GET users listing. */
+router.get('/:catalog_alias/:asset_id', function(req, res) {
+	var catalog_alias = req.param('catalog_alias');
+	var asset_id = parseFloat(req.param('asset_id'));
+	cip.session(function( client ) {
+		client.get_asset(catalog_alias, asset_id, false, function(asset) {
+			var asset_image_url = asset.get_thumbnail_url();
+	  	res.render('asset', {
+	  		jsessionid: client.jsessionid,
+	  		catalog_alias: catalog_alias,
+	  		asset_id: asset_id,
+	  		asset_image_url: asset_image_url
+	  	});
+		});
+	});
+});
 
 router.get('/:catalog/:id/crop/:left::top::width::height/:size/:type?', function(req, res, next) {
 	// Localizing parameters
@@ -101,6 +116,7 @@ function deriveSuggestionThumbnailURLs(catalog, id, size, suggestions) {
 	}
 	return suggestions;
 }
+
 /*
 router.get('/:catalog/:id/suggestions', function(req, res, next) {
 	// Localizing parameters
