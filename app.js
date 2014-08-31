@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var features = require('./routes/features');
-//var overview = require('./routes/overview');
+var overview = require('./routes/overview');
 var assets = require('./routes/assets');
 
 var app = express();
@@ -24,9 +24,9 @@ app.use(cookieParser());
 // app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+//app.use('/', index);
+app.use('/', overview);
 app.use('/features', features);
-//app.use('/overview', overview);
 app.use('/asset', assets);
 
 // Set the scripts that needs to be loaded into every view.

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Natmus Cropper</title>
+		<link rel="stylesheet" href="/stylesheets/style.css" />
+		<link rel="stylesheet" href="/stylesheets/imgareaselect-default.css" />
+		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
+		<script type="text/javascript">
+		window.CIP_JSESSIONID = "{{ jsessionid }}";
+		</script>
+		<script type="text/javascript" src="/javascripts/cip.min.js"></script>
+		<script type="text/javascript" src="/javascripts/overview.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Asset Overview</h1>
+			<div class="row" id="assets">
+			</div>
+		</div>
+	</body>
+</html>

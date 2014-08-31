@@ -11,3 +11,40 @@ a {
 form {
 	word-wrap: break-word;
 }
+
+/* overview.hjs */
+#assets .asset {
+	padding-top: 15px;
+	padding-bottom: 15px;
+	position: relative;
+	.loading-spinner {
+		position: absolute;
+		left: 15px;
+		top: 15px;
+		right: 15px;
+		bottom: 15px;
+		opacity: 0.33;
+		background-repeat: no-repeat;
+		background-position: 50% 50%;
+		background-color: #000;
+		background-image: url("../images/loading.gif");
+	}
+	.suggestions, .metadata {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		text-align: center;
+	}
+	.metadata {
+		text-align: center;
+	}
+	img {
+		display: block;
+		width: 100%;
+		padding: 3px;
+		border: 1px solid #D0D0D0;
+		background-color: #F0F0F0;
+	}
+}

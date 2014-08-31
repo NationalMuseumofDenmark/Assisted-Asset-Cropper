@@ -1,3 +1,4 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
 /*! normalize.css v3.0.1 | MIT License | git.io/normalize */
 html {
   font-family: sans-serif;
@@ -881,7 +882,7 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Open Sans", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
   color: #333333;
@@ -6292,4 +6293,36 @@ a {
 }
 form {
   word-wrap: break-word;
+}
+/* overview.hjs */
+#assets .asset {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  position: relative;
+}
+#assets .asset .loading-spinner {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  right: 15px;
+  bottom: 15px;
+  opacity: 0.33;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-color: #000;
+  background-image: url("../images/loading.gif");
+}
+#assets .asset .metadata {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+#assets .asset img {
+  display: block;
+  width: 100%;
+  padding: 3px;
+  border: 1px solid #D0D0D0;
+  background-color: #F0F0F0;
 }

@@ -3,6 +3,7 @@ var node_process;
 module.exports = function(grunt) {
 
 	var bootstrap_path = './node_modules/bootstrap';
+	var cip_js_path = './node_modules/cip-js';
 
 	// Project configuration.
 	//grunt.config.merge({
@@ -24,6 +25,11 @@ module.exports = function(grunt) {
 					{expand: true, src: [bootstrap_path + '/dist/js/*'], flatten: true, dest: 'public/javascripts/', filter: 'isFile'},
 					//{expand: true, src: [bootstrap_path + '/dist/css/*'], flatten: true, dest: 'public/stylesheets/', filter: 'isFile'},
 					{expand: true, src: [bootstrap_path + '/dist/fonts/*'], flatten: true, dest: 'public/fonts/', filter: 'isFile'},
+				]
+			},
+			distCIPJS: {
+				files: [
+					{expand: true, src: [cip_js_path + '/dist/cip.min.js'], flatten: true, dest: 'public/javascripts/', filter: 'isFile'},
 				]
 			}
 		},
@@ -54,8 +60,21 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-express-server');
 
+	// CIP-js
+	grunt.registerTask('bootstrap-npm-install', function() {
+		var done = this.async();
+		grunt.util.spawn({
+			cmd: 'npm',
+			args: ['install'],
+			opts: {
+				stdio: 'inherit',
+				cwd: bootstrap_path
+			},
+		}, done);
+	});
+
 	// Bootstrap
-	grunt.registerTask('dist-bootstrap', function() {
+	grunt.registerTask('bootstrap-dist', function() {
 		var done = this.async();
 		grunt.util.spawn({
 			grunt: true,
@@ -66,10 +85,25 @@ module.exports = function(grunt) {
 		}, done);
 	});
 
+	// CIP-js
+	grunt.registerTask('build-cip-js', function() {
+		var done = this.async();
+		grunt.util.spawn({
+			cmd: 'bash',
+			args: ['build.sh'],
+			opts: {
+				stdio: 'inherit',
+				cwd: cip_js_path
+			},
+		}, done);
+	});
+
 	// Default task(s).
 	grunt.registerTask('start', ['express:dev', 'watch']);
+	grunt.registerTask('bootstrap-prepare', ['bootstrap-npm-install', 'bootstrap-dist']);
+	grunt.registerTask('cip-js', ['build-cip-js', 'copy:distCIPJS']);
 
-	grunt.registerTask('default', ['dist-bootstrap', 'less:cropper', 'copy:distBootstrap']);
+	grunt.registerTask('default', ['bootstrap-prepare', 'less:cropper', 'copy:distBootstrap', 'cip-js']);
 
 	require('time-grunt')(grunt);
 
