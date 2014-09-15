@@ -3,16 +3,10 @@
 	<head>
 		<title>{{ title }}</title>
 		<link rel="stylesheet" href="/stylesheets/style.css" />
-		<link rel="stylesheet" href="/stylesheets/imgareaselect-default.css" />
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
-		<script type="text/javascript" src="/javascripts/features.js"></script>
-		<script type="text/javascript" src="/javascripts/jquery.imgareaselect.min.js"></script>
 	</head>
 	<body>
 		<div class="container">
-			<h1>{{ title }}</h1>
-			<button class="btn btn-primary">Click me ..</button>
+			<h1>{{ title }} - nothing here ...</h1>
 		</div>
 	</body>
 </html>

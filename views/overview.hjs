@@ -4,16 +4,17 @@
 		<title>Natmus Cropper</title>
 		<link rel="stylesheet" href="/stylesheets/style.css" />
 		<link rel="stylesheet" href="/stylesheets/imgareaselect-default.css" />
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
-		<script type="text/javascript">
-		window.CIP_JSESSIONID = "{{ jsessionid }}";
-		</script>
-		<script type="text/javascript" src="/javascripts/cip.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/bootstrap.min.js"></script>
+		
+		<script type="text/javascript" src="/javascripts/lib/cip.min.js"></script>
+		<script type="text/javascript" src="/javascripts/common.js"></script>
 		<script type="text/javascript" src="/javascripts/overview.js"></script>
 	</head>
 	<body id="overview-template">
 		<div class="container">
+			<button id="logout-btn" class="btn"><span class="glyphicon glyphicon-off">
+			</span> Log ud</button>
 			<h1>Asset Overview</h1>
 			<div class="row" id="assets">
 			</div>

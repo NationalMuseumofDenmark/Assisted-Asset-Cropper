@@ -17,7 +17,10 @@
     "bootstrap": "git://github.com/twitter/bootstrap.git",
     "cip-js": "git+https://github.com/NationalMuseumofDenmark/cip.js.git#get-asset-feature",
     "memory-cache": "0.0.5",
-    "opencv": "~0.5.0"
+    "opencv": "~0.5.0",
+    "request": "~2.42.0",
+    "gm": "~1.16.0",
+    "temp": "~0.8.1"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

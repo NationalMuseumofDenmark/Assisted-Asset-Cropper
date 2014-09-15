@@ -6294,13 +6294,36 @@ a {
 form {
   word-wrap: break-word;
 }
+#logout-btn {
+  float: right;
+  margin-left: 10px;
+}
+/* signin.hjs */
+body#signin-template .form-signin {
+  width: 40%;
+  margin: auto;
+}
+body#signin-template .form-signin input[name=username] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+body#signin-template .form-signin input[name=password] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+body#signin-template .form-signin .checkbox {
+  font-weight: normal;
+}
 /* overview.hjs */
-#assets .asset {
+body#overview-template #assets .asset {
   padding-top: 15px;
   padding-bottom: 15px;
   position: relative;
+  opacity: 0.5;
 }
-#assets .asset .loading-spinner {
+body#overview-template #assets .asset .loading-spinner {
   position: absolute;
   left: 15px;
   top: 15px;
@@ -6312,19 +6335,23 @@ form {
   background-color: #000;
   background-image: url("../images/loading.gif");
 }
-#assets .asset .suggestions,
-#assets .asset .metadata {
+body#overview-template #assets .asset .suggestions,
+body#overview-template #assets .asset .metadata {
   position: absolute;
   left: 15px;
   right: 15px;
   bottom: 15px;
   text-align: center;
+  overflow: hidden;
 }
-#assets .asset .metadata {
-  text-align: right;
-  padding: 10px;
+body#overview-template #assets .asset .metadata {
+  padding: 3px;
+  color: black;
+  font-size: 0.8em;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 1px;
 }
-#assets .asset .metadata .suggestion_count {
+body#overview-template #assets .asset .metadata .suggestion_count {
   color: #EEE;
   background-color: rgba(151, 22, 35, 0.8);
   border: 1px solid #971623;
@@ -6332,23 +6359,43 @@ form {
   width: 1.5em;
   display: inline-block;
   text-align: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  float: right;
 }
-#assets .asset .suggestions {
+body#overview-template #assets .asset .suggestions {
   top: 15px;
+  margin: 4px;
+  /* image padding + border */
 }
-#assets .asset .suggestions .suggestion {
+body#overview-template #assets .asset .suggestions .suggestion {
   position: absolute;
   border: 1px solid #971623;
+  background-color: rgba(151, 22, 35, 0.25);
 }
-#assets .asset img {
+body#overview-template #assets .asset img {
   display: block;
   width: 100%;
   padding: 3px;
   border: 1px solid #D0D0D0;
   background-color: #F0F0F0;
   box-shadow: 0px 5px 10px #D0D0D0;
+  min-height: 50px;
+}
+body#overview-template #assets .asset.needs-cropping {
+  opacity: initial;
 }
 /* asset.hjs */
+body#asset-template h1,
+body#asset-template h2 {
+  float: left;
+  clear: left;
+}
+body#asset-template #back {
+  float: right;
+}
+body#asset-template hr {
+  clear: both;
+}
 body#asset-template .canvas .outlines {
   position: absolute;
   left: 15px;
@@ -6360,11 +6407,12 @@ body#asset-template .canvas .outlines .outline {
   position: absolute;
   border: 1px solid #971623;
   cursor: pointer;
-}
-body#asset-template .canvas .outlines .outline.hover {
   background-color: rgba(151, 22, 35, 0.1);
 }
-body#asset-template .canvas img {
+body#asset-template .canvas .outlines .outline.hover {
+  background-color: rgba(151, 22, 35, 0.25);
+}
+body#asset-template .canvas img#asset {
   display: block;
   margin: auto;
   /*
@@ -6377,7 +6425,35 @@ body#asset-template .canvas img {
 body#asset-template .canvas.editing .outlines {
   display: none;
 }
-body#asset-template .suggestions .suggestion {
+body#asset-template .canvas #asset-algorithm-states {
+  display: none;
+  /* Hidden by default */
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  right: 15px;
+}
+body#asset-template .canvas #asset-algorithm-states img {
+  position: absolute;
+  display: block;
+  width: 100%;
+  margin: auto;
+}
+body#asset-template .sidebar-box {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-bottom: 1px solid #eeeeee;
+}
+body#asset-template #master img {
+  width: 100%;
+}
+body#asset-template #suggestions {
+  text-align: center;
+}
+body#asset-template #suggestions .suggestion {
   border: 1px solid #DDD;
   box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
   background-color: #EEE;
@@ -6392,24 +6468,24 @@ body#asset-template .suggestions .suggestion {
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
-body#asset-template .suggestions .suggestion img {
+body#asset-template #suggestions .suggestion img {
   padding: 2px;
   margin: 4px;
   border: 1px solid #C0C0C0;
   background-color: #D0D0D0;
 }
-body#asset-template .suggestions .suggestion .controls {
+body#asset-template #suggestions .suggestion .controls {
   line-height: initial;
   float: right;
   height: 100%;
   padding: 8px;
 }
-body#asset-template .suggestions .suggestion .controls button {
+body#asset-template #suggestions .suggestion .controls button {
   clear: right;
   float: right;
   margin-top: 3px;
 }
-body#asset-template .suggestions .suggestion .arrow {
+body#asset-template #suggestions .suggestion .arrow {
   color: #971623;
   opacity: 0.0;
   position: absolute;
@@ -6422,16 +6498,26 @@ body#asset-template .suggestions .suggestion .arrow {
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
-body#asset-template .suggestions .suggestion.hover,
-body#asset-template .suggestions .suggestion.editing {
+body#asset-template #suggestions .suggestion.hover,
+body#asset-template #suggestions .suggestion.editing {
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
 }
-body#asset-template .suggestions .suggestion.hover .arrow,
-body#asset-template .suggestions .suggestion.editing .arrow {
+body#asset-template #suggestions .suggestion.hover .arrow,
+body#asset-template #suggestions .suggestion.editing .arrow {
   opacity: 1.0;
   left: -1em;
 }
-body#asset-template .suggestions .suggestion.hover img,
-body#asset-template .suggestions .suggestion.editing img {
+body#asset-template #suggestions .suggestion.hover img,
+body#asset-template #suggestions .suggestion.editing img {
   border-color: #971623;
+}
+body#asset-template #croppings img {
+  height: 100px;
+  padding: 2px;
+  margin-bottom: 4px;
+  border: 1px solid #C0C0C0;
+  background-color: #D0D0D0;
+}
+body#asset-template #state-control a {
+  cursor: pointer;
 }

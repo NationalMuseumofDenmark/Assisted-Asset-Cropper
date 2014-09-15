@@ -1,34 +1,13 @@
 (function($) {
 
-	var NatMusConfig = {
-		endpoint: "http://cumulus.natmus.dk/CIP/",
-		constants: {
-				catch_all_alias: "any",
-				layout_alias: "web"
-		},
-		catalog_aliases: {
-			"Alle": "ALL",
-			"Antiksamlingen": "AS",
-			"Bevaringsafdelingen": "BA",
-			"Danmarks Middelalder og Renæssance": "DMR",
-			"Danmarks Nyere Tid": "DNT",
-			"Etnografisk samling": "ES",
-			"Frihedsmuseet": "FHM",
-			"Den Kgl. Mønt- og Medaljesamling": "KMM",
-			"Musikmuseet": "MUM"
-		}
-	};
-
-	cip = new CIPClient(NatMusConfig);
-	cip.jsessionid = CIP_JSESSIONID;
-
 	var SUGGESTION_THUMBNAIL_SIZE = 90;
 
 	var $canvas;
 
 	function update_suggestion_thumbnail($suggestion) {
+		// TODO: Consider simply cropping this out of the full asset thumbnail.
+		// as this is a lot less stressful for the CIP when editing.
 		var suggestion = $suggestion.data("suggestion");
-		console.log(suggestion);
 		var thumbnail_src = "/asset/" +
 			CATALOG_ALIAS + "/" +
 			ASSET_ID + "/crop/" +
@@ -83,7 +62,7 @@
 		var $outline = $suggestion.data("$outline");
 		$suggestion.addClass("editing");
 		$canvas.addClass("editing");
-		var $image = $canvas.find("img");
+		var $image = $canvas.find("#asset");
 		var area_selection = $image.imgAreaSelect({
 			instance: true,
 			fadeSpeed: 100,
@@ -97,8 +76,6 @@
 					var $suggestion = $(".suggestion.editing");
 					var $outline = $suggestion.data("$outline");
 					set_suggestion_from_selection($image, $suggestion, selection);
-					update_suggestion_thumbnail($suggestion);
-					update_outline_position($outline);
 				}
 			}
 		});
@@ -107,7 +84,15 @@
 	}
 
 	function leave_edit_suggestion_mode() {
-		$(".suggestion.editing").removeClass("editing");
+		// Update the suggestion that we might be currently editing.
+		var $suggestion = $(".suggestion.editing");
+		if($suggestion.length > 0) {
+			var $outline = $suggestion.data("$outline");
+			update_suggestion_thumbnail($suggestion);
+			update_outline_position($outline);
+		}
+
+		$suggestion.removeClass("editing");
 		$canvas.removeClass("editing");
 		var area_selection = $canvas.data('area_selection');
 		if(area_selection) {
@@ -115,10 +100,40 @@
 		}
 	}
 
+	function save_croppings( callback ) {
+		var croppings = [];
+		$suggestions = $("#suggestions .suggestion");
+		$croppings = $("#croppings .cropping");
+
+		$suggestions.each(function() {
+			var suggestion = $(this).data('suggestion');
+			croppings.push(suggestion);
+		});
+
+		var save_croppings_url = "/asset/" +
+			CATALOG_ALIAS + "/" +
+			ASSET_ID + "/croppings/save";
+
+		$.ajax(save_croppings_url, {
+			type: 'POST',
+			data: {
+				croppings: croppings
+			},
+			success: callback
+		});
+	}
+
 	function add_new_suggestion(suggestion) {
+		$suggestions = $("#suggestions");
+		if($suggestions.find('.suggestion').length == 0) {
+			// Empty the #suggestions container
+			$suggestions.empty();
+		}
+		
 		var $suggestion = $("<div>").
 			addClass("suggestion").
-			data("suggestion", suggestion);
+			data("suggestion", suggestion).
+			html("&nbsp;"); // Prevents the div from expanding when the img loads.
 
 		var $controls = $("<div>").
 			addClass("controls").
@@ -129,14 +144,14 @@
 			html("<span class='glyphicon glyphicon-move'></span> Tilpas").
 			appendTo($controls);
 
-		var $download_button = $("<button>").
-			addClass("btn btn-primary btn-xs").
-			html("<span class='glyphicon glyphicon-download'></span> Download").
-			appendTo($controls);
-
 		var $delete_button = $("<button>").
 			addClass("btn btn-primary btn-xs").
 			html("<span class='glyphicon glyphicon-trash'></span> Fjern").
+			appendTo($controls);
+
+		var $download_button = $("<button>").
+			addClass("btn btn-primary btn-xs").
+			html("<span class='glyphicon glyphicon-download'></span> Download").
 			appendTo($controls);
 
 		var $arrow = $("<div>").
@@ -201,10 +216,7 @@
 
 		$delete_button.click(function( e ) {
 			var $suggestion = $(e.target).closest(".suggestion");
-			$outline = $suggestion.data("$outline");
-			$suggestion.add($outline).fadeOut(function() {
-				$(this).remove();
-			});
+			remove_suggestion($suggestion);
 		});
 
 		// Clicking the outline
@@ -216,19 +228,68 @@
 		});
 
 		// Add this to the suggestions.
-		$suggestions.append( $suggestion );
+		$suggestions.prepend( $suggestion );
+
+		return $suggestion;
+	}
+
+	function remove_suggestion($suggestion) {
+		$outline = $suggestion.data("$outline");
+		$suggestion.add($outline).fadeOut(function() {
+			$(this).remove();
+		});
+	}
+
+	function show_algorithm_state(s) {
+		leave_edit_suggestion_mode();
+		var $asset = $("#asset");
+		var $algorithm_states = $("#asset-algorithm-states");
+		var $algorithm_state_image = $algorithm_states.find("img");
+		$algorithm_state_image.css('top', -1 * s * $asset.height());
+		$algorithm_states.show();
+		$(".outlines").hide();
+	}
+
+	function hide_algorithm_state() {
+		var $algorithm_states = $("#asset-algorithm-states");
+		$algorithm_states.hide();
+		$(".outlines").show();
+	}
+
+	function calculate_algorithm_state_count() {
+		var $asset = $("#asset");
+		var asset_height = $asset.get(0).naturalHeight;
+		var $algorithm_state_image = $("#asset-algorithm-states img");
+		var algorithm_state_image_height = $algorithm_state_image.get(0).height;
+		var result = Math.ceil(algorithm_state_image_height / asset_height);
+		console.log(asset_height, algorithm_state_image_height, result);
+		return result;
 	}
 
 	// On document ready
 	$(function() {
-		var suggestions_url = location.origin + "/asset/" +
-			CATALOG_ALIAS + "/" +
-			ASSET_ID + "/suggestions/90";
-		$canvas = $(".canvas");
 
 		$("#back").click(function() {
 			window.history.back();
 		});
+
+		// If the delete key is pressed while a suggestion is selected,
+		// it will get removed.
+		$(document.body).keypress(function(e) {
+			console.log(e);
+			if(e.charCode == 127) { // Delete button
+				$(".suggestion.editing").each(function() {
+					leave_edit_suggestion_mode();
+					$suggestion = $(this);
+					remove_suggestion($suggestion);
+				});
+			}
+		});
+
+		var suggestions_url = location.origin + "/asset/" +
+			CATALOG_ALIAS + "/" +
+			ASSET_ID + "/suggestions/80";
+		$canvas = $(".canvas");
 
 		$(".container").click(function() {
 			leave_edit_suggestion_mode();
@@ -236,24 +297,68 @@
 			e.stopPropagation();
 		});
 
-		$("#add-suggestion-button").click(function() {
-			add_new_suggestion( {
+		$("#add-suggestion-button").click(function( e ) {
+			$suggestion = add_new_suggestion( {
 				left: 0.25,
 				top: 0.25,
 				width: 0.5,
 				height: 0.5
 			} );
+			enter_edit_suggestion_mode($suggestion);
+			e.stopPropagation();
 		});
 
-		$.ajax(suggestions_url, {
-			success: function(suggestions) {
-				$suggestions = $(".suggestions").empty();
-				for(s in suggestions) {
-					var suggestion = suggestions[s];
-					add_new_suggestion( suggestion );
+		$("#save-croppings-button").click(function(e) {
+			$("#save-croppings-button").addClass("disabled");
+			save_croppings(function() {
+				location.reload();
+			});
+		});
+
+		$("#fetch-suggestions").click(function() {
+			$.ajax(suggestions_url, {
+				success: function(suggestions) {
+					for(s in suggestions) {
+						var suggestion = suggestions[s];
+						add_new_suggestion( suggestion );
+					}
 				}
-			}
+			});
 		});
-	});
 
+		if(CROPPING_STATUS === 1) {
+			// Fetch suggestions automatically.
+			$("#fetch-suggestions").trigger('click');
+		}
+
+		$("#asset, #asset-algorithm-states img").
+			load(function() {
+				var state_count = calculate_algorithm_state_count();
+				if(state_count > 0) {
+					// Remove anything that is already there.
+					$("#state-control").empty();
+					// Iterate through the states.
+					for(s = 0; s < state_count; s++) {
+						var $link = $("<a>")
+							.text(s + 1)
+							.on('mouseenter', {state: s}, function(e) {
+								var s = e.data.state;
+								show_algorithm_state(s);
+							})
+							.on('mouseleave', function(e) {
+								hide_algorithm_state();
+							});
+						$("<li>")
+							.append($link)
+							.appendTo("#state-control");
+					}
+				}
+			}).
+			each(function(){
+				// Trigger load event if already loaded.
+				if(this.complete) {
+					$(this).trigger('load');
+				}
+			}); // Make sure it triggers even if the image was loaded too fast.
+	});
 })(jQuery);

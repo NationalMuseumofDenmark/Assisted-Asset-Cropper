@@ -5,10 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var index = require('./routes/index');
+// var index = require('./routes/index');
 var features = require('./routes/features');
 var overview = require('./routes/overview');
 var assets = require('./routes/assets');
+var signin = require('./routes/signin');
 
 var app = express();
 
@@ -16,7 +17,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hjs');
 
-app.use(favicon());
+//app.use(favicon());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
@@ -25,7 +26,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use('/', index);
-app.use('/', overview);
+app.use('/', signin);
+app.use('/overview', overview);
 app.use('/features', features);
 app.use('/asset', assets);
 
@@ -48,6 +50,7 @@ if (app.get('env') === 'development') {
 	app.use(function(err, req, res, next) {
 		res.status(err.status || 500);
 		res.render('error', {
+			title: "An error occurred",
 			message: err.message,
 			error: err
 		});

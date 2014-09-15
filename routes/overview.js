@@ -4,9 +4,8 @@ var cip = require('../lib/cip-natmus');
 
 /* GET home page. */
 router.get('/', function(req, res) {
-	cip.session(function( client ) {
-  	res.render('overview', { jsessionid: client.jsessionid });
-	});
+	client = cip.client(req);
+  res.render('overview', { jsessionid: client.jsessionid });
 });
 
 module.exports = router;

@@ -22,14 +22,14 @@ module.exports = function(grunt) {
 		copy: {
 			distBootstrap: {
 				files: [
-					{expand: true, src: [bootstrap_path + '/dist/js/*'], flatten: true, dest: 'public/javascripts/', filter: 'isFile'},
+					{expand: true, src: [bootstrap_path + '/dist/js/*'], flatten: true, dest: 'public/javascripts/lib/', filter: 'isFile'},
 					//{expand: true, src: [bootstrap_path + '/dist/css/*'], flatten: true, dest: 'public/stylesheets/', filter: 'isFile'},
 					{expand: true, src: [bootstrap_path + '/dist/fonts/*'], flatten: true, dest: 'public/fonts/', filter: 'isFile'},
 				]
 			},
 			distCIPJS: {
 				files: [
-					{expand: true, src: [cip_js_path + '/dist/cip.min.js'], flatten: true, dest: 'public/javascripts/', filter: 'isFile'},
+					{expand: true, src: [cip_js_path + '/dist/cip.min.js'], flatten: true, dest: 'public/javascripts/lib/', filter: 'isFile'},
 				]
 			}
 		},
