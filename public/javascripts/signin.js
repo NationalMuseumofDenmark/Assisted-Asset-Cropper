@@ -59,7 +59,10 @@
 			verify_session(successfully_authenticated, function() {
 				cip.jsessionid = null;
 				eraseCookie('jsessionid');
+				$("form.form-signin").fadeIn();
 			});
+		} else {
+			$("form.form-signin").fadeIn();
 		}
 
 		$("form.form-signin").submit(function(e) {
