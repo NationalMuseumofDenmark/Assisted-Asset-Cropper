@@ -41,11 +41,11 @@
 
 	function generate_querystring( search_term ) {
 		var result = "";
-		result += CROPPING_STATUS_FIELD + ' "has value"';
+		//result += CROPPING_STATUS_FIELD + ' "has value"';
 		//result += ORIGINAL_FIELD + ' == 1'; // 1 == 'Papirfoto'
 		//result += CROPPING_STATUS_FIELD + ' "has no value"';
 		//result += " AND ";
-		//result += CROPPING_STATUS_FIELD + ' == 3'; // 1 == 'Skal friskæres'
+		result += CROPPING_STATUS_FIELD + ' == 1'; // 1 == 'Skal friskæres'
 		return result;
 	}
 
@@ -192,15 +192,20 @@
 							size: 140
 						}, true )).
 						load( function( e ) {
-							var $asset = $( e.target ).closest('.asset');
-							var asset = $asset.data('asset');
-							var cropping_status = asset.fields[CROPPING_STATUS_FIELD];
-							if(!cropping_status || cropping_status.id === 1) {
-								// Has to be cropped or has not status.
-								load_cropping_suggestions( $asset );
+							var loaded = $(this).data('loaded');
+							if(!loaded) {
+								// TODO: Make sure we can only run this once.
+								var $asset = $( e.target ).closest('.asset');
+								var asset = $asset.data('asset');
+								var cropping_status = asset.fields[CROPPING_STATUS_FIELD];
+								if(!cropping_status || cropping_status.id === 1) {
+									// Has to be cropped or has not status.
+									load_cropping_suggestions( $asset );
+								}
+								$(this).data('loaded', true);
 							}
 						}).
-						each(function(){
+						each(function() {
 							// Trigger load event if already loaded.
 							if(this.complete) {
 								$(this).trigger('load');
@@ -214,6 +219,8 @@
 					});
 
 					$result_container.append( $asset );
+					// Reload the result container.
+					$result_container = $($result_container.selector, $result_container.context);
 
 					// Keep 'em comming ..
 					setTimeout(function() {
@@ -224,17 +231,31 @@
 		}
 	}
 
+	function assets_are_outside_viewport($assets) {
+		var asset_rows = Math.ceil($assets.length / ASSETS_PR_ROW);
+		var asset_height = $assets.outerHeight();
+		var last_asset_offset_top = (asset_rows - 1) * asset_height;
+
+		var viewport_height = $(window).height();
+		var viewport_scroll_top = $(window).scrollTop();
+		var viewport_bottom = viewport_scroll_top + viewport_height;
+
+		return last_asset_offset_top > viewport_bottom;
+	}
+
 	// On document ready
 	$(function() {
-		$assets = $('#assets');
+		$assets_container = $('#assets');
 		// Perform a search.
 		fetch_search_result( CATALOG_ALIAS, "a", function( result ) {
 			// Save the result for later.
-			$assets.data('search-result', result);
-			// Search result is in.
-			load_more_assets( result, $assets, function( $assets ) {
-				return $assets.length >= 6 * 30;
-			} );
+			$assets_container.data('search-result', result);
+			$(window).on('resize scroll', {$assets_container: $assets_container}, function( e ) {
+				var $assets_container = e.data.$assets_container;
+				var result = $assets_container.data('search-result');
+				// Search result is in.
+				load_more_assets( result, $assets_container, assets_are_outside_viewport);
+			}).trigger('scroll');
 		} );
 	});
 

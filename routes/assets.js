@@ -62,6 +62,8 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, true, function(asset) {
 		var asset_title = asset.fields[TITLE_FIELD];
+		var image_size = cropping.algorithm.DEFAULT_PARAMETERS.image_size;
+		//var asset_image_url = asset.get_image_url({ maxsize: image_size });
 		var asset_image_url = asset.get_thumbnail_url();
 		var asset_algoritm_states_url = "/asset/" + catalog_alias + "/"
 			+ id + "/suggestion-states";
@@ -113,6 +115,7 @@ router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', fu
 				var download_filename = generate_cropped_filename(catalog_alias, id);
 				res.attachment(download_filename);
 			}
+			// TODO: Consider saving this in a memory-cache.
 			http.get(asset.thumbnail_url, function(thumbnail_res) {
 				delete thumbnail_res.headers['content-disposition'];
 				res.writeHead(thumbnail_res.statusCode, thumbnail_res.headers);
