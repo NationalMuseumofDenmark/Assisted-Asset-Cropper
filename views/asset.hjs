@@ -21,8 +21,8 @@
 		<div class="container">
 			<button id="logout-btn" class="btn"><span class="glyphicon glyphicon-off">
 			</span> Log ud</button>
-			<button id="back" class="btn"><span class="glyphicon glyphicon-arrow-left">
-			</span> Tilbage</button>
+			<button id="overview-btn" class="btn"><span class="glyphicon glyphicon-th">
+			</span> Til oversigten</button>
 			<h1>{{ asset_title }}</h1>
 			<h2>Asset #{{ asset_id }} i {{ catalog_alias }}</h2>
 			<div id="cropping-status">Status: <span>{{ cropping_status_text }}</span></div>

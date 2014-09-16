@@ -6391,7 +6391,7 @@ body#asset-template h2 {
   float: left;
   clear: left;
 }
-body#asset-template #back {
+body#asset-template #overview-btn {
   float: right;
 }
 body#asset-template #cropping-status {

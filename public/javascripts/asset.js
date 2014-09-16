@@ -269,8 +269,8 @@
 	// On document ready
 	$(function() {
 
-		$("#back").click(function() {
-			window.history.back();
+		$("#overview-btn").click(function() {
+			location.href="/overview";
 		});
 
 		// If the delete key is pressed while a suggestion is selected,
