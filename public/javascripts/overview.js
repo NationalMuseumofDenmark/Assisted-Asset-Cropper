@@ -183,6 +183,9 @@
 						$asset_metadata.text(cropping_status.displaystring);
 					}
 
+					$asset.data('asset', asset);
+					$asset.data('catalog_alias', result.catalog.alias);
+
 					$asset_image = $("<img>").
 						appendTo($asset).
 						attr('src', asset.get_thumbnail_url( {
@@ -203,9 +206,6 @@
 								$(this).trigger('load');
 							}
 						});
-
-					$asset.data('asset', asset);
-					$asset.data('catalog_alias', result.catalog.alias);
 
 					$asset.click(function( e ) {
 						var $asset = $( e.target ).closest('.asset');

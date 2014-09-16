@@ -2,7 +2,7 @@ var NatMusConfig = {
 	endpoint: "http://cumulus.natmus.dk/CIP/",
 	constants: {
 			catch_all_alias: "any",
-			layout_alias: "web"
+			layout_alias: "web" // TODO: Change to registrering?
 	},
 	catalog_aliases: {
 		"Alle": "ALL",

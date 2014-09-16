@@ -274,6 +274,7 @@ var identity_mapping = function(original_value, fields) {
 };
 CROPPING_FIELD_MAPPINGS[TITLE_FIELD] = identity_mapping;
 CROPPING_FIELD_MAPPINGS[DESCRIPTION_FIELD] = function(original_value, fields) {
+	// TODO: Fix if asset_title
 	var asset_title = fields[TITLE_FIELD];
 	return "Friskæring af " + asset_title + ".\n" + original_value;
 };
@@ -285,6 +286,9 @@ CROPPING_FIELD_MAPPINGS[ORIGINAL_FIELD] = function(original_value, fields) {
 	}
 };
 CROPPING_FIELD_MAPPINGS[CROPPING_STATUS_FIELD] = 3; // Er en friskæring
+// TODO: Use identity_mapping by default.
+// TODO: Make sure the filename is mirrored.
+// TODO: Set "billedebehandlet" til true.
 
 function perform_field_mapping(mappings, fields) {
 	var result = {};
