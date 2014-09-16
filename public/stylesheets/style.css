@@ -6507,11 +6507,17 @@ body#asset-template #suggestions .suggestion {
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
-body#asset-template #suggestions .suggestion img {
-  padding: 2px;
-  margin: 4px;
+body#asset-template #suggestions .suggestion .thumbnail {
+  position: relative;
+  display: inline-block;
   border: 1px solid #C0C0C0;
   background-color: #D0D0D0;
+  vertical-align: middle;
+  overflow: hidden;
+}
+body#asset-template #suggestions .suggestion .thumbnail img {
+  position: absolute;
+  max-width: initial;
 }
 body#asset-template #suggestions .suggestion .controls {
   line-height: initial;

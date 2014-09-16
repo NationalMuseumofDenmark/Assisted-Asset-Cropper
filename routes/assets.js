@@ -20,6 +20,8 @@ var TITLE_FIELD = "{6fb1f61b-14a3-4851-bba0-cf7e71ef59cb}";
 var DESCRIPTION_FIELD = "{2ce9c8eb-b83d-4a91-9d09-2141cac7de12}";
 var ORIGINAL_FIELD = "{aed8e1c4-7b24-41dc-a13d-f1e3bf3276b2}";
 var CROPPING_STATUS_FIELD = "{bf7a30ac-e53b-4147-95e0-aea8c71340ca}";
+var FILENAME_FIELD = "{af4b2e00-5f6a-11d2-8f20-0000c0e166dc}";
+var CATEGORIES_FIELD = "{af4b2e0c-5f6a-11d2-8f20-0000c0e166dc}";
 
 function generate_cropped_filename(catalog_alias, asset_id) {
 	return catalog_alias + "-" + asset_id + "-cropped";
@@ -171,17 +173,6 @@ function deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions) {
 			size,
 			"stream"
 		].join("/");
-
-		/*
-		var url = '/asset/';
-		url += catalog_alias + '/';
-		url += id + '/crop/';
-		url += suggestions[s].left + ':';
-		url += suggestions[s].top + ':';
-		url += suggestions[s].width + ':';
-		url += suggestions[s].height;
-		url += '/'+size+'/stream';
-		*/
 		suggestions[s].thumbnail_url = url;
 	}
 	return suggestions;
@@ -275,12 +266,7 @@ var CROPPING_FIELD_MAPPINGS = {};
 var identity_mapping = function(original_value, fields) {
 	return original_value;
 };
-CROPPING_FIELD_MAPPINGS[TITLE_FIELD] = identity_mapping;
-CROPPING_FIELD_MAPPINGS[DESCRIPTION_FIELD] = function(original_value, fields) {
-	// TODO: Fix if asset_title
-	var asset_title = fields[TITLE_FIELD];
-	return "Friskæring af " + asset_title + ".\n" + original_value;
-};
+CROPPING_FIELD_MAPPINGS[DESCRIPTION_FIELD] = identity_mapping;
 CROPPING_FIELD_MAPPINGS[ORIGINAL_FIELD] = function(original_value, fields) {
 	if(original_value) {
 		return original_value.id;
@@ -288,13 +274,48 @@ CROPPING_FIELD_MAPPINGS[ORIGINAL_FIELD] = function(original_value, fields) {
 		return null;
 	}
 };
+/*
+CROPPING_FIELD_MAPPINGS[CATEGORIES_FIELD] = function(original_value, fields) {
+	result = [];
+	for(c in original_value) {
+		var category = original_value[c];
+		result.push(category.id);
+	}
+	return result;
+};
+*/
 CROPPING_FIELD_MAPPINGS[CROPPING_STATUS_FIELD] = 3; // Er en friskæring
 // TODO: Use identity_mapping by default.
 // TODO: Make sure the filename is mirrored.
 // TODO: Set "billedebehandlet" til true.
+/*
+CROPPING_FIELD_MAPPINGS['{af4b2e0d-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e14-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e12-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e11-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e05-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e06-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e01-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['{af4b2e02-5f6a-11d2-8f20-0000c0e166dc}'] = null;
+CROPPING_FIELD_MAPPINGS['id'] = null;
+
+*/
 
 function perform_field_mapping(mappings, fields) {
 	var result = {};
+	/*
+	for(var f in fields) {
+		var original_value = fields[f];
+		if(original_value !== null && typeof(original_value) === 'object' && 'id' in original_value) {
+			// Take the id field of an oject with an id.
+			result[f] = original_value.id;
+		} else if(original_value !== null && typeof(original_value) === 'string') {
+			result[f] = original_value;
+		} else if(original_value !== null && typeof(original_value) === 'number') {
+			result[f] = original_value;
+		}
+	}
+	*/
 	for(var field_key in mappings) {
 		var mapping = mappings[field_key];
 		if(typeof(mapping) === 'function') {
@@ -318,6 +339,7 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 	crop.height = parseFloat(crop.height);
 
 	var cropping_fields = perform_field_mapping(CROPPING_FIELD_MAPPINGS, asset.fields);
+	console.log(cropping_fields);
 	var cropping_details = cropping.generate_cropping_details(asset, crop.left, crop.top, crop.width, crop.height);
 	var cropping_url = cropping_details.thumbnail_url;
 

@@ -39,7 +39,7 @@
 					</div>
 				</div>
 				<div class="col-md-3">
-					<h4 id="master-title">Skåret ud af</h4>
+					<h4 id="master-title">Skåret fri af</h4>
 					<div id="master" class="sidebar-box">
 						<a href="{{ master_href }}"><img src="{{ master_image }}"></a>
 					</div>

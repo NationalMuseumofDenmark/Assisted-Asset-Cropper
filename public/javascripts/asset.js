@@ -1,23 +1,65 @@
 (function($) {
 
-	var SUGGESTION_THUMBNAIL_SIZE = 90;
+	var SUGGESTION_THUMBNAIL_SIZE = 100;
 
 	var $canvas;
 
 	function update_suggestion_thumbnail($suggestion) {
 		// TODO: Consider simply cropping this out of the full asset thumbnail.
 		// as this is a lot less stressful for the CIP when editing.
+		var $asset = $("#asset");
 		var suggestion = $suggestion.data("suggestion");
-		var thumbnail_src = "/asset/" +
-			CATALOG_ALIAS + "/" +
-			ASSET_ID + "/crop/" +
-			suggestion.left + ":" +
-			suggestion.top + ":" +
-			suggestion.width + ":" +
-			suggestion.height + "/" + SUGGESTION_THUMBNAIL_SIZE + "/stream";
-		$suggestion.
-			find("img").
-			attr("src", thumbnail_src);
+		var $thumbnail = $suggestion.find(".thumbnail");
+		var $thumbnail_image = $thumbnail.find("img");
+
+		var suggestion_width_px = suggestion.width * $asset.width();
+		var suggestion_height_px = suggestion.height * $asset.height();
+		var aspect_ratio = suggestion_width_px / suggestion_height_px;
+
+		var zoom_factor;
+		if(aspect_ratio > 1.0) {
+			zoom_factor = suggestion_width_px / SUGGESTION_THUMBNAIL_SIZE;
+		} else {
+			zoom_factor = suggestion_height_px / SUGGESTION_THUMBNAIL_SIZE;
+		}
+
+		var thumbnail_width;
+		var thumbnail_height;
+		if(aspect_ratio > 1.0) {
+			thumbnail_width = SUGGESTION_THUMBNAIL_SIZE;
+			thumbnail_height = thumbnail_width / aspect_ratio;
+		} else {
+			thumbnail_height = SUGGESTION_THUMBNAIL_SIZE;
+			thumbnail_width = thumbnail_height * aspect_ratio;
+		}
+		var thumbnail_margin = Math.abs(thumbnail_width - thumbnail_height) / 2.0;
+		var thumbnail_margin_vertical = 0;
+		var thumbnail_margin_horizontal = 0;
+		if(aspect_ratio > 1.0) {
+			thumbnail_margin_vertical = thumbnail_margin;
+		} else {
+			thumbnail_margin_horizontal = thumbnail_margin;
+		}
+
+		var thumbnail_src = $asset.attr('src');
+
+		$thumbnail
+			.css({
+				'width': thumbnail_width,
+				'height': thumbnail_height,
+				'margin-top': thumbnail_margin_vertical,
+				'margin-bottom': thumbnail_margin_vertical,
+				'margin-left': thumbnail_margin_horizontal,
+				'margin-right': thumbnail_margin_horizontal
+			})
+			.find("img")
+			.css({
+				'width': $asset.width() / zoom_factor,
+				'height': $asset.height() / zoom_factor,
+				'top': -(suggestion.top * $asset.height()) / zoom_factor,
+				'left': -(suggestion.left * $asset.width()) / zoom_factor
+			})
+			.attr("src", thumbnail_src);
 	}
 
 	function update_outline_position($outline) {
@@ -76,6 +118,8 @@
 					var $suggestion = $(".suggestion.editing");
 					var $outline = $suggestion.data("$outline");
 					set_suggestion_from_selection($image, $suggestion, selection);
+					update_suggestion_thumbnail($suggestion);
+					update_outline_position($outline);
 				}
 			}
 		});
@@ -86,11 +130,6 @@
 	function leave_edit_suggestion_mode() {
 		// Update the suggestion that we might be currently editing.
 		var $suggestion = $(".suggestion.editing");
-		if($suggestion.length > 0) {
-			var $outline = $suggestion.data("$outline");
-			update_suggestion_thumbnail($suggestion);
-			update_outline_position($outline);
-		}
 
 		$suggestion.removeClass("editing");
 		$canvas.removeClass("editing");
@@ -130,66 +169,60 @@
 			$suggestions.empty();
 		}
 		
-		var $suggestion = $("<div>").
-			addClass("suggestion").
-			data("suggestion", suggestion).
-			html("&nbsp;"); // Prevents the div from expanding when the img loads.
+		var $suggestion = $("<div>")
+			.addClass("suggestion")
+			.data("suggestion", suggestion)
+			.html("&nbsp;"); // Prevents the div from expanding when the img loads.
 
-		var $controls = $("<div>").
-			addClass("controls").
-			appendTo($suggestion);
+		var $controls = $("<div>")
+			.addClass("controls")
+			.appendTo($suggestion);
 
-		var $edit_button = $("<button>").
-			addClass("btn btn-primary btn-xs").
-			html("<span class='glyphicon glyphicon-move'></span> Tilpas").
-			appendTo($controls);
+		var $edit_button = $("<button>")
+			.addClass("btn btn-primary btn-xs")
+			.html("<span class='glyphicon glyphicon-move'></span> Tilpas")
+			.appendTo($controls);
 
-		var $delete_button = $("<button>").
-			addClass("btn btn-primary btn-xs").
-			html("<span class='glyphicon glyphicon-trash'></span> Fjern").
-			appendTo($controls);
+		var $delete_button = $("<button>")
+			.addClass("btn btn-primary btn-xs")
+			.html("<span class='glyphicon glyphicon-trash'></span> Fjern")
+			.appendTo($controls);
 
-		var $download_button = $("<button>").
-			addClass("btn btn-primary btn-xs").
-			html("<span class='glyphicon glyphicon-download'></span> Download").
-			appendTo($controls);
+		var $download_button = $("<button>")
+			.addClass("btn btn-primary btn-xs")
+			.html("<span class='glyphicon glyphicon-download'></span> Download")
+			.appendTo($controls);
 
-		var $arrow = $("<div>").
-			addClass("arrow").
-			html("<span class='glyphicon glyphicon-arrow-right'></span>").
-			appendTo($suggestion);
+		var $arrow = $("<div>")
+			.addClass("arrow")
+			.html("<span class='glyphicon glyphicon-arrow-right'></span>")
+			.appendTo($suggestion);
 
-		var $outline = $("<div>").
-			addClass("outline").
-			data("$suggestion", $suggestion).
-			appendTo($canvas.find(".outlines"));
+		var $outline = $("<div>")
+			.addClass("outline")
+			.data("$suggestion", $suggestion)
+			.appendTo($canvas.find(".outlines"));
 		update_outline_position($outline);
-		$suggestion.
-			data("$outline", $outline);
+		$suggestion
+			.data("$outline", $outline);
 
-		var $image = $("<img>").
-			load(function() {
-				$(this).fadeIn();
-			}).
-			each(function(){
-				// Trigger load event if already loaded.
-				if(this.complete) {
-					$(this).trigger('load');
-				}
-			}).
-			appendTo($suggestion).
-			hide();
+		var $thumbnail = $("<div>")
+			.addClass("thumbnail")
+			.appendTo($suggestion);
+		var $thumbnail_image = $("<img>");
+		$thumbnail.append("<img>");
+
 		update_suggestion_thumbnail($suggestion);
 
 		// Bring in the dynamics!
 		var $both = $suggestion.add($outline);
-		$both.
-			mouseenter({
+		$both
+			.mouseenter({
 				$both: $both,
 			}, function( e ) {
 				e.data.$both.addClass("hover");
-			}).
-			mouseleave({
+			})
+			.mouseleave({
 				$both: $suggestion.add($outline),
 			}, function( e ) {
 				e.data.$both.removeClass("hover");
@@ -266,8 +299,8 @@
 		return result;
 	}
 
-	// On document ready
-	$(function() {
+	// On window load - with every image.
+	$(window).load(function() {
 
 		$("#overview-btn").click(function() {
 			location.href="/overview";
@@ -331,34 +364,24 @@
 			$("#fetch-suggestions").trigger('click');
 		}
 
-		$("#asset, #asset-algorithm-states img").
-			load(function() {
-				var state_count = calculate_algorithm_state_count();
-				if(state_count > 0) {
-					// Remove anything that is already there.
-					$("#state-controls").empty();
-					// Iterate through the states.
-					for(s = 0; s < state_count; s++) {
-						var $link = $("<a>")
-							.text(s + 1)
-							.on('mouseenter', {state: s}, function(e) {
-								var s = e.data.state;
-								show_algorithm_state(s);
-							})
-							.on('mouseleave', function(e) {
-								hide_algorithm_state();
-							});
-						$("<li>")
-							.append($link)
-							.appendTo("#state-controls");
-					}
-				}
-			}).
-			each(function(){
-				// Trigger load event if already loaded.
-				if(this.complete) {
-					$(this).trigger('load');
-				}
-			}); // Make sure it triggers even if the image was loaded too fast.
+		var state_count = calculate_algorithm_state_count();
+		// Remove anything that is already there.
+
+		$("#state-controls").empty();
+		// Iterate through the states.
+		for(s = 0; s < state_count; s++) {
+			var $link = $("<a>")
+				.text(s + 1)
+				.on('mouseenter', {state: s}, function(e) {
+					var s = e.data.state;
+					show_algorithm_state(s);
+				})
+				.on('mouseleave', function(e) {
+					hide_algorithm_state();
+				});
+			$("<li>")
+				.append($link)
+				.appendTo("#state-controls");
+		}
 	});
 })(jQuery);
