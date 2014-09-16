@@ -122,6 +122,46 @@ body#asset-template {
 		float: right;
 	}
 
+	#cropping-status {
+		float: right;
+		clear: right;
+		span {
+			display: inline-block;
+			padding: 5px;
+		}
+	}
+
+	&.cropping-status-1 {
+		#croppings-title, #croppings {
+			display: none;
+		}
+		#cropping-status span {
+			color: @btn-info-color;
+			background: @btn-info-bg;
+			border: 1px solid @btn-info-border;
+		}
+	}
+
+	&.cropping-status-2, &.cropping-status-3 {
+		#cropping-status span {
+			color: @btn-success-color;
+			background: @btn-success-bg;
+			border: 1px solid @btn-success-border;
+		}
+	}
+
+	&.cropping-status-1, &.cropping-status-2 {
+		#master, #master-title {
+			display: none;
+		}
+	}
+
+	&.cropping-status-3 {
+		#croppings, #croppings-title, #state-controls-title, #state-controls, #suggestions-title, #suggestions, #cropping-controls {
+			display: none;
+		}
+	}
+
 	hr {
 		clear: both;
 	}
@@ -260,7 +300,7 @@ body#asset-template {
 		}
 	}
 
-	#state-control a {
+	#state-controls a {
 		cursor: pointer;
 	}
 }

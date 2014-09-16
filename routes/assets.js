@@ -66,6 +66,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 		var asset_algoritm_states_url = "/asset/" + catalog_alias + "/"
 			+ id + "/suggestion-states";
 		var cropping_status = asset.fields[CROPPING_STATUS_FIELD].id;
+		var cropping_status_text = asset.fields[CROPPING_STATUS_FIELD].displaystring;
 
 		var render_options = {
 			jsessionid: client.jsessionid,
@@ -75,6 +76,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 			asset_image_url: asset_image_url,
 			asset_algoritm_states_url: asset_algoritm_states_url,
 			cropping_status: cropping_status ? cropping_status : 0,
+			cropping_status_text: cropping_status_text ? cropping_status_text : "",
 		};
 
 		append_master(client, asset, catalog_alias, render_options, function(render_options) {

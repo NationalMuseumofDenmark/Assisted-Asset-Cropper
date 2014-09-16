@@ -25,6 +25,7 @@
 			</span> Tilbage</button>
 			<h1>{{ asset_title }}</h1>
 			<h2>Asset #{{ asset_id }} i {{ catalog_alias }}</h2>
+			<div id="cropping-status">Status: <span>{{ cropping_status_text }}</span></div>
 			<hr>
 			<div class="row controls">
 				<div class="col-md-9">
@@ -42,11 +43,11 @@
 					<div id="master" class="sidebar-box">
 						<a href="{{ master_href }}"><img src="{{ master_image }}"></a>
 					</div>
-					<h4 id="state-control-title">Billedebehandslings tilstande</h4>
-					<ul class="pagination sidebar-box" id="state-control">
+					<h4 id="state-controls-title">Billedebehandslings tilstande</h4>
+					<ul class="pagination sidebar-box" id="state-controls">
 					</ul>
 					<h4 id="suggestions-title">Friskærings forslag</h4>
-					<div class="text-center">
+					<div class="text-center" id="cropping-controls">
 						<p>
 							<button id="add-suggestion-button" class="btn btn-success">Ny</button> 
 							<button id="save-croppings-button" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span> Gem friskæringer</button>

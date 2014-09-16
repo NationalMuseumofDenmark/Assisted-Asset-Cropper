@@ -336,7 +336,7 @@
 				var state_count = calculate_algorithm_state_count();
 				if(state_count > 0) {
 					// Remove anything that is already there.
-					$("#state-control").empty();
+					$("#state-controls").empty();
 					// Iterate through the states.
 					for(s = 0; s < state_count; s++) {
 						var $link = $("<a>")
@@ -350,7 +350,7 @@
 							});
 						$("<li>")
 							.append($link)
-							.appendTo("#state-control");
+							.appendTo("#state-controls");
 					}
 				}
 			}).
