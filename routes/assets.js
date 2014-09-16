@@ -59,7 +59,7 @@ function append_croppings(client, asset, catalog_alias, render_options, callback
 router.get('/:catalog_alias/:id', function(req, res, next) {
 	var catalog_alias = req.param('catalog_alias');
 	var id = parseFloat(req.param('id'));
-	client = cip.client(req);
+	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, true, function(asset) {
 		var asset_title = asset.fields[TITLE_FIELD];
 		var asset_image_url = asset.get_thumbnail_url();
@@ -104,7 +104,8 @@ router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', fu
 		size = parseInt(size);
 	}
 	var type = req.param('type');
-	cropping.thumbnail(catalog_alias, id, left, top, width, height, size, function(asset) {
+	client = cip.client(req, next);
+	cropping.thumbnail(client, catalog_alias, id, left, top, width, height, size, function(asset) {
 		if(type === 'stream' || type === 'download') {
 			if(type === 'download') {
 				var download_filename = generate_cropped_filename(catalog_alias, id);
@@ -136,7 +137,8 @@ router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, nex
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
-	cropping.thumbnail(catalog_alias, id, 0.0, 0.0, 1.0, 1.0, size, function(asset) {
+	client = cip.client(req, next);
+	cropping.thumbnail(client, catalog_alias, id, 0.0, 0.0, 1.0, 1.0, size, function(asset) {
 		http.get(asset.thumbnail_url, function(thumbnail_res) {
 			res.writeHead(thumbnail_res.statusCode, thumbnail_res.headers);
 			thumbnail_res.on('data', function(chunk) {
@@ -190,7 +192,7 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
-	client = cip.client(req);
+	client = cip.client(req, next);
 	cropping.suggest(client, catalog_alias, id, function(suggestions) {
 		suggestions = deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions);
 		res.send(suggestions);
@@ -212,7 +214,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
 	var state_images = [];
-	client = cip.client(req);
+	client = cip.client(req, next);
 	cropping.suggest(client, catalog_alias, id, function(suggestions) {
 		var result;
 		for(s in state_images) {
@@ -242,7 +244,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 });
 
 // Get the croppings 
-router.get('/:catalog_alias/:id/croppings/:size?', function(req, res) {
+router.get('/:catalog_alias/:id/croppings/:size?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
 	var id = parseInt(req.param('id'));
@@ -253,7 +255,7 @@ router.get('/:catalog_alias/:id/croppings/:size?', function(req, res) {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
 
-	client = cip.client(req);
+	client = cip.client(req, next);
 	client.ciprequest(
 		"metadata/getrelatedassets/" +
 		catalog_alias + "/" +
@@ -429,7 +431,7 @@ router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 
 	var croppings = req.body.croppings;
 
-	client = cip.client(req);
+	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, true, function(original_asset) {
 		// Import the new croppings into the new ones
 		for(var c in croppings) {
@@ -467,7 +469,7 @@ router.post('/:catalog_alias/:id/croppings/delete', function(req, res, next) {
 
 	var croppings = req.body.croppings;
 
-	client = cip.client(req);
+	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, false, function(original_asset) {
 		// Delete existing croppings.
 		delete_existing_croppings(client, catalog_alias, original_asset, function(deleted_assets) {
