@@ -78,8 +78,8 @@
 			x1: suggestion.left,
 			y1: suggestion.top,
 			x2: suggestion.left + suggestion.width,
-			y2: suggestion.top + suggestion.height,
-		}
+			y2: suggestion.top + suggestion.height
+		};
 		options.x1 *= $image.width();
 		options.y1 *= $image.height();
 		options.x2 *= $image.width();
@@ -303,7 +303,7 @@
 	$(window).load(function() {
 
 		$("#overview-btn").click(function() {
-			location.href="/overview";
+			location.href = "/overview";
 		});
 
 		// If the delete key is pressed while a suggestion is selected,
