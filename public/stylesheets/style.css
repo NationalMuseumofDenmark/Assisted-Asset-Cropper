@@ -6322,7 +6322,6 @@ body#overview-template #assets .asset {
   padding-top: 15px;
   padding-bottom: 15px;
   position: relative;
-  opacity: 0.5;
 }
 body#overview-template #assets .asset .loading-spinner {
   position: absolute;
@@ -6381,9 +6380,6 @@ body#overview-template #assets .asset img {
   background-color: #F0F0F0;
   box-shadow: 0px 5px 10px #D0D0D0;
   min-height: 50px;
-}
-body#overview-template #assets .asset.needs-cropping {
-  opacity: initial;
 }
 /* asset.hjs */
 body#asset-template h1,
