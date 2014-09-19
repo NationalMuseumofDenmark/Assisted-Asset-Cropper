@@ -112,7 +112,7 @@
 			appendTo($asset);
 		var asset = $asset.data('asset');
 		var catalog_alias = $asset.data('catalog_alias');
-		var suggestions_url = location.origin + "/asset/" +
+		var suggestions_url = "/asset/" +
 			catalog_alias + "/" +
 			asset.fields.id + "/suggestions/" +
 			200;

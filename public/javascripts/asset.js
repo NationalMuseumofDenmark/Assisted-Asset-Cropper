@@ -9,8 +9,7 @@
 		// as this is a lot less stressful for the CIP when editing.
 		var $asset = $("#asset");
 		var suggestion = $suggestion.data("suggestion");
-		var $thumbnail = $suggestion.find(".thumbnail");
-		var $thumbnail_image = $thumbnail.find("img");
+		var $image = $suggestion.find(".image");
 
 		var suggestion_width_px = suggestion.width * $asset.width();
 		var suggestion_height_px = suggestion.height * $asset.height();
@@ -43,7 +42,7 @@
 
 		var thumbnail_src = $asset.attr('src');
 
-		$thumbnail
+		$image
 			.css({
 				'width': thumbnail_width,
 				'height': thumbnail_height,
@@ -206,11 +205,11 @@
 		$suggestion
 			.data("$outline", $outline);
 
-		var $thumbnail = $("<div>")
-			.addClass("thumbnail")
+		var $image = $("<div>")
+			.addClass("image")
 			.appendTo($suggestion);
 		var $thumbnail_image = $("<img>");
-		$thumbnail.append("<img>");
+		$image.append("<img>");
 
 		update_suggestion_thumbnail($suggestion);
 
@@ -293,9 +292,9 @@
 		var $asset = $("#asset");
 		var asset_height = $asset.get(0).naturalHeight;
 		var $algorithm_state_image = $("#asset-algorithm-states img");
-		var algorithm_state_image_height = $algorithm_state_image.get(0).height;
+		var algorithm_state_image_height = $algorithm_state_image.get(0).naturalHeight;
 		var result = Math.ceil(algorithm_state_image_height / asset_height);
-		console.log(asset_height, algorithm_state_image_height, result);
+		// console.log(asset_height, algorithm_state_image_height, result);
 		return result;
 	}
 
@@ -366,6 +365,7 @@
 
 		var state_count = calculate_algorithm_state_count();
 		// Remove anything that is already there.
+		console.log("state_count:", state_count);
 
 		$("#state-controls").empty();
 		// Iterate through the states.

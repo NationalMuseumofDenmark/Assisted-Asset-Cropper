@@ -6507,7 +6507,7 @@ body#asset-template #suggestions .suggestion {
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
-body#asset-template #suggestions .suggestion .thumbnail {
+body#asset-template #suggestions .suggestion .image {
   position: relative;
   display: inline-block;
   border: 1px solid #C0C0C0;
@@ -6515,9 +6515,8 @@ body#asset-template #suggestions .suggestion .thumbnail {
   vertical-align: middle;
   overflow: hidden;
 }
-body#asset-template #suggestions .suggestion .thumbnail img {
+body#asset-template #suggestions .suggestion .image img {
   position: absolute;
-  max-width: initial;
 }
 body#asset-template #suggestions .suggestion .controls {
   line-height: initial;
