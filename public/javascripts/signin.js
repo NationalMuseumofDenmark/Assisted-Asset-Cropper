@@ -1,6 +1,6 @@
 (function($) {
 
-	function signin(username, password, remember, success_callback, error_callback) {
+	function signin(username, password, success_callback, error_callback) {
 		// Is storage enabled at all?
 		if(typeof(Storage) === "undefined") {
 			alert("Sorry your browser doesn't support local storage.");
@@ -68,10 +68,8 @@
 		$("form.form-signin").submit(function(e) {
 			e.preventDefault();
 			var values = $(e.target).serializeObject();
-			values.remember = "remember" in values && values.remember === "yes";
 
-			signin(values.username, values.password, values.remember, function() {
-				successfully_authenticated();
+			signin(values.username, values.password, function() {successfully_authenticated();
 			}, function( response ) {
 				console.log(response);
 				alert("Couldn't sign in - please check your credentials.");

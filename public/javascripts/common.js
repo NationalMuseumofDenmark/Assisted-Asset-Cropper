@@ -1,5 +1,6 @@
 var NatMusConfig = {
-	endpoint: "http://cumulus.natmus.dk/CIP/",
+	// endpoint: "http://cumulus.natmus.dk/CIP/",
+	endpoint: location.origin + "/CIP/",
 	constants: {
 			catch_all_alias: "any",
 			layout_alias: "web" // TODO: Change to registrering?

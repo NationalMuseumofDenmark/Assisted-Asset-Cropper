@@ -4,18 +4,22 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var request = require('request');
 
 // var index = require('./routes/index');
 var features = require('./routes/features');
 var overview = require('./routes/overview');
 var assets = require('./routes/assets');
 var signin = require('./routes/signin');
+var cip_proxy = require('./routes/cip_proxy');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hjs');
+
+app.use('/CIP', cip_proxy);
 
 //app.use(favicon());
 app.use(bodyParser.json());

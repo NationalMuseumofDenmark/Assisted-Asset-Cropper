@@ -32,7 +32,7 @@ function append_master(client, asset, catalog_alias, render_options, callback) {
 		if(related.ids.length > 0) {
 			var master_asset_id = related.ids[0];
 			client.get_asset(catalog_alias, master_asset_id, false, function(master_asset) {
-				render_options.master_image = master_asset.get_thumbnail_url();
+				render_options.master_image = cip.wrap_proxy(master_asset.get_thumbnail_url());
 				render_options.master_href = "/asset/"+catalog_alias+"/"+master_asset_id
 				callback(render_options);
 			});
@@ -49,7 +49,7 @@ function append_croppings(client, asset, catalog_alias, render_options, callback
 			var cropping_asset_id = related.ids[i];
 			client.get_asset(catalog_alias, cropping_asset_id, false, function(cropping_asset) {
 				render_options.croppings.push({
-					image: cropping_asset.get_thumbnail_url(),
+					image: cip.wrap_proxy(cropping_asset.get_thumbnail_url()),
 					href: "/asset/"+catalog_alias+"/"+cropping_asset_id
 				});
 			});
@@ -66,7 +66,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 		var asset_title = asset.fields[TITLE_FIELD];
 		var image_size = cropping.algorithm.DEFAULT_PARAMETERS.image_size;
 		//var asset_image_url = asset.get_image_url({ maxsize: image_size });
-		var asset_image_url = asset.get_thumbnail_url();
+		var asset_image_url = cip.wrap_proxy(asset.get_thumbnail_url());
 		var asset_algoritm_states_url = "/asset/" + catalog_alias + "/"
 			+ id + "/suggestion-states";
 		var cropping_status = asset.fields[CROPPING_STATUS_FIELD].id;
@@ -274,48 +274,11 @@ CROPPING_FIELD_MAPPINGS[ORIGINAL_FIELD] = function(original_value, fields) {
 		return null;
 	}
 };
-/*
-CROPPING_FIELD_MAPPINGS[CATEGORIES_FIELD] = function(original_value, fields) {
-	result = [];
-	for(c in original_value) {
-		var category = original_value[c];
-		result.push(category.id);
-	}
-	return result;
-};
-*/
-CROPPING_FIELD_MAPPINGS[CROPPING_STATUS_FIELD] = 3; // Er en friskæring
-// TODO: Use identity_mapping by default.
-// TODO: Make sure the filename is mirrored.
-// TODO: Set "billedebehandlet" til true.
-/*
-CROPPING_FIELD_MAPPINGS['{af4b2e0d-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e14-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e12-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e11-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e05-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e06-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e01-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['{af4b2e02-5f6a-11d2-8f20-0000c0e166dc}'] = null;
-CROPPING_FIELD_MAPPINGS['id'] = null;
 
-*/
+CROPPING_FIELD_MAPPINGS[CROPPING_STATUS_FIELD] = 3; // Er en friskæring
 
 function perform_field_mapping(mappings, fields) {
 	var result = {};
-	/*
-	for(var f in fields) {
-		var original_value = fields[f];
-		if(original_value !== null && typeof(original_value) === 'object' && 'id' in original_value) {
-			// Take the id field of an oject with an id.
-			result[f] = original_value.id;
-		} else if(original_value !== null && typeof(original_value) === 'string') {
-			result[f] = original_value;
-		} else if(original_value !== null && typeof(original_value) === 'number') {
-			result[f] = original_value;
-		}
-	}
-	*/
 	for(var field_key in mappings) {
 		var mapping = mappings[field_key];
 		if(typeof(mapping) === 'function') {
