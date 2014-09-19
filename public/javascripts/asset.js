@@ -319,7 +319,7 @@
 			}
 		});
 
-		var suggestions_url = location.origin + "/asset/" +
+		var suggestions_url = "/asset/" +
 			CATALOG_ALIAS + "/" +
 			ASSET_ID + "/suggestions/80";
 		$canvas = $(".canvas");
