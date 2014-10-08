@@ -1,7 +1,5 @@
-CAAC
+Assisted Asset Cropper (for a Canto Cumulus CIP asset management system deployment)
 ====
-
-CIP-Assisted-Asset-Cropper
 
 # Installing dependencies (on a Ubuntu server)
 ## Getting node.js compiled and installed - find the newest link on http://nodejs.org/http://nodejs.org/
