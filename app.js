@@ -18,10 +18,8 @@ var app = express();
 // Setup the Handlebars template engine.
 var handlebars_helpers = require('./lib/handlebars-helpers');
 
-handlebars_helpers['__'] = function () {
-	return function (text, render) {
-		return i18n.__.apply(req, arguments);
-	};
+handlebars_helpers['__'] = function (text) {
+	return i18n.__(text);
 };
 
 var exphbs  = require('express-handlebars');
@@ -34,12 +32,17 @@ handlebars_helpers.set_handlebars(hbs);
 // Making the Express app aware of this.
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
+// Save this i18n initialization for the routes to use.
+app.set('i18n', i18n);
+
+console.log(app.get('env'));
 
 // Initialize the i18n library.
 i18n.configure({
 	locales:['en', 'da'],
-	defaultLocale: 'da',
-	directory: __dirname + '/locales'
+	defaultLocale: process.env.LOCALE ? process.env.LOCALE : 'en',
+	directory: __dirname + '/locales',
+	updateFiles: app.get('env') === 'development'
 });
 
 // A proxy to the CIP - this way we concur challenges with
