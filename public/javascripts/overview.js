@@ -26,8 +26,13 @@
 	var ASSETS_PR_REQUEST = 10;
 
 	var ASSET_CLASS = '.asset';
-	var ASSETS_PR_ROW = 6;
-	var ASSET_COL_WIDTH = parseInt(12 / ASSETS_PR_ROW);
+	//var MAX_ASSETS_PR_ROW = 6;
+	var MAXIMAL_ASSET_HEIGHT_PX = 200;
+	var ASSET_MARGIN = (5 + 3 + 1)*2; // Margin, padding and border
+	var ASSET_CONTAINER_PADDING = 10*2;
+	var THUMBNAIL_MAX_SIZE = 500;
+
+	// var ASSET_COL_WIDTH = parseInt(12 / ASSETS_PR_ROW);
 
 	var HORIZONTAL_RESOLUTION_FIELD = "{af4b2e11-5f6a-11d2-8f20-0000c0e166dc}";
 	var VERTICAL_RESOLUTION_FIELD = "{af4b2e12-5f6a-11d2-8f20-0000c0e166dc}";
@@ -94,24 +99,6 @@
 		}
 	}
 
-	function scale_suggestion_to_square(suggestion, aspect_ratio) {
-		if(aspect_ratio > 1.0) {
-			width = aspect_ratio;
-			height = 1.0;
-		} else {
-			width = 1.0;
-			height = 1.0 / aspect_ratio;
-		}
-		suggestion.width *= width;
-		suggestion.height *= height;
-		suggestion.left *= width;
-		suggestion.top *= height;
-		// Subtract one half of what is outside the image.
-		suggestion.left -= (width - 1.0) / 2;
-		suggestion.top -= (height - 1.0) / 2;
-		return suggestion;
-	}
-
 	function load_cropping_suggestions( $asset ) {
 		$spinner = $("<div>").
 			addClass("loading-spinner").
@@ -134,7 +121,7 @@
 				this.$asset.find('.metadata').append($suggestion_count);
 				for(s in suggestions) {
 					var suggestion = suggestions[s];
-					suggestion = scale_suggestion_to_square(suggestion, aspect_ratio);
+					// suggestion = scale_suggestion_to_square(suggestion, aspect_ratio);
 					suggestion.left *= 100;
 					suggestion.top *= 100;
 					suggestion.width *= 100;
@@ -158,6 +145,52 @@
 		});
 	}
 
+	function calculate_accumulated_aspect_ratio($assets_in_row) {
+		var accumulated_aspect_ratio = 0;
+		$assets_in_row.each(function() {
+			var image = $("img", this).get(0);
+			var width = image.naturalWidth;
+			var height = image.naturalHeight;
+			var aspect_ratio = width / height;
+			accumulated_aspect_ratio += aspect_ratio;
+		});
+		return accumulated_aspect_ratio;
+	}
+
+	function calculate_row_height($assets_in_row) {
+		var accumulated_aspect_ratio = calculate_accumulated_aspect_ratio($assets_in_row);
+		// Calculate the inner with of the row's container.
+		var $container = $assets_in_row.parent();
+		var container_width = $container.innerWidth();
+		// Subtract the inner padding of the container.
+		container_width -= ASSET_CONTAINER_PADDING;
+		// Return the height that the row will have to be able to fit.
+		return container_width / accumulated_aspect_ratio;
+	}
+
+	function update_asset_size($container) {
+		var $current_row_assets = $();
+		$container.find(".asset:not(.resized)").each(function() {
+			var $asset = $(this);
+			// Add this asset to the selection.
+			$current_row_assets = $current_row_assets.add($asset);
+			var current_row_height = calculate_row_height($current_row_assets);
+			if(current_row_height+ASSET_MARGIN < MAXIMAL_ASSET_HEIGHT_PX) {
+				$current_row_assets.each(function() {
+					var image = $("img", this).get(0);
+					var scale = current_row_height / image.naturalHeight;
+					$(this).css({
+						width: image.naturalWidth * scale,
+						height: image.naturalHeight * scale
+					}).addClass('resized');
+				}).fadeIn();
+
+				// Reset.
+				$current_row_assets = $();
+			}
+		});
+	}
+
 	function load_more_assets( result, $result_container, is_this_enough_callback ) {
 		// The list of current assets.
 		$assets = $result_container.find(ASSET_CLASS);
@@ -166,41 +199,33 @@
 			// One more, please
 			get_next_asset( result, function(asset) {
 				if(asset !== null) {
-					$asset = $("<a>").
-						attr('href', '/asset/' + result.catalog.alias + "/" + asset.fields.id).
-						addClass("asset").
-						addClass("col-md-" + ASSET_COL_WIDTH);
-
-					$asset_suggestions = $("<div>").
-						appendTo($asset).
-						addClass("suggestions");
-
-					$asset_metadata = $("<div>").
-						appendTo($asset).
-						addClass("metadata");
-
 					var cropping_status = asset.fields[CROPPING_STATUS_FIELD];
-					// Based on the value of the cropping status field, add classes.
-					if(cropping_status && cropping_status.id === 1) {
-						$asset.addClass("needs-cropping");
-					}
-					// Based on the value of the cropping status field, add text.
-					if(cropping_status) {
-						$asset_metadata.text(cropping_status.displaystring);
-					}
+
+					var url = ["/asset", result.catalog.alias, asset.fields.id].join("/");
+					var image_url = asset.get_thumbnail_url( { maxsize: THUMBNAIL_MAX_SIZE }, true );
+					// var image_url = asset.get_thumbnail_url();
+					var classes = (cropping_status && cropping_status.id === 1) ? "needs-cropping" : "";
+					var metadata_text = cropping_status ? cropping_status.displaystring : "";
+
+					$asset = $(get_template('overview-asset')({
+						url: url,
+						image_url: image_url,
+						classes: classes,
+						metadata_text: metadata_text
+					}));
+
+					$asset_suggestions = $asset.find(".suggestions");
+					$asset_metadata = $asset.find(".metadata");
 
 					$asset.data('asset', asset);
 					$asset.data('catalog_alias', result.catalog.alias);
 
-					$asset_image = $("<img>").
-						appendTo($asset).
-						attr('src', asset.get_thumbnail_url( {
-							size: 140
-						}, true )).
+					// Hide the asset, until it is resized to fit a row.
+					$asset.hide();
+					$asset.find("img").
 						load( function( e ) {
 							var loaded = $(this).data('loaded');
 							if(!loaded) {
-								// TODO: Make sure we can only run this once.
 								var $asset = $( e.target ).closest('.asset');
 								var asset = $asset.data('asset');
 								var cropping_status = asset.fields[CROPPING_STATUS_FIELD];
@@ -209,6 +234,7 @@
 									load_cropping_suggestions( $asset );
 								}
 								$(this).data('loaded', true);
+								update_asset_size( $asset.parent() );
 							}
 						}).
 						each(function() {
@@ -217,12 +243,6 @@
 								$(this).trigger('load');
 							}
 						});
-
-					$asset.click(function( e ) {
-						var $asset = $( e.target ).closest('.asset');
-						var metadata = $asset.data('asset').fields;
-						// console.log( metadata );
-					});
 
 					$result_container.append( $asset );
 					// Reload the result container.
@@ -238,15 +258,19 @@
 	}
 
 	function assets_are_outside_viewport($assets) {
-		var asset_rows = Math.ceil($assets.length / ASSETS_PR_ROW);
-		var asset_height = $assets.outerHeight();
-		var last_asset_offset_top = (asset_rows - 1) * asset_height;
+		var $last_asset = $assets.filter(".resized:last");
+		if($last_asset.length > 0) {
+			var last_asset_offset = $last_asset.offset();
+			var last_asset_top = last_asset_offset.top;
+			
+			var viewport_height = $(window).height();
+			var viewport_scroll_top = $(window).scrollTop();
+			var viewport_bottom = viewport_scroll_top + viewport_height;
 
-		var viewport_height = $(window).height();
-		var viewport_scroll_top = $(window).scrollTop();
-		var viewport_bottom = viewport_scroll_top + viewport_height;
-
-		return last_asset_offset_top > viewport_bottom;
+			return last_asset_top > viewport_bottom;
+		} else {
+			return false;
+		}
 	}
 
 	function clear_search_result() {
@@ -279,6 +303,12 @@
 					var result = $assets_container.data('search-result');
 					// Search result is in.
 					load_more_assets( result, $assets_container, assets_are_outside_viewport);
+				}).on('resize', {$assets_container: $assets_container}, function(e) {
+					// When resizing - forget all the resizings of all loaded assets,
+					// and recalculate.
+					var $assets_container = e.data.$assets_container;
+					$assets_container.find(".asset").removeClass('resized');
+					update_asset_size($assets_container);
 				}).trigger('scroll');
 			} );
 		}, 1);

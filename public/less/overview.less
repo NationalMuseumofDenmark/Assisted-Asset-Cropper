@@ -78,16 +78,18 @@ body#overview-template {
 	#assets {
 		padding: 10px;
 		.asset {
-			padding-top: 15px;
-			padding-bottom: 15px;
+			display: inline-block;
+			/*padding-top: 10px;*/
+			padding: 5px;
 			position: relative;
+			max-height: 200px;
 
 			.loading-spinner {
 				position: absolute;
-				left: 15px;
-				top: 15px;
-				right: 15px;
-				bottom: 15px;
+				left: 8px;
+				top: 8px;
+				right: 8px;
+				bottom: 8px;
 				opacity: 0.33;
 				background-repeat: no-repeat;
 				background-position: 50% 50%;
@@ -96,9 +98,9 @@ body#overview-template {
 			}
 			.suggestions, .metadata {
 				position: absolute;
-				left: 15px;
-				right: 15px;
-				bottom: 15px;
+				bottom: 8px;
+				left: 8px;
+				right: 8px;
 				text-align: center;
 				overflow: hidden;
 			}
@@ -121,8 +123,8 @@ body#overview-template {
 				}
 			}
 			.suggestions {
-				top: 15px;
-				margin: 4px; /* image padding + border */
+				top: 8px;
+				margin: 4px; /* image padding: ing + border */
 				.suggestion {
 					position: absolute;
 					border: 1px solid @brand-primary;
@@ -132,6 +134,7 @@ body#overview-template {
 			img {
 				display: block;
 				width: 100%;
+				height: 100%;
 				padding: 3px;
 				border: 1px solid #D0D0D0;
 				background-color: #F0F0F0;
