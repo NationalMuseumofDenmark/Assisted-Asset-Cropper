@@ -54,12 +54,18 @@
 		var table = new cip_table.CIPTable(cip, catalog, "AssetRecords");
 
 		var query_string = generate_querystring( search_term );
-		cip.criteriasearch(table, query_string, CROPPING_STATUS_FIELD+":descending"/*[CROPPING_STATUS_FIELD + ":descending"]*/, function(result) {
-			callback( result );
-		});
-		/* cip.search(table, search_term, function(result) {
-			callback( result );
-		}); */
+
+		cip.advancedsearch(
+			table,
+			query_string,
+			search_term,
+			CROPPING_STATUS_FIELD+":descending",
+			callback,
+			function( response ) {
+				console.error("Woups - an error occurred when fetching search result.", response);
+				redirect_if_unauthorized_handler( this );
+			}
+		);
 	}
 
 	function get_next_asset( result, callback ) {
@@ -156,7 +162,7 @@
 		// The list of current assets.
 		$assets = $result_container.find(ASSET_CLASS);
 		// Do we need more?
-		if(is_this_enough_callback( $assets ) === false) {
+		if(is_this_enough_callback( $assets ) === false && $assets.length < result.total_rows) {
 			// One more, please
 			get_next_asset( result, function(asset) {
 				if(asset !== null) {
@@ -243,20 +249,39 @@
 		return last_asset_offset_top > viewport_bottom;
 	}
 
-	// On document ready
-	$(function() {
+	function clear_search_result() {
+		$assets_container.empty();
+		$assets_container.data('search-result', null);
+		asset_buffer = [];
+		$(window).unbind('resize scroll');
+	}
+
+	window.perform_search = function (search_term, catalog_alias) {
 		$assets_container = $('#assets');
-		// Perform a search.
-		fetch_search_result( CATALOG_ALIAS, "a", function( result ) {
-			// Save the result for later.
-			$assets_container.data('search-result', result);
-			$(window).on('resize scroll', {$assets_container: $assets_container}, function( e ) {
-				var $assets_container = e.data.$assets_container;
-				var result = $assets_container.data('search-result');
-				// Search result is in.
-				load_more_assets( result, $assets_container, assets_are_outside_viewport);
-			}).trigger('scroll');
-		} );
-	});
+		// Remove any old results.
+		clear_search_result();
+		// TODO: Empty the search result buffers as well.
+		$("body").addClass("searching");
+		$("body").removeClass("empty-result");
+		// Using a setTimeout to give some rendering power to the browser.
+		setTimeout(function() {
+			// Perform a search.
+			fetch_search_result( catalog_alias, search_term, function( result ) {
+				// TODO: Display the result.total_rows somewhere ..
+				$("body").removeClass("searching");
+				if(result.total_rows == 0) {
+					$("body").addClass("empty-result");
+				}
+				// Save the result for later.
+				$assets_container.data('search-result', result);
+				$(window).on('resize scroll', {$assets_container: $assets_container}, function( e ) {
+					var $assets_container = e.data.$assets_container;
+					var result = $assets_container.data('search-result');
+					// Search result is in.
+					load_more_assets( result, $assets_container, assets_are_outside_viewport);
+				}).trigger('scroll');
+			} );
+		}, 1);
+	}
 
 })(jQuery);
