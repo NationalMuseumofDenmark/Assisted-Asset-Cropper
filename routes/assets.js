@@ -8,6 +8,14 @@ var request = require('request');
 var gm = require('gm');
 var temp = require('temp');
 
+/*
+ * Helping function to determine if the type and value of a variable is a
+ * nummeric integer or not.
+ */
+function isInteger(n) {
+   return typeof(n) == "number" && isFinite(n) && n%1===0;
+}
+
 // TODO: Consider cleaning up the code using var sequence = Futures.sequence();
 // http://stackoverflow.com/questions/6048504/synchronous-request-in-nodejs
 
@@ -22,9 +30,33 @@ var ORIGINAL_FIELD = "{aed8e1c4-7b24-41dc-a13d-f1e3bf3276b2}";
 var CROPPING_STATUS_FIELD = "{bf7a30ac-e53b-4147-95e0-aea8c71340ca}";
 var FILENAME_FIELD = "{af4b2e00-5f6a-11d2-8f20-0000c0e166dc}";
 var CATEGORIES_FIELD = "{af4b2e0c-5f6a-11d2-8f20-0000c0e166dc}";
+var FILENAME_FIELD = "{af4b2e00-5f6a-11d2-8f20-0000c0e166dc}";
+var PUBLISHED_FIELD = "{a493be21-0f70-4cae-9394-703eca848bad}";
+var LICENSE_FIELD = "{f5d1dcd8-c553-4346-8d4d-672c85bb59be}";
+var PHOTOGRAPHER_FIELD = "{9b071045-118c-4f42-afa1-c3121783ac66}";
 
-function generate_cropped_filename(catalog_alias, asset_id) {
-	return catalog_alias + "-" + asset_id + "-cropped";
+function generate_cropped_filename(asset, cropping_index) {
+	assert("fields" in asset && FILENAME_FIELD in asset.fields, "The filename field is sat.");
+	var original_filename = asset.fields[FILENAME_FIELD];
+	var last_dot_index = original_filename.lastIndexOf(".");
+	var new_filename;
+	if(last_dot_index > 0) {
+		new_filename = original_filename.substring(0, last_dot_index);
+	} else {
+		new_filename = original_filename;
+	}
+	new_filename += "_cropped";
+	if(isInteger(cropping_index)) {
+		assert(cropping_index >= 0, "The cropping index must be a non-negative integer.");
+		assert(cropping_index <= 99, "The cropping index must be 99 or below.");
+		new_filename += "_";
+		if(cropping_index <= 9) {
+			new_filename += "0";
+		}
+		new_filename += cropping_index;
+	}
+	new_filename += ".jpg";
+	return new_filename;
 }
 
 function append_master(client, asset, catalog_alias, render_options, callback) {
@@ -64,7 +96,10 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, true, function(asset) {
 		var asset_title = asset.fields[TITLE_FIELD];
+		asset_title = asset_title ? asset_title : "Asset uden titel";
+		
 		var image_size = cropping.algorithm.DEFAULT_PARAMETERS.image_size;
+		var asset_filename = asset.fields[FILENAME_FIELD];
 		//var asset_image_url = asset.get_image_url({ maxsize: image_size });
 		var asset_image_url = cip.wrap_proxy(asset.get_thumbnail_url());
 		var asset_algoritm_states_url = "/asset/" + catalog_alias + "/"
@@ -74,9 +109,11 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 
 		var render_options = {
 			jsessionid: client.jsessionid,
+			title: asset_title + " - Assisted asset cropper",
 			catalog_alias: catalog_alias,
-			asset_title: asset_title ? asset_title : "Asset uden titel",
+			asset_title: asset_title,
 			asset_id: id,
+			asset_filename: asset_filename,
 			asset_image_url: asset_image_url,
 			asset_algoritm_states_url: asset_algoritm_states_url,
 			cropping_status: cropping_status ? cropping_status : 0,
@@ -92,6 +129,11 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 		var err = new Error("No such asset in Cumulus!");
 		err.status = 404;
 		next(err);
+	});
+
+	var table = client.get_table(catalog_alias);
+	table.get_layout(function(layout) {
+		console.log(layout);
 	});
 });
 
@@ -111,14 +153,14 @@ router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', fu
 	}
 	var type = req.param('type');
 	client = cip.client(req, next);
-	cropping.thumbnail(client, catalog_alias, id, left, top, width, height, size, function(asset) {
+	cropping.thumbnail(client, catalog_alias, id, left, top, width, height, size, function(cropping_details, asset) {
 		if(type === 'stream' || type === 'download') {
 			if(type === 'download') {
-				var download_filename = generate_cropped_filename(catalog_alias, id);
+				var download_filename = generate_cropped_filename(asset);
 				res.attachment(download_filename);
 			}
 			// TODO: Consider saving this in a memory-cache.
-			http.get(asset.thumbnail_url, function(thumbnail_res) {
+			http.get(cropping_details.thumbnail_url, function(thumbnail_res) {
 				delete thumbnail_res.headers['content-disposition'];
 				res.writeHead(thumbnail_res.statusCode, thumbnail_res.headers);
 				thumbnail_res.on('data', function(chunk) {
@@ -129,7 +171,7 @@ router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', fu
 			});
 		} else {
 			// Simply return the json.
-			res.send(asset);
+			res.send(cropping_details);
 		}
 	});
 });
@@ -266,8 +308,7 @@ var CROPPING_FIELD_MAPPINGS = {};
 var identity_mapping = function(original_value, fields) {
 	return original_value;
 };
-CROPPING_FIELD_MAPPINGS[DESCRIPTION_FIELD] = identity_mapping;
-CROPPING_FIELD_MAPPINGS[ORIGINAL_FIELD] = function(original_value, fields) {
+var identity_enum_mapping = function(original_value, fields) {
 	if(original_value) {
 		return original_value.id;
 	} else {
@@ -275,6 +316,9 @@ CROPPING_FIELD_MAPPINGS[ORIGINAL_FIELD] = function(original_value, fields) {
 	}
 };
 
+CROPPING_FIELD_MAPPINGS[PUBLISHED_FIELD] = identity_enum_mapping;
+CROPPING_FIELD_MAPPINGS[LICENSE_FIELD] = identity_enum_mapping;
+CROPPING_FIELD_MAPPINGS[PHOTOGRAPHER_FIELD] = identity_mapping;
 CROPPING_FIELD_MAPPINGS[CROPPING_STATUS_FIELD] = 3; // Er en friskæring
 
 function perform_field_mapping(mappings, fields) {
@@ -338,7 +382,7 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 	form.append('fields', JSON.stringify(cropping_fields));
 	//form.append('fields', "{}");
 	form.append('file', cropping_buffer, {
-		filename: generate_cropped_filename(catalog_alias, asset.fields.id) + ".jpg",
+		filename: generate_cropped_filename(asset, crop.index),
 		contentType: 'image/jpeg'
 	});
 }
@@ -403,6 +447,7 @@ function update_originals_cropping_status(client, catalog_alias, original_asset,
 	request.end(body);
 }
 
+/*
 function delete_existing_croppings(client, catalog_alias, asset, success, error) {
 	asset.get_related_assets("isvariantmasterof", function(related) {
 		for(i in related.ids) {
@@ -415,6 +460,7 @@ function delete_existing_croppings(client, catalog_alias, asset, success, error)
 		}
 	});
 }
+*/
 
 // Get the croppings 
 router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
@@ -429,8 +475,11 @@ router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 	client.get_asset(catalog_alias, id, true, function(original_asset) {
 		// Import the new croppings into the new ones
 		for(var c in croppings) {
-			console.log("Importing cropping #", (1+parseInt(c)), "of", croppings.length);
 			var crop = croppings[c];
+			// Save this index in the information about the crop, such that this can
+			// be used in the crop's filename.
+			crop.index = parseInt(c);
+			console.log("Importing cropping #", (1+crop.index), "of", croppings.length);
 			import_asset_cropping(client, catalog_alias, original_asset, crop, function(cropped_asset) {
 				assert(cropped_asset && "id" in cropped_asset, "The cropped asset has to have an id.");
 				console.log("Cropping #", (1+parseInt(c)), "of", croppings.length, "successfully imported with id", cropped_asset.id, "Creating relations.");
@@ -454,7 +503,8 @@ router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 	});
 });
 
-// Get the croppings 
+// Get the croppings
+/*
 router.post('/:catalog_alias/:id/croppings/delete', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
@@ -473,5 +523,6 @@ router.post('/:catalog_alias/:id/croppings/delete', function(req, res, next) {
 		});
 	});
 });
+*/
 
 module.exports = router;
