@@ -1,1 +1,23 @@
-{}
+{
+	"Assisted asset cropper": "Assisted asset cropper",
+	"Logout": "Logout",
+	"Overview": "Overview",
+	"Status": "Status",
+	"Cropped out of": "Cropped out of",
+	"Cropping suggestions": "Cropping suggestions",
+	"New": "New",
+	"Save": "Save",
+	"Fetch suggestions": "Fetch suggestions",
+	"Current croppings": "Current croppings",
+	"Loading catalogs ...": "Loading catalogs ...",
+	"Searching ...": "Searching ...",
+	"No assets found :(": "No assets found :(",
+	"Please try another search term or catalog.": "Please try another search term or catalog.",
+	"Login using your Cumulus credentials": "Login using your Cumulus credentials",
+	"Username": "Username",
+	"Password": "Password",
+	"Login": "Login",
+	"Search string": "Search string",
+	"in the": "in the",
+	"catalog": "catalog"
+}

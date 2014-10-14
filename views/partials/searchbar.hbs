@@ -11,25 +11,32 @@ partials/searchbar
 		<div class="row">
 
 			<div class="navbar-header col-sm-3 col-xs-8 sm-small-text">
-				<a class="navbar-brand" href="/">Assisted asset cropper</a>
+				<a class="navbar-brand" href="/">{{{__ "Assisted asset cropper"}}}</a>
 			</div>
 
 			<div class="col-sm-2 col-xs-4 col-sm-push-7 sm-small-text">
-				<ul class="nav navbar-nav">
+				<ul class="nav navbar-nav navbar-right">
 					<li>
-						<a id="logout-btn" href="#logout"><span class="glyphicon glyphicon-off"></span> Logout</a>
+						<a id="logout-btn" href="#logout"><span class="glyphicon glyphicon-off"></span> {{{__ "Logout"}}}</a>
 					</li>
 				</ul>
 			</div>
 
 			<div class="col-sm-7 col-xs-12 col-sm-pull-2">
 				<div class="search-controls input-group">
-					<input type="text" class="form-control" id="search-term" placeholder="Search string">
+					<input type="text" class="form-control" id="search-term" placeholder="{{{__ "Search string"}}}">
 					
 					<div class="input-group-btn">
 						<button class="btn btn-default" type="button" id="catalog-selector" data-toggle="dropdown">
 							<!-- Any catalog -->
-							Loading catalogs ...
+							<span class="loading">
+								{{{__ "Loading catalogs ..."}}}
+							</span>
+							<span class="text">
+								{{{__ "in the"}}}
+								<span class="catalog"></span>
+								{{{__ "catalog"}}}
+							</span>
 							<span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="catalog-selector"></ul>

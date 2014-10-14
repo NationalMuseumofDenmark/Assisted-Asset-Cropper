@@ -1,1 +1,23 @@
-{}
+{
+	"Assisted asset cropper": "Assisteret friskærer",
+	"Logout": "Log ud",
+	"Overview": "Overblik",
+	"Status": "Status",
+	"Cropped out of": "Friskåret ud af",
+	"Cropping suggestions": "Friskærings forslag",
+	"New": "Ny",
+	"Save": "Gem",
+	"Fetch suggestions": "Hent forslag",
+	"Current croppings": "Aktuelle friskæringer",
+	"Loading catalogs ...": "Henter kataloger ...",
+	"Searching ...": "Søger ...",
+	"No assets found :(": "Fandt ingen billeder :(",
+	"Please try another search term or catalog.": "Prøv venligst en anden søgestreng eller katalog.",
+	"Login using your Cumulus credentials": "Log ind - via dit login til Nationalmuseet's Cumulus",
+	"Username": "Brugernavn",
+	"Password": "Kodeord",
+	"Login": "Log ind",
+	"Search string": "Søgestreng",
+	"in the": "i",
+	"catalog": "kataloget"
+}
