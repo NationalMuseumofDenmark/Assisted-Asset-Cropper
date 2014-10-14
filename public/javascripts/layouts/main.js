@@ -39,34 +39,40 @@ $.fn.serializeObject = function()
 	return o;
 };
 
+function redirect_if_unauthorized_handler(response) {
+	if(response.status == 401) {
+		location.replace("/");
+	}
+}
+
 // Functions for cookie handling.
 // See: http://stackoverflow.com/questions/1458724/how-to-set-unset-cookie-with-jquery
 function createCookie(name, value, days) {
-    var expires;
+		var expires;
 
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toGMTString();
-    } else {
-        expires = "";
-    }
-    document.cookie = escape(name) + "=" + escape(value) + expires + "; path=/";
+		if (days) {
+				var date = new Date();
+				date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+				expires = "; expires=" + date.toGMTString();
+		} else {
+				expires = "";
+		}
+		document.cookie = escape(name) + "=" + escape(value) + expires + "; path=/";
 }
 
 function readCookie(name) {
-    var nameEQ = escape(name) + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return unescape(c.substring(nameEQ.length, c.length));
-    }
-    return null;
+		var nameEQ = escape(name) + "=";
+		var ca = document.cookie.split(';');
+		for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+				if (c.indexOf(nameEQ) === 0) return unescape(c.substring(nameEQ.length, c.length));
+		}
+		return null;
 }
 
 function eraseCookie(name) {
-    createCookie(name, "", -1);
+		createCookie(name, "", -1);
 }
 
 function get_cip_client_or_redirect() {
@@ -112,6 +118,26 @@ function verify_session(success_callback, error_callback) {
 		// unknown to Cumulus.
 		error_callback();
 	});
+}
+
+var template_cache = {};
+function get_template(template_id) {
+	if(template_id in template_cache) {
+		return template_cache[template_id];
+	} else {
+		var $templateElement = $("#"+template_id+"-template");
+		if($templateElement.length === 0) {
+			console.error("Couldn't find the "+template_id+" template. Have you used the partial_source template tag on the serverside?");
+		} else {
+			if(typeof(Handlebars) !== "object") {
+				console.log("Couldn't find the Handlebars object - have you included it's javascript?");
+			}
+			var source = $templateElement.html();
+			var template = Handlebars.compile(source);
+			template_cache[template_id] = template;
+			return template_cache[template_id];
+		}
+	}
 }
 
 $(function() {
