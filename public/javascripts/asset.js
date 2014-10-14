@@ -129,7 +129,6 @@
 	function leave_edit_suggestion_mode() {
 		// Update the suggestion that we might be currently editing.
 		var $suggestion = $(".suggestion.editing");
-
 		$suggestion.removeClass("editing");
 		$canvas.removeClass("editing");
 		var area_selection = $canvas.data('area_selection');
@@ -174,50 +173,6 @@
 		});
 		$suggestion = $(html).data("suggestion", suggestion);
 		
-		/*
-		var $suggestion = $("<div>")
-			.addClass("suggestion")
-			.data("suggestion", suggestion)
-			.html("&nbsp;"); // Prevents the div from expanding when the img loads.
-
-		var $controls = $("<div>")
-			.addClass("controls")
-			.appendTo($suggestion);
-
-		var $edit_button = $("<button>")
-			.addClass("btn btn-primary btn-xs")
-			.html("<span class='glyphicon glyphicon-move'></span> Tilpas")
-			.appendTo($controls);
-
-		var $delete_button = $("<button>")
-			.addClass("btn btn-primary btn-xs")
-			.html("<span class='glyphicon glyphicon-trash'></span> Fjern")
-			.appendTo($controls);
-
-		var $download_button = $("<button>")
-			.addClass("btn btn-primary btn-xs")
-			.html("<span class='glyphicon glyphicon-download'></span> Download")
-			.appendTo($controls);
-
-		var $arrow = $("<div>")
-			.addClass("arrow")
-			.html("<span class='glyphicon glyphicon-arrow-right'></span>")
-			.appendTo($suggestion);
-
-		var $outline = $("<div>")
-			.addClass("outline")
-			.data("$suggestion", $suggestion)
-			.appendTo($canvas.find(".outlines"));
-		update_outline_position($outline);
-		$suggestion
-			.data("$outline", $outline);
-
-		var $image = $("<div>")
-			.addClass("image")
-			.appendTo($suggestion);
-		var $thumbnail_image = $("<img>");
-		$image.append("<img>");
-		*/
 		var $outline = $("<div>")
 			.addClass("outline")
 			.data("$suggestion", $suggestion)
@@ -243,30 +198,10 @@
 				e.data.$both.removeClass("hover");
 			});
 
-		/*
-		// Clicking the download button.
-		$download_button.click(function( e ) {
-			var suggestion = $(e.target).closest(".suggestion").data("suggestion");
-			var download_url = "/asset/"+
-				CATALOG_ALIAS + "/" +
-				ASSET_ID + "/crop/" +
-				suggestion.left + ":" +
-				suggestion.top + ":" +
-				suggestion.width + ":" +
-				suggestion.height + "/maximal/download";
-			window.open(download_url);
-		});
-		*/
-		/*
-		$edit_button.click(function( e ) {
-			var $suggestion = $(e.target).closest(".suggestion");
-			enter_edit_suggestion_mode($suggestion);
-			e.stopPropagation();
-		});
-		*/
 		$(".delete-btn", $suggestion).click(function( e ) {
 			e.stopPropagation();
 			var $suggestion = $(e.target).closest(".suggestion");
+			leave_edit_suggestion_mode();
 			remove_suggestion($suggestion);
 		});
 
