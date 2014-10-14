@@ -1,0 +1,46 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+@import "variables.less";
+@icon-font-path: "../../fonts/";
+@import "bootstrap.less";
+
+a {
+  color: #00B7FF;
+}
+
+form {
+	word-wrap: break-word;
+}
+
+#logout-btn {
+	float: right;
+}
+
+body {
+	background-repeat: no-repeat;
+	background-position: 2% 98%;
+	background-attachment: fixed;
+	background-image: url(@brand-logo-location);
+}
+
+/* signin.hjs */
+body#signin-template {
+	.form-signin {
+		display: none;
+		width: 40%;
+		margin: auto;
+		input[name=username] {
+		  margin-bottom: -1px;
+		  border-bottom-right-radius: 0;
+		  border-bottom-left-radius: 0;
+		}
+		input[name=password] {
+		  margin-bottom: 10px;
+		  border-top-left-radius: 0;
+		  border-top-right-radius: 0;
+		}
+		.checkbox {
+		  font-weight: normal;
+		}
+	}
+}

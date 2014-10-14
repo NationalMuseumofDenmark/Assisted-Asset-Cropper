@@ -12,11 +12,23 @@ module.exports = function(grunt) {
 		less: {
 			cropper: {
 				options: {
-					paths: ["public/stylesheets"]
+					paths: ["public/less"]
 				},
+				/*
 				files: {
-					"public/stylesheets/style.css": "public/stylesheets/style.less"
+					"public/stylesheets/style.css": "public/less/style.less",
+					"public/stylesheets/partials/searchbar.css": "public/less/partials/searchbar.less",
 				}
+				*/
+				files: [
+					{
+						expand: true,     // Enable dynamic expansion.
+						cwd: 'public/less/',      // Src matches are relative to this path.
+						src: ['**/*.less', '!bootstrap.less', '!variables.less'], // Actual pattern(s) to match.
+						dest: 'public/stylesheets/',   // Destination path prefix.
+						ext: '.css',   // Dest filepaths will have this extension.
+					},
+				],
 			}
 		},
 		copy: {

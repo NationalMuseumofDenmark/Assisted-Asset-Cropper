@@ -1,0 +1,19 @@
+@import "variables.less";
+
+body {
+	padding-top: @navbar-height;
+
+	@media (max-width: @screen-sm-min) {
+		padding-top: @navbar-height*2;
+	}
+
+	@media (max-width: @screen-sm-max) and (min-width: @screen-sm-min) {
+		.sm-small-text, .sm-small-text .navbar-brand {
+			font-size: 13px;
+		}
+	}
+}
+
+.searchbar {
+	/*background-color: @brand-primary;*/
+}

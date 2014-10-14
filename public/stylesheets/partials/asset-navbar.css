@@ -1,0 +1,21 @@
+body {
+  padding-top: 62.5px;
+}
+@media (max-width: 768px) {
+  body {
+    padding-top: 112.5px;
+  }
+}
+@media (max-width: 991px) and (min-width: 768px) {
+  body .sm-small-text,
+  body .sm-small-text .navbar-brand {
+    font-size: 13px;
+  }
+}
+.asset-navbar .asset-information {
+  line-height: 50px;
+  height: 50px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

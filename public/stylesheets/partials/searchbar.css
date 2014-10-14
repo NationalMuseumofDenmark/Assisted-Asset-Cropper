@@ -1,0 +1,17 @@
+body {
+  padding-top: 50px;
+}
+@media (max-width: 768px) {
+  body {
+    padding-top: 100px;
+  }
+}
+@media (max-width: 991px) and (min-width: 768px) {
+  body .sm-small-text,
+  body .sm-small-text .navbar-brand {
+    font-size: 13px;
+  }
+}
+.searchbar {
+  /*background-color: @brand-primary;*/
+}

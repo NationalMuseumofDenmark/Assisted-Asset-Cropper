@@ -252,8 +252,8 @@ th {
 }
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url('../fonts/glyphicons-halflings-regular.eot');
-  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+  src: url('../../fonts/glyphicons-halflings-regular.eot');
+  src: url('../../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
 .glyphicon {
   position: relative;
@@ -2355,10 +2355,10 @@ output {
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 .form-control:focus {
-  border-color: #66afe9;
+  border-color: #971623;
   outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(151, 22, 35, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(151, 22, 35, 0.6);
 }
 .form-control::-moz-placeholder {
   color: #999999;
@@ -6285,9 +6285,6 @@ button.close {
     display: none !important;
   }
 }
-body {
-  padding: 50px;
-}
 a {
   color: #00B7FF;
 }
@@ -6296,7 +6293,12 @@ form {
 }
 #logout-btn {
   float: right;
-  margin-left: 10px;
+}
+body {
+  background-repeat: no-repeat;
+  background-position: 2% 98%;
+  background-attachment: fixed;
+  background-image: url("/images/natmus-logo.png");
 }
 /* signin.hjs */
 body#signin-template .form-signin {
@@ -6316,248 +6318,4 @@ body#signin-template .form-signin input[name=password] {
 }
 body#signin-template .form-signin .checkbox {
   font-weight: normal;
-}
-/* overview.hjs */
-body#overview-template #assets .asset {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  position: relative;
-}
-body#overview-template #assets .asset .loading-spinner {
-  position: absolute;
-  left: 15px;
-  top: 15px;
-  right: 15px;
-  bottom: 15px;
-  opacity: 0.33;
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  background-color: #000;
-  background-image: url("../images/loading.gif");
-}
-body#overview-template #assets .asset .suggestions,
-body#overview-template #assets .asset .metadata {
-  position: absolute;
-  left: 15px;
-  right: 15px;
-  bottom: 15px;
-  text-align: center;
-  overflow: hidden;
-}
-body#overview-template #assets .asset .metadata {
-  padding: 3px;
-  color: black;
-  font-size: 0.8em;
-  background-color: rgba(255, 255, 255, 0.5);
-  margin: 1px;
-}
-body#overview-template #assets .asset .metadata .suggestion_count {
-  color: #EEE;
-  background-color: rgba(151, 22, 35, 0.8);
-  border: 1px solid #971623;
-  border-radius: 50%;
-  width: 1.5em;
-  display: inline-block;
-  text-align: center;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
-  float: right;
-}
-body#overview-template #assets .asset .suggestions {
-  top: 15px;
-  margin: 4px;
-  /* image padding + border */
-}
-body#overview-template #assets .asset .suggestions .suggestion {
-  position: absolute;
-  border: 1px solid #971623;
-  background-color: rgba(151, 22, 35, 0.25);
-}
-body#overview-template #assets .asset img {
-  display: block;
-  width: 100%;
-  padding: 3px;
-  border: 1px solid #D0D0D0;
-  background-color: #F0F0F0;
-  box-shadow: 0px 5px 10px #D0D0D0;
-  min-height: 50px;
-}
-/* asset.hjs */
-body#asset-template h1,
-body#asset-template h2 {
-  float: left;
-  clear: left;
-}
-body#asset-template #overview-btn {
-  float: right;
-}
-body#asset-template #cropping-status {
-  float: right;
-  clear: right;
-}
-body#asset-template #cropping-status span {
-  display: inline-block;
-  padding: 5px;
-}
-body#asset-template.cropping-status-1 #croppings-title,
-body#asset-template.cropping-status-1 #croppings {
-  display: none;
-}
-body#asset-template.cropping-status-1 #cropping-status span {
-  color: #ffffff;
-  background: #555555;
-  border: 1px solid #494949;
-}
-body#asset-template.cropping-status-2 #cropping-status span,
-body#asset-template.cropping-status-3 #cropping-status span {
-  color: #ffffff;
-  background: #5cb85c;
-  border: 1px solid #4cae4c;
-}
-body#asset-template.cropping-status-1 #master,
-body#asset-template.cropping-status-2 #master,
-body#asset-template.cropping-status-1 #master-title,
-body#asset-template.cropping-status-2 #master-title {
-  display: none;
-}
-body#asset-template.cropping-status-3 #croppings,
-body#asset-template.cropping-status-3 #croppings-title,
-body#asset-template.cropping-status-3 #state-controls-title,
-body#asset-template.cropping-status-3 #state-controls,
-body#asset-template.cropping-status-3 #suggestions-title,
-body#asset-template.cropping-status-3 #suggestions,
-body#asset-template.cropping-status-3 #cropping-controls {
-  display: none;
-}
-body#asset-template hr {
-  clear: both;
-}
-body#asset-template .canvas .outlines {
-  position: absolute;
-  left: 15px;
-  right: 15px;
-  top: 0;
-  bottom: 0;
-}
-body#asset-template .canvas .outlines .outline {
-  position: absolute;
-  border: 1px solid #971623;
-  cursor: pointer;
-  background-color: rgba(151, 22, 35, 0.1);
-}
-body#asset-template .canvas .outlines .outline.hover {
-  background-color: rgba(151, 22, 35, 0.25);
-}
-body#asset-template .canvas img#asset {
-  display: block;
-  margin: auto;
-  /*
-			padding: 3px;
-			border: 1px solid #D0D0D0;
-			*/
-  background-color: #F0F0F0;
-  width: 100%;
-}
-body#asset-template .canvas.editing .outlines {
-  display: none;
-}
-body#asset-template .canvas #asset-algorithm-states {
-  display: none;
-  /* Hidden by default */
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 15px;
-  right: 15px;
-}
-body#asset-template .canvas #asset-algorithm-states img {
-  position: absolute;
-  display: block;
-  width: 100%;
-  margin: auto;
-}
-body#asset-template .sidebar-box {
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  border: 0;
-  border-bottom: 1px solid #eeeeee;
-}
-body#asset-template #master img {
-  width: 100%;
-}
-body#asset-template #suggestions {
-  text-align: center;
-}
-body#asset-template #suggestions .suggestion {
-  border: 1px solid #DDD;
-  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
-  background-color: #EEE;
-  margin-bottom: 10px;
-  position: relative;
-  display: block;
-  min-height: 106px;
-  line-height: 106px;
-  top: 0px;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-}
-body#asset-template #suggestions .suggestion .image {
-  position: relative;
-  display: inline-block;
-  border: 1px solid #C0C0C0;
-  background-color: #D0D0D0;
-  vertical-align: middle;
-  overflow: hidden;
-}
-body#asset-template #suggestions .suggestion .image img {
-  position: absolute;
-}
-body#asset-template #suggestions .suggestion .controls {
-  line-height: initial;
-  float: right;
-  height: 100%;
-  padding: 8px;
-}
-body#asset-template #suggestions .suggestion .controls button {
-  clear: right;
-  float: right;
-  margin-top: 3px;
-}
-body#asset-template #suggestions .suggestion .arrow {
-  color: #971623;
-  opacity: 0.0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  line-height: 106px;
-  font-size: 2em;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-}
-body#asset-template #suggestions .suggestion.hover,
-body#asset-template #suggestions .suggestion.editing {
-  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
-}
-body#asset-template #suggestions .suggestion.hover .arrow,
-body#asset-template #suggestions .suggestion.editing .arrow {
-  opacity: 1.0;
-  left: -1em;
-}
-body#asset-template #suggestions .suggestion.hover img,
-body#asset-template #suggestions .suggestion.editing img {
-  border-color: #971623;
-}
-body#asset-template #croppings img {
-  height: 100px;
-  padding: 2px;
-  margin-bottom: 4px;
-  border: 1px solid #C0C0C0;
-  background-color: #D0D0D0;
-}
-body#asset-template #state-controls a {
-  cursor: pointer;
 }

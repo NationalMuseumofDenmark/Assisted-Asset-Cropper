@@ -2,6 +2,11 @@
 // Variables
 // --------------------------------------------------
 
+//== Brand related variables
+//
+
+@brand-primary: #971623;
+@brand-logo-location: "/images/natmus-logo.png";
 
 //== Colors
 //
@@ -14,7 +19,8 @@
 @gray-light:             lighten(@gray-base, 46.7%); // #777
 @gray-lighter:           lighten(@gray-base, 93.5%); // #eee
 
-@brand-primary:         #971623; // #428bca;
+// Let's set the @brand-primary in a seperate file.
+// @brand-primary:         #971623; // #428bca;
 @brand-success:         #5cb85c;
 @brand-info:            @gray; // #5bc0de;
 @brand-warning:         #f0ad4e;
@@ -39,7 +45,6 @@
 //== Typography
 //
 //## Font, line-height, and color for body text, headings, and more.
-@import url(http://fonts.googleapis.com/css?family=Open+Sans);
 @font-family-sans-serif:  "Open Sans", Arial, sans-serif;
 @font-family-serif:       Georgia, "Times New Roman", Times, serif;
 //** Default monospace fonts for `<code>`, `<kbd>`, and `<pre>`.
@@ -185,7 +190,7 @@
 //** `<input>` border radius
 @input-border-radius:            @border-radius-base;
 //** Border color for inputs on focus
-@input-border-focus:             #66afe9;
+@input-border-focus:             @brand-primary; //#66afe9;
 
 //** Placeholder text color
 @input-color-placeholder:        #999;
