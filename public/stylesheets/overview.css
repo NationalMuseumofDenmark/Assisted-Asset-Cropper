@@ -59,12 +59,6 @@ body#overview-template .search-controls {
 body#overview-template .search-controls ul[aria-labelledby='catalog-selector'] li a {
   cursor: pointer;
 }
-body#overview-template .navbar .navbar-nav {
-  float: right;
-}
-body#overview-template .navbar {
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.33);
-}
 body#overview-template #assets {
   padding: 10px;
 }

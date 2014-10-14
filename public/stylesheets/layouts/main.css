@@ -6319,3 +6319,6 @@ body#signin-template .form-signin input[name=password] {
 body#signin-template .form-signin .checkbox {
   font-weight: normal;
 }
+.navbar {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.33);
+}
