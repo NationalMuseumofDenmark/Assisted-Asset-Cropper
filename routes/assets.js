@@ -131,10 +131,12 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 		next(err);
 	});
 
+	/*
 	var table = client.get_table(catalog_alias);
 	table.get_layout(function(layout) {
 		console.log(layout);
 	});
+	*/
 });
 
 router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', function(req, res, next) {
