@@ -9,7 +9,8 @@
 			$catalogSelector = $("#catalog-selector");
 			$catalogSelector
 				.data("selected-alias", $catalog.data('alias'))
-				.html("in the " + $catalog.text() + " catalog <span class='caret'></span>");
+				.find(".loading").hide().end()
+				.find(".text .catalog").text($catalog.text());
 		}
 
 		function update_catalogs_dropdown(catalogs) {
