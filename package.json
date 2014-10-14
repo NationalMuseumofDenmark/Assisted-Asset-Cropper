@@ -12,7 +12,6 @@
     "cookie-parser": "~1.0.1",
     "body-parser": "~1.0.0",
     "debug": "~0.7.4",
-    "hjs": "~0.0.6",
     "less-middleware": "1.0.x",
     "bootstrap": "git://github.com/twitter/bootstrap.git",
     "cip-js": "git+https://github.com/NationalMuseumofDenmark/cip.js.git#get-asset-feature",
@@ -21,7 +20,12 @@
     "request": "~2.42.0",
     "gm": "~1.16.0",
     "temp": "~0.8.1",
-    "http-proxy": "~1.4.3"
+    "http-proxy": "~1.4.3",
+    "hogan-express": "~0.5.2",
+    "express-handlebars": "~1.1.0",
+    "handlebars": "~2.0.0",
+    "graceful-fs": "~3.0.3",
+    "i18n": "~0.5.0"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

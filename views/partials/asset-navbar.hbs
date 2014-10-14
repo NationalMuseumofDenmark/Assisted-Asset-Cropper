@@ -1,0 +1,35 @@
+{{#javascripts}}
+partials/asset-navbar
+{{/javascripts}}
+
+{{#stylesheets}}
+partials/asset-navbar
+{{/stylesheets}}
+
+<div class="navbar navbar-default navbar-fixed-top asset-navbar" role="navigation">
+	<div class="container">
+		<div class="row">
+
+			<div class="navbar-header col-sm-3 col-xs-5 sm-small-text">
+				<a class="navbar-brand" href="/">{{#__}}Assisted asset cropper{{/__}}</a>
+			</div>
+
+			<div class="col-sm-4 col-xs-7 col-sm-push-5 sm-small-text">
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a id="logout-btn" href="#logout"><span class="glyphicon glyphicon-off"></span> Logout</a>
+						<a id="overview-btn" href="/overview"><span class="glyphicon glyphicon-th"></span> Overview</a>
+					</li>
+				</ul>
+			</div>
+
+			<div class="asset-information col-sm-5 col-xs-12 col-sm-pull-4">
+				{{ asset_title }}
+				&nbsp;&middot;&nbsp;
+				<span class="glyphicon glyphicon-file"></span> {{ asset_filename }}
+				&nbsp;&middot;&nbsp;
+				<span class="glyphicon glyphicon-folder-open"></span> {{ catalog_alias }}
+			</div>
+		</div>
+	</div>
+</div>

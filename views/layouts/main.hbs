@@ -1,0 +1,20 @@
+{{#stylesheets}}
+layouts/main
+{{/stylesheets}}
+
+{{#javascripts}}
+lib/jquery-1.11.1.min
+lib/bootstrap.min
+lib/cip.min
+layouts/main
+{{/javascripts}}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>{{ title }}</title>
+		{{{render_stylesheets}}}
+	</head>
+	{{{body}}}
+	{{{render_javascripts}}}
+</html>

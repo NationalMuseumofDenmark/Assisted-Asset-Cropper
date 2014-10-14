@@ -1,0 +1,75 @@
+{{#stylesheets}}
+imgareaselect-default
+asset
+{{/stylesheets}}
+
+{{#javascripts}}
+lib/jquery.imgareaselect.min
+lib/handlebars-v2.0.0
+asset
+{{/javascripts}}
+
+{{#partial_source}}cropping-suggestion{{/partial_source}}
+
+<!--title>{{ asset_title }} @ Natmus Cropper</title-->
+<script type="text/javascript">
+window.CATALOG_ALIAS = "{{ catalog_alias }}";
+window.ASSET_ID = "{{ asset_id }}";
+window.CROPPING_STATUS = {{ cropping_status }};
+</script>
+
+<body id="asset-template" class="cropping-status-{{ cropping_status }}">
+	{{> asset-navbar}}
+
+	<div class="container">
+		<!--button id="logout-btn" class="btn"><span class="glyphicon glyphicon-off">
+		</span> Log ud</button>
+		<button id="overview-btn" class="btn"><span class="glyphicon glyphicon-th">
+		</span> Til oversigten</button-->
+		<!--h1>{{ asset_title }}</h1>
+		<h2>Asset #{{ asset_id }} i {{ catalog_alias }} ({{ asset_filename }})</h2-->
+
+		<div class="row controls">
+			<div id="cropping-status">Status: <span>{{ cropping_status_text }}</span></div>
+			<div class="col-md-10">
+				<div class="canvas">
+					<div id="asset-algorithm-states">
+						<img src="{{ asset_algoritm_states_url }}">
+					</div>
+					<img id="asset" src="{{ asset_image_url }}">
+					<div class="outlines">
+					</div>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<h4 id="master-title">Skåret fri af</h4>
+				<div id="master" class="sidebar-box">
+					<a href="{{ master_href }}"><img src="{{ master_image }}"></a>
+				</div>
+				<!--h4 id="state-controls-title">Billedebehandslings tilstande</h4>
+				<ul class="pagination sidebar-box" id="state-controls">
+				</ul-->
+				<h4 id="suggestions-title">Friskærings forslag</h4>
+				<div class="text-center" id="cropping-controls">
+					<p>
+						<button id="add-suggestion-button" class="btn btn-success">Ny</button> 
+						<button id="save-croppings-button" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span> Gem</button>
+					</p>
+				</div>
+				<div id="suggestions" class="sidebar-box">
+					<button id="fetch-suggestions" class="btn">
+						<span class="glyphicon glyphicon-transfer"></span>
+						Hent forslag
+					</button>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<h4 id="croppings-title">Aktuelle friskæringer</h4>
+		<div id="croppings">
+			{{#croppings}}
+				<a href="{{ href }}" class="cropping"><img src="{{ image }}"></a>
+			{{/croppings}}
+		</div>
+	</div>
+</body>
