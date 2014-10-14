@@ -167,7 +167,14 @@
 			// Empty the #suggestions container
 			$suggestions.empty();
 		}
+
+		var template = get_template("cropping-suggestion");
+		var html = template({
+
+		});
+		$suggestion = $(html).data("suggestion", suggestion);
 		
+		/*
 		var $suggestion = $("<div>")
 			.addClass("suggestion")
 			.data("suggestion", suggestion)
@@ -210,8 +217,17 @@
 			.appendTo($suggestion);
 		var $thumbnail_image = $("<img>");
 		$image.append("<img>");
+		*/
+		var $outline = $("<div>")
+			.addClass("outline")
+			.data("$suggestion", $suggestion)
+			.appendTo($canvas.find(".outlines"));
+		update_outline_position($outline);
+		$suggestion
+			.data("$outline", $outline);
 
 		update_suggestion_thumbnail($suggestion);
+
 
 		// Bring in the dynamics!
 		var $both = $suggestion.add($outline);
@@ -227,6 +243,7 @@
 				e.data.$both.removeClass("hover");
 			});
 
+		/*
 		// Clicking the download button.
 		$download_button.click(function( e ) {
 			var suggestion = $(e.target).closest(".suggestion").data("suggestion");
@@ -239,22 +256,25 @@
 				suggestion.height + "/maximal/download";
 			window.open(download_url);
 		});
-
+		*/
+		/*
 		$edit_button.click(function( e ) {
 			var $suggestion = $(e.target).closest(".suggestion");
 			enter_edit_suggestion_mode($suggestion);
 			e.stopPropagation();
 		});
-
-		$delete_button.click(function( e ) {
+		*/
+		$(".delete-btn", $suggestion).click(function( e ) {
+			e.stopPropagation();
 			var $suggestion = $(e.target).closest(".suggestion");
 			remove_suggestion($suggestion);
 		});
 
 		// Clicking the outline
-		$outline.click({
+		$outline.add($suggestion).click({
 			$suggestion: $suggestion
 		}, function( e ) {
+			e.stopPropagation();
 			// Enter edit mode on the suggestion.
 			enter_edit_suggestion_mode( e.data.$suggestion );
 		});
