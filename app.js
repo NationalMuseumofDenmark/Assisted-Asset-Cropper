@@ -35,8 +35,6 @@ app.set('view engine', '.hbs');
 // Save this i18n initialization for the routes to use.
 app.set('i18n', i18n);
 
-console.log(app.get('env'));
-
 // Initialize the i18n library.
 i18n.configure({
 	locales:['en', 'da'],
