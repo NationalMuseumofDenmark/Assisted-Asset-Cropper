@@ -1,16 +1,20 @@
-var express = require('express');
-var http = require('http'); // TODO: Consider using request instead.
-var cropping = require('../lib/cropping.js');
-var router = express.Router();
-var cip = require('../lib/cip-natmus');
-var assert = require('assert');
-var request = require('request');
-var gm = require('gm');
-var temp = require('temp');
+var express = require('express'),
+		http = require('http'), // TODO: Consider using request instead.
+		cropping = require('../lib/cropping.js'),
+		cip = require('../lib/cip-natmus'),
+		assert = require('assert'),
+		request = require('request'),
+		gm = require('gm'),
+		temp = require('temp'),
+		i18n = require('i18n'),
+		router = express.Router(),
+		__ = i18n.__;
 
-/*
- * Helping function to determine if the type and value of a variable is a
- * nummeric integer or not.
+/**
+ * Helping function to determine if the type and value of a variable
+ * is a nummeric integer or not.
+ * @param  {number}  n
+ * @return {Boolean} 
  */
 function isInteger(n) {
    return typeof(n) == "number" && isFinite(n) && n%1===0;
@@ -22,8 +26,11 @@ function isInteger(n) {
 // Automatically track and cleanup files at exit
 temp.track();
 
+// The default thumbnail size used when requesting an asset.
 var DEFAULT_THUMBNAIL_SIZE = 200;
 
+// Defining constants from Cumulus, used when looking up
+// values in the metadata returned from the CIP.
 var TITLE_FIELD = "{6fb1f61b-14a3-4851-bba0-cf7e71ef59cb}";
 var DESCRIPTION_FIELD = "{2ce9c8eb-b83d-4a91-9d09-2141cac7de12}";
 var ORIGINAL_FIELD = "{aed8e1c4-7b24-41dc-a13d-f1e3bf3276b2}";
@@ -35,6 +42,12 @@ var PUBLISHED_FIELD = "{a493be21-0f70-4cae-9394-703eca848bad}";
 var LICENSE_FIELD = "{f5d1dcd8-c553-4346-8d4d-672c85bb59be}";
 var PHOTOGRAPHER_FIELD = "{9b071045-118c-4f42-afa1-c3121783ac66}";
 
+/**
+ * Generate the filename for a cropping of an asset.
+ * @param  {object} asset An asset as returned from the CIP.
+ * @param  {number} cropping_index The index in a list of croppings.
+ * @return {string} The new filename, with file extension.
+ */
 function generate_cropped_filename(asset, cropping_index) {
 	assert("fields" in asset && FILENAME_FIELD in asset.fields, "The filename field is sat.");
 	var original_filename = asset.fields[FILENAME_FIELD];
@@ -96,7 +109,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, true, function(asset) {
 		var asset_title = asset.fields[TITLE_FIELD];
-		asset_title = asset_title ? asset_title : "Asset uden titel";
+		asset_title = asset_title ? asset_title : __("Asset without a titel");
 		
 		var image_size = cropping.algorithm.DEFAULT_PARAMETERS.image_size;
 		var asset_filename = asset.fields[FILENAME_FIELD];
@@ -109,7 +122,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 
 		var render_options = {
 			jsessionid: client.jsessionid,
-			title: asset_title + " - Assisted asset cropper",
+			title: asset_title + " - "+ __("Assisted asset cropper"),
 			catalog_alias: catalog_alias,
 			asset_title: asset_title,
 			asset_id: id,
@@ -126,7 +139,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 			});
 		});
 	}, function() {
-		var err = new Error("No such asset in Cumulus!");
+		var err = new Error(__("No such asset in Cumulus!"));
 		err.status = 404;
 		next(err);
 	});
@@ -237,7 +250,7 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 		suggestions = deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions);
 		res.send(suggestions);
 	}, function(response) {
-		var err = new Error("Cumulus responded with status code " + response.statusCode);
+		var err = new Error(__("Cumulus responded with status code %u", response.statusCode));
 		err.status = 503;
 		next(err);
 	});
@@ -272,7 +285,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
     });
     // temp.cleanupSync();
 	}, function(response) {
-		var err = new Error("Cumulus responded with status code " + response.statusCode);
+		var err = new Error(__("Cumulus responded with status code %u", response.statusCode));
 		console.error(response);
 		err.status = 503;
 		next(err);
@@ -363,12 +376,12 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 		}, function(is_error, response, body) {
 			if(is_error || response.statusCode != 200) {
 				if(response) {
-					var err = new Error("Cumulus responded with status code " + response.statusCode);
+					var err = new Error(__("Cumulus responded with status code %u", response.statusCode));
 					console.error(response);
 					err.status = 503;
 					error(err);
 				} else {
-					var err = new Error("Error sending the request to CIP." + is_error);
+					var err = new Error(__("Error sending the request to CIP."));
 					console.error(is_error);
 					err.status = 500;
 					error(err);
@@ -409,13 +422,13 @@ function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped
 		client.ciprequest(variant_path, {}, function( response ) {
 			success( response );
 		}, function( response ) {
-			var err = new Error("Error linking the cropping to its original asset.");
+			var err = new Error(__("Error linking the cropping to its original asset."));
 			console.error(response);
 			err.status = 500;
 			error(err);
 		});
 	}, function( response ) {
-		var err = new Error("Error linking the original asset to its cropping.");
+		var err = new Error(__("Error linking the original asset to its cropping."));
 		console.log(response);
 		err.status = 500;
 		error(err);
@@ -430,7 +443,7 @@ function update_originals_cropping_status(client, catalog_alias, original_asset,
 	], {}, function( response ) {
 		success( response );
 	}, function( response ) {
-		var err = new Error("Error updating the original assets metadata.");
+		var err = new Error(__("Error updating the original assets metadata."));
 		console.error(response);
 		err.status = 500;
 		error(err);

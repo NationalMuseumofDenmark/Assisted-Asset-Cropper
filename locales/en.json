@@ -1,5 +1,5 @@
 {
-	"Assisted asset cropper": "Assisted asset cropper",
+	"Assisted asset cropper": "The assisted asset cropper",
 	"Logout": "Logout",
 	"Overview": "Overview",
 	"Status": "Status",
@@ -19,5 +19,6 @@
 	"Login": "Login",
 	"Search string": "Search string",
 	"in the": "in the",
-	"catalog": "catalog"
+	"catalog": "catalog",
+	"Sign into %s": "Sign into %s"
 }
