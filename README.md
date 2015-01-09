@@ -1,29 +1,29 @@
-Assisted Asset Cropper
-====
+# Assisted Asset Cropper
+
 A Node.js / Express web-app enabling assisted cropping of assets from a Canto Cumulus CIP asset management system.
 
 The following is a guide getting you up to speed, which requires some dependencies - please read the "Installing dependencies" section below, if you haven't got the node runtime or want to deploy this on a clean server.
 
-# Easy setup
+## Easy setup
 
-## Clone this repository onto your development machine
+### Clone this repository onto your development machine
 
 	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
 	
-## Install the node dependencies
+### Install the node dependencies
 
 	npm install
 	
-## Run the Grunt tool
+### Run the Grunt tool
 
 	grunt
 
-## And use grunt to boot up the app
+### And use grunt to boot up the app
 
 	grunt start
 
-# Installing dependencies (on a Ubuntu server)
-## Getting node.js compiled and installed - find the newest link on http://nodejs.org/http://nodejs.org/
+## Installing dependencies (on a Ubuntu server)
+Getting node.js compiled and installed - find the newest link on http://nodejs.org/http://nodejs.org/
 
 ### First install build dependencies
 
