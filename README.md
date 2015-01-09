@@ -1,5 +1,26 @@
-Assisted Asset Cropper (for a Canto Cumulus CIP asset management system deployment)
+Assisted Asset Cropper
 ====
+A Node.js / Express web-app enabling assisted cropping of assets from a Canto Cumulus CIP asset management system.
+
+The following is a guide getting you up to speed, which requires some dependencies - please read the "Installing dependencies" section below, if you haven't got the node runtime or want to deploy this on a clean server.
+
+# Easy setup
+
+## Clone this repository onto your development machine
+
+	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
+	
+## Install the node dependencies
+
+	npm install
+	
+## Run the Grunt tool
+
+	grunt
+
+## And use grunt to boot up the app
+
+	grunt start
 
 # Installing dependencies (on a Ubuntu server)
 ## Getting node.js compiled and installed - find the newest link on http://nodejs.org/http://nodejs.org/
@@ -53,7 +74,7 @@ Assisted Asset Cropper (for a Canto Cumulus CIP asset management system deployme
 ### Create a site for the Cropper on the nginx installation
 
 	cd /etc/nginx/sites-available/
-	sudo nano caac
+	sudo nano Assisted-Asset-Cropper
 
 ### Paste in the following or similar configuration
 
@@ -78,7 +99,7 @@ Assisted Asset Cropper (for a Canto Cumulus CIP asset management system deployme
 
 	cd /etc/nginx/sites-available/sites-enabled/
 	unlink default 
-	sudo ln -s /etc/nginx/sites-available/caac caac
+	sudo ln -s /etc/nginx/sites-available/Assisted-Asset-Cropper Assisted-Asset-Cropper
 
 ### Restart nginx
 
@@ -86,14 +107,14 @@ Assisted Asset Cropper (for a Canto Cumulus CIP asset management system deployme
 
 ## Clone this repository onto the server
 
-	git clone https://github.com/NationalMuseumofDenmark/CAAC.git
+	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
 
-### Create a script (such as start.sh) to start the CAAC using forever
+### Create a script (such as start.sh) to start the Assisted-Asset-Cropper using forever
 
 	nano start.sh
 
 ### Paste in the following or similar script (changing the value of app to the location of the app)
 
 	#!/bin/bash -e
-	app=/home/$USER/CAAC
+	app=/home/$USER/Assisted-Asset-Cropper
 	cd $app && forever start bin/www
