@@ -6,19 +6,19 @@ The following is a guide getting you up to speed, which requires some dependenci
 
 ## Easy setup
 
-### Clone this repository onto your development machine
+Clone this repository onto your development machine
 
 	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
 	
-### Install the node dependencies
+Install the node dependencies
 
 	npm install
 	
-### Run the Grunt tool
+Run the Grunt tool
 
 	grunt
 
-### And use grunt to boot up the app
+And use grunt to boot up the app
 
 	grunt start
 
