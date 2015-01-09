@@ -25,45 +25,45 @@ And use grunt to boot up the app
 ## Installing dependencies (on a Ubuntu server)
 Getting node.js compiled and installed - find the newest link on http://nodejs.org/http://nodejs.org/
 
-### First install build dependencies
+First install build dependencies
 
 	sudo apt-get install gcc make g++
 
-### Get the source code for node onto the machine
+Get the source code for node onto the machine
 
 	wget http://nodejs.org/dist/v0.10.31/node-v0.10.31.tar.gz
 
-### Untar the archive
+Untar the archive
 
 	tar -xvf node-*.tar.gz node
 
-### Change directory into the node folder
+Change directory into the node folder
 
 	cd node
 
-### Configure, build and install
+Configure, build and install
 
 	./configure
 	make
 	sudo make install
 
-### Verify the installation
+Verify the installation
 
 	node --version
 	npm --version
 
-### Optionally remove the archive and directory.
+Optionally remove the archive and directory.
 
 	rm -rf node*
 
 ## Deploy using forever and nginx as a forward proxy.
 
-### Install the dependencies
+Install the dependencies
 
 	sudo npm install -g forever
 	sudo apt-get install nginx
 
-### Install git and install OpenCV using a repo cloned from GitHub.
+Install git and install OpenCV using a repo cloned from GitHub.
 
 	sudo apt-get install git
 	git clone https://github.com/jayrambhia/Install-OpenCV.git
@@ -71,12 +71,12 @@ Getting node.js compiled and installed - find the newest link on http://nodejs.o
 	cd Install-OpenCV/Ubuntu/
 	./opencv_latest.sh 
 
-### Create a site for the Cropper on the nginx installation
+Create a site for the Cropper on the nginx installation
 
 	cd /etc/nginx/sites-available/
 	sudo nano Assisted-Asset-Cropper
 
-### Paste in the following or similar configuration
+Paste in the following or similar configuration
 
 	server {
 		listen 80 default_server;
@@ -95,13 +95,13 @@ Getting node.js compiled and installed - find the newest link on http://nodejs.o
 		}
 	}
 
-### Disable any default site and enable this
+Disable any default site and enable this
 
 	cd /etc/nginx/sites-available/sites-enabled/
 	unlink default 
 	sudo ln -s /etc/nginx/sites-available/Assisted-Asset-Cropper Assisted-Asset-Cropper
 
-### Restart nginx
+Restart nginx
 
 	sudo service nginx restart
 
@@ -109,11 +109,11 @@ Getting node.js compiled and installed - find the newest link on http://nodejs.o
 
 	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
 
-### Create a script (such as start.sh) to start the Assisted-Asset-Cropper using forever
+Create a script (such as start.sh) to start the Assisted-Asset-Cropper using forever
 
 	nano start.sh
 
-### Paste in the following or similar script (changing the value of app to the location of the app)
+Paste in the following or similar script (changing the value of app to the location of the app)
 
 	#!/bin/bash -e
 	app=/home/$USER/Assisted-Asset-Cropper
