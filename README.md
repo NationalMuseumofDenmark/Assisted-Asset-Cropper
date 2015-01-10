@@ -1,6 +1,8 @@
 # Assisted Asset Cropper
 
-A Node.js / Express web-app enabling assisted cropping of assets from a Canto Cumulus CIP asset management system.
+A web-application enabling assisted cropping of assets from a Canto Cumulus CIP asset management system.
+
+The application is written using the Node.js Express framework.
 
 The following is a guide getting you up to speed, which requires some dependencies - please read the "Installing dependencies" section below, if you haven't got the node runtime or want to deploy this on a clean server.
 
