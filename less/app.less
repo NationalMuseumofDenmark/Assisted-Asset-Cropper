@@ -4,9 +4,11 @@
 @icon-font-path: "../../fonts/";
 @import "bootstrap.less";
 
+/*
 a {
   color: #00B7FF;
 }
+*/
 
 form {
 	word-wrap: break-word;
@@ -23,28 +25,29 @@ body {
 	background-image: url(@brand-logo-location);
 }
 
-/* signin.hjs */
-body#signin-template {
-	.form-signin {
-		display: none;
-		width: 40%;
-		margin: auto;
-		input[name=username] {
-		  margin-bottom: -1px;
-		  border-bottom-right-radius: 0;
-		  border-bottom-left-radius: 0;
-		}
-		input[name=password] {
-		  margin-bottom: 10px;
-		  border-top-left-radius: 0;
-		  border-top-right-radius: 0;
-		}
-		.checkbox {
-		  font-weight: normal;
-		}
-	}
-}
-
 .navbar {
 	box-shadow: 0px 5px 10px rgba(0, 0, 0, 33%);
 }
+
+.messages {
+	position: fixed;
+	bottom: 0px;
+	right: 0px;
+	width: 300px;
+	max-width: 100%;
+	margin: 0em 1em;
+	.glyphicon-remove {
+		cursor: pointer;
+	}
+}
+
+// The overall layout
+@import "signin-form.less";
+@import "search.less";
+@import "asset.less";
+// Each of the partials
+//@import "partials/asset-navbar.less";
+//@import "partials/searchbar.less";
+// Each of the views.
+//@import "asset.less";
+//@import "overview.less";
