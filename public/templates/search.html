@@ -1,0 +1,84 @@
+<div class="navbar navbar-default navbar-fixed-top searchbar" role="navigation">
+	<div class="container">
+		<div class="row">
+
+			<div class="navbar-header col-sm-3 col-xs-8 sm-small-text">
+				<a class="navbar-brand" href="/">Den assisterede friskærer</a>
+			</div>
+
+			<div class="col-sm-2 col-xs-4 col-sm-push-7 sm-small-text">
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a id="signout-btn" ui-sref="signOut">
+							<span class="glyphicon glyphicon-off"></span> Log ud
+						</a>
+					</li>
+				</ul>
+			</div>
+
+			<div class="col-sm-7 col-xs-12 col-sm-pull-2">
+				<div class="search-controls input-group">
+					<input
+						type="text"
+						class="form-control"
+						id="search-term"
+						placeholder="Søgestreng"
+						ng-model="term"
+						ng-keydown="searchTermKeydown($event.keyCode)">
+					
+					<div class="input-group-btn">
+						<button class="btn btn-default" type="button" id="catalog-selector" data-toggle="dropdown">
+							<span class="text">
+								i
+								<span class="catalog">{{ catalogs[catalog_alias] }}</span>
+								kataloget
+							</span>
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="catalog-selector">
+							<li role="presentation" ng-repeat="(li_catalog_alias, li_catalog_name) in catalogs">
+								<a
+									role="menuitem"
+									tabindex="-1"
+									ng-click="setSelectedCatalog(li_catalog_alias)">{{li_catalog_name}}</a>
+							</li>
+						</ul>
+
+						<button class="btn btn-default" type="button" id="search-button" ng-click="search()">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container search-result"
+	infinite-scroll="loadMoreSearchResult()"
+	infinite-scroll-immediate-check="true">
+	<a class="asset"
+		ng-repeat="asset in assets"
+		ng-show="asset.thumbnail_loaded"
+		ui-sref="asset({ catalog_alias: catalog_alias, asset_id: asset.fields.id })">
+		<div class="suggestions"></div>
+		<div class="metadata">{{ asset.metadata.cropping_status.displaystring }}</div>
+		<img ng-src="{{ asset.get_thumbnail_url({ size:200 }) }}" assetloaded />
+	</a>
+</div>
+
+<div id="searching-status" class="modal-status" ng-show="is_searching">
+	<div class="icon">
+		<span class="glyphicon glyphicon-refresh"></span>
+	</div>
+	<div class="text">Søger ...</div>
+</div>
+
+<div id="empty-result-status" class="modal-status" ng-show="empty_result">
+	<div class="icon">
+		<span class="glyphicon glyphicon-ban-circle"></span>
+	</div>
+	<div class="text">
+		<p>Fandt ingen billeder :(</p>
+		<p>Prøv venligst en anden søgestreng eller katalog.</p>
+	</div>
+</div>

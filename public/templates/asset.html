@@ -1,0 +1,71 @@
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+		<div class="row">
+
+			<div class="navbar-header col-sm-3 col-xs-5 sm-small-text">
+				<a class="navbar-brand" href="/">Den assisterede friskærer</a>
+			</div>
+
+			<div class="col-sm-4 col-xs-7 col-sm-push-5 sm-small-text">
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a id="logout-btn" ui-sref="signOut"><span class="glyphicon glyphicon-off"></span> Log ud</a>
+						<a id="overview-btn" ui-sref="search(previous_search)" class="pull-right"><span class="glyphicon glyphicon-th"></span> Søg</a>
+					</li>
+				</ul>
+			</div>
+
+			<div class="asset-information col-sm-5 col-xs-12 col-sm-pull-4">
+				<span class="glyphicon glyphicon-file"></span> {{ asset.metadata.filename }}
+				&nbsp;&middot;&nbsp;
+				<span class="glyphicon glyphicon-folder-open"></span> {{ catalog_alias }}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container asset" ng-class="'cropping-status-' + asset.metadata.cropping_status.id">
+	<div class="row controls">
+		<div id="cropping-status">Status: <span>{{ asset.metadata.cropping_status.displaystring }}</span></div>
+		<div class="col-md-10">
+			<div class="canvas">
+				<img id="asset" ng-src="{{ thumbnail.url }}" asset-thumbnail-onload>
+				<svg id="outlines" ng-show="thumbnail.loaded"
+					ng-mousedown="dragging_canvas=!cropping_selected"
+					ng-mouseup="dragging_canvas=false"
+					ng-mousemove="dragging_canvas && dragCreateCropping($event.offsetX/thumbnail.width, $event.offsetY/thumbnail.height)">
+					<cropping-outline ng-repeat="cropping in croppings"></cropping-outline>
+				</svg>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<!--h4 id="master-title">Cropped out of</h4>
+			<div id="master" class="sidebar-box">
+				<a href="{{ master_href }}"><img src="{{ master_image }}"></a>
+			</div-->
+			<h4 id="suggestions-title">Friskærings forslag</h4>
+			<div class="text-center" id="cropping-controls">
+				<p>
+					<button id="add-suggestion-button" class="btn btn-success">
+						Ny
+					</button> 
+					<button id="save-croppings-button" class="btn btn-primary" ng-click="saveCroppings()">
+						<span class="glyphicon glyphicon-floppy-save"></span> Gem
+					</button>
+				</p>
+			</div>
+			<div id="suggestions" class="sidebar-box">
+				<cropping-thumbnail ng-repeat="cropping in croppings"></cropping-thumbnail>
+				<button id="fetch-suggestions" class="btn">
+					<span class="glyphicon glyphicon-transfer"></span>
+					Hent forslag
+				</button>
+			</div>
+		</div>
+	</div>
+	<!--hr>
+	<h4 id="croppings-title">Nuværende friskæringer</h4>
+	<div id="croppings">
+		<a href="{{ href }}" class="cropping"><img src="{{ image }}"></a>
+	</div-->
+</div>

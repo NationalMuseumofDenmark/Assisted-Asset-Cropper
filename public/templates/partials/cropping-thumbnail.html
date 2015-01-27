@@ -1,0 +1,27 @@
+<div class="suggestion"
+	ng-mouseenter="cropping.hovering=true"
+	ng-mouseleave="cropping.hovering=false"
+	ng-click="cropping.select()">
+	<div class="controls">
+		<span class="glyphicon glyphicon-trash delete-btn"
+			ng-click="cropping.remove()"></span>
+	</div>
+	<div class="arrow" ng-show="cropping.selected||cropping.hovering">
+		<span class="glyphicon glyphicon-arrow-right"></span>
+	</div>
+	<div class="image" ng-style="{
+			'width': cropping_thumbnail_container.width,
+			'height': cropping_thumbnail_container.height,
+			'margin-top': cropping_thumbnail_container.margin.top,
+			'margin-left': cropping_thumbnail_container.margin.left,
+			'margin-right': cropping_thumbnail_container.margin.right,
+			'margin-bottom': cropping_thumbnail_container.margin.bottom
+		}" >
+		<img ng-src="{{ thumbnail.url }}" ng-style="{
+			'width': cropping_thumbnail.width,
+			'height': cropping_thumbnail.height,
+			'left': cropping_thumbnail.left,
+			'top': cropping_thumbnail.top
+		}">
+	</div>
+</div>

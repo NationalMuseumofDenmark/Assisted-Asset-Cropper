@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="cropper">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Den assisterede friskærer</title>
+		<link rel="stylesheet" href="/stylesheets/app.css" />
+
+		<script type="text/javascript" src="/javascripts/lib/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/bootstrap.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/angular.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/angular-ui-router.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/angular-cookies.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/ng-infinite-scroll.min.js"></script>
+		<script type="text/javascript" src="/javascripts/lib/cip.min.js"></script>
+
+		<script type="text/javascript" src="/javascripts/services/cip.js"></script>
+		<script type="text/javascript" src="/javascripts/cropper.js"></script>
+		<script type="text/javascript" src="/javascripts/controllers/signinCtrl.js"></script>
+		<script type="text/javascript" src="/javascripts/controllers/searchCtrl.js"></script>
+		<script type="text/javascript" src="/javascripts/controllers/assetCtrl.js"></script>
+	</head>
+
+	<body>
+		<div ui-view></div>
+		<div class="messages">
+			<div
+				ng-repeat="message in messages"
+				class="alert alert-{{message.style}}"
+				role="alert">
+				<span
+					class="glyphicon glyphicon-remove pull-right"
+					aria-hidden="true"
+					ng-click="removeMessage($index)"></span>
+				<p>{{ message.body }}</p>
+			</div>
+		</div>
+	</body>
+</html>

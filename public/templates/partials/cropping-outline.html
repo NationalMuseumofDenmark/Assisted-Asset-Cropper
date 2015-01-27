@@ -1,0 +1,112 @@
+<g	ng-mouseup="outline.handleReleased()"
+		ng-mousemove="outline.handleMoved($event.offsetX/thumbnail.width, $event.offsetY/thumbnail.height)"
+		ng-hide="cropping_selected && !cropping.selected">
+	<defs>
+		<mask ng-attr-id="Mask-{{$index}}">
+			<rect
+				ng-attr-x="0"
+				ng-attr-y="0"
+				ng-attr-width="{{ thumbnail.width }}"
+				ng-attr-height="{{ thumbnail.height }}"
+				fill="white"  />
+			<rect ng-attr-x="{{ cropping.left * thumbnail.width }}"
+				ng-attr-y="{{ cropping.top * thumbnail.height }}"
+				ng-attr-width="{{ cropping.width * thumbnail.width }}"
+				ng-attr-height="{{ cropping.height * thumbnail.height }}"
+				fill="black" />
+		</mask>
+	</defs>
+		
+	<rect 
+		class="mask"
+		ng-attr-x="0"
+		ng-attr-y="0"
+		ng-attr-width="{{ thumbnail.width }}"
+		ng-attr-height="{{ thumbnail.height }}"
+		ng-attr-mask="url(#Mask-{{$index}})"
+		ng-show="cropping.selected"
+		ng-click="cropping.deselect()" />
+
+	<!-- The actual outline -->
+	<rect
+		class="outline" ng-class="{selected: cropping.selected, hover: cropping.hovering}"
+		ng-attr-x="{{ cropping.left * thumbnail.width }}"
+		ng-attr-y="{{ cropping.top * thumbnail.height }}"
+		ng-attr-width="{{ cropping.width * thumbnail.width }}"
+		ng-attr-height="{{ cropping.height * thumbnail.height }}"
+		ng-mousedown="cropping.select();outline.handleGrabbed('move', $event.offsetX/thumbnail.width, $event.offsetY/thumbnail.height)"
+		ng-click="cropping.select()"
+		ng-mouseenter="cropping.hovering=true"
+		ng-mouseleave="cropping.hovering=false" />
+
+	<!-- Horizontal handles -->
+	<rect
+		class="handle handle-north"
+		ng-attr-x="{{ cropping.left * thumbnail.width + handle_padding }}"
+		ng-attr-y="{{ cropping.top * thumbnail.height - handle_padding }}"
+		ng-attr-width="{{ cropping.width * thumbnail.width - handle_padding*2 }}"
+		ng-attr-height="{{ handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('north')" />
+	<rect
+		class="handle handle-south"
+		ng-attr-x="{{ cropping.left * thumbnail.width + handle_padding }}"
+		ng-attr-y="{{ (cropping.top+cropping.height) * thumbnail.height - handle_padding }}"
+		ng-attr-width="{{ cropping.width * thumbnail.width - handle_padding*2 }}"
+		ng-attr-height="{{ handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('south')" />
+
+	<!-- Vertical handles -->
+	<rect
+		class="handle handle-west"
+		ng-attr-x="{{ cropping.left * thumbnail.width - handle_padding }}"
+		ng-attr-y="{{ cropping.top * thumbnail.height + handle_padding }}"
+		ng-attr-width="{{ handle_padding*2 }}"
+		ng-attr-height="{{ cropping.height * thumbnail.height - handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('west')" />
+	<rect
+		class="handle handle-east"
+		ng-attr-x="{{ (cropping.left+cropping.width) * thumbnail.width - handle_padding }}"
+		ng-attr-y="{{ cropping.top * thumbnail.height + handle_padding }}"
+		ng-attr-width="{{ handle_padding*2 }}"
+		ng-attr-height="{{ cropping.height * thumbnail.height - handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('east')" />
+
+	<!-- Corners -->
+	<rect
+		class="handle corner handle-north-west"
+		ng-attr-x="{{ cropping.left * thumbnail.width - handle_padding }}"
+		ng-attr-y="{{ cropping.top * thumbnail.height - handle_padding }}"
+		ng-attr-width="{{ handle_padding*2 }}"
+		ng-attr-height="{{ handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('north-west')" />
+	<rect
+		class="handle corner handle-north-east"
+		ng-attr-x="{{ (cropping.left + cropping.width) * thumbnail.width - handle_padding }}"
+		ng-attr-y="{{ cropping.top * thumbnail.height - handle_padding }}"
+		ng-attr-width="{{ handle_padding*2 }}"
+		ng-attr-height="{{ handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('north-east')" />
+
+	<rect
+		class="handle corner handle-south-west"
+		ng-attr-x="{{ cropping.left * thumbnail.width - handle_padding }}"
+		ng-attr-y="{{ (cropping.top + cropping.height) * thumbnail.height - handle_padding }}"
+		ng-attr-width="{{ handle_padding*2 }}"
+		ng-attr-height="{{ handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('south-west')" />
+	<rect
+		class="handle corner handle-south-east"
+		ng-attr-x="{{ (cropping.left + cropping.width) * thumbnail.width - handle_padding }}"
+		ng-attr-y="{{ (cropping.top + cropping.height) * thumbnail.height - handle_padding }}"
+		ng-attr-width="{{ handle_padding*2 }}"
+		ng-attr-height="{{ handle_padding*2 }}"
+		ng-show="cropping.selected"
+		ng-mousedown="outline.handleGrabbed('south-east')" />
+</g>
