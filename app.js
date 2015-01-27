@@ -8,30 +8,14 @@ var express = require('express'),
 		i18n = require("i18n");
 
 // var index = require('./routes/index');
-var overview = require('./routes/overview');
+//var overview = require('./routes/overview');
 var assets = require('./routes/assets');
-var signin = require('./routes/signin');
+//var signin = require('./routes/signin');
+//var index = require('./routes/index');
 var cip_proxy = require('./routes/cip_proxy');
 
 var app = express();
-
-// Setup the Handlebars template engine.
-var handlebars_helpers = require('./lib/handlebars-helpers');
-
-handlebars_helpers['__'] = function (text) {
-	return i18n.__(text);
-};
-
-var exphbs  = require('express-handlebars');
-var hbs = exphbs.create({
-	defaultLayout: 'main',
-	extname: '.hbs',
-	helpers: handlebars_helpers
-});
-handlebars_helpers.set_handlebars(hbs);
-// Making the Express app aware of this.
-app.engine('.hbs', hbs.engine);
-app.set('view engine', '.hbs');
+/*
 // Save this i18n initialization for the routes to use.
 app.set('i18n', i18n);
 
@@ -42,6 +26,7 @@ i18n.configure({
 	directory: __dirname + '/locales',
 	updateFiles: app.get('env') === 'development'
 });
+*/
 
 // A proxy to the CIP - this way we concur challenges with
 // same origin policies and www-authenticate headers.
@@ -52,12 +37,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 
-app.use(i18n.init);
+//app.use(i18n.init);
 
 // Register the various application routes.
-app.use('/', signin);
-app.use('/overview', overview);
+//app.use('/', signin);
+//app.use('/overview', overview);
 app.use('/asset', assets);
+app.get('/', function(req, res) {
+  res.sendfile('public/templates/index.html');
+});
 
 // Serve the static files from the public folder.
 app.use(express.static(path.join(__dirname, 'public')));
@@ -80,30 +68,29 @@ app.use(function(req, res, next) {
 });
 
 /// error handlers
-
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
 	app.use(logger('dev'));
 	app.use(function(err, req, res, next) {
 		res.status(err.status || 500);
-		res.render('error', {
-			title: "An error occurred",
+		res.send({
+			title: "An error occurred in development mode",
 			message: err.message,
 			error: err
 		});
 	});
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-	res.status(err.status || 500);
-	res.render('error', {
-		title: "An error occurred",
-		message: err.message,
-		error: {}
+} else {
+	// production error handler
+	// no stacktraces leaked to user
+	app.use(function(err, req, res, next) {
+		res.status(err.status || 500);
+		res.send({
+			title: "An error occurred",
+			message: err.message,
+			error: {}
+		});
 	});
-});
+}
 
 module.exports = app;
