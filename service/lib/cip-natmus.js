@@ -21,8 +21,6 @@ var NatMusConfig = {
 	}
 };
 
-var CIP_USERNAME = process.env.CIP_USERNAME;
-var CIP_PASSWORD = process.env.CIP_PASSWORD;
 var CACHE_TIME = 1000 * 60 * 5;
 
 exports.config = NatMusConfig;
@@ -49,4 +47,4 @@ exports.client = function (req, next) {
 
 exports.wrap_proxy = function( url ) {
 	return url.replace( NatMusConfig.endpoint, "/CIP/" );
-}
+};

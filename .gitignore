@@ -1,4 +1,3 @@
-/credentials.sh
 node_modules/
-public/javascripts/lib/
-public/stylesheets/
+frontend/public/javascripts/lib/
+frontend/public/stylesheets/

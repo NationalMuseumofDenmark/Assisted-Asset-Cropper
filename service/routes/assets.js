@@ -6,9 +6,7 @@ var express = require('express'),
 		request = require('request'),
 		gm = require('gm'),
 		temp = require('temp'),
-		i18n = require('i18n'),
-		router = express.Router(),
-		__ = i18n.__;
+		router = express.Router();
 
 /**
  * Helping function to determine if the type and value of a variable
@@ -109,7 +107,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 	client = cip.client(req, next);
 	client.get_asset(catalog_alias, id, true, function(asset) {
 		var asset_title = asset.fields[TITLE_FIELD];
-		asset_title = asset_title ? asset_title : __("Asset without a titel");
+		asset_title = asset_title ? asset_title : 'Asset without a titel';
 		
 		var image_size = cropping.algorithm.DEFAULT_PARAMETERS.image_size;
 		var asset_filename = asset.fields[FILENAME_FIELD];
@@ -122,7 +120,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 
 		var render_options = {
 			jsessionid: client.jsessionid,
-			title: asset_title + " - "+ __("Assisted asset cropper"),
+			title: asset_title + " - "+ 'Assisted asset cropper',
 			catalog_alias: catalog_alias,
 			asset_title: asset_title,
 			asset_id: id,
@@ -139,7 +137,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 			});
 		});
 	}, function() {
-		var err = new Error(__("No such asset in Cumulus!"));
+		var err = new Error( 'No such asset in Cumulus!' );
 		err.status = 404;
 		next(err);
 	});
@@ -155,7 +153,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
+	var id = parseInt(req.param('id'), 10);
 	var left = parseFloat(req.param('left'));
 	var top = parseFloat(req.param('top'));
 	var width = parseFloat(req.param('width'));
@@ -164,7 +162,7 @@ router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', fu
 	if(size === 'maximal') {
 		size = undefined;
 	} else {
-		size = parseInt(size);
+		size = parseInt(size, 10);
 	}
 	var type = req.param('type');
 	client = cip.client(req, next);
@@ -194,10 +192,10 @@ router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', fu
 router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
+	var id = parseInt(req.param('id'), 10);
 	var size = req.param('size');
 	if(size !== undefined) {
-		size = parseInt(size);
+		size = parseInt(size, 10);
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
@@ -238,10 +236,10 @@ function deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions) {
 router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
+	var id = parseInt(req.param('id'), 10);
 	var size = req.param('size');
 	if(size !== undefined) {
-		size = parseInt(size);
+		size = parseInt(size, 10);
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
@@ -250,7 +248,7 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 		suggestions = deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions);
 		res.send(suggestions);
 	}, function(response) {
-		var err = new Error(__("Cumulus responded with status code %u", response.statusCode));
+		var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
 		err.status = 503;
 		next(err);
 	});
@@ -259,10 +257,10 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
+	var id = parseInt(req.param('id'), 10);
 	var size = req.param('size');
 	if(size !== undefined) {
-		size = parseInt(size);
+		size = parseInt(size, 10);
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
@@ -270,7 +268,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 	client = cip.client(req, next);
 	cropping.suggest(client, catalog_alias, id, function(suggestions) {
 		var result;
-		for(s in state_images) {
+		for(var s in state_images) {
 			if(result) {
 				result = result.append(state_images[s]);
 			} else {
@@ -285,7 +283,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
     });
     // temp.cleanupSync();
 	}, function(response) {
-		var err = new Error(__("Cumulus responded with status code %u", response.statusCode));
+		var err = new Error( 'Cumulus responded with status code ' + response.statusCode );
 		console.error(response);
 		err.status = 503;
 		next(err);
@@ -300,10 +298,10 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 router.get('/:catalog_alias/:id/croppings/:size?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
+	var id = parseInt(req.param('id'), 10);
 	var size = req.param('size');
 	if(size !== undefined) {
-		size = parseInt(size);
+		size = parseInt(size, 10);
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
@@ -376,12 +374,12 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 		}, function(is_error, response, body) {
 			if(is_error || response.statusCode != 200) {
 				if(response) {
-					var err = new Error(__("Cumulus responded with status code %u", response.statusCode));
+					var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
 					console.error(response);
 					err.status = 503;
 					error(err);
 				} else {
-					var err = new Error(__("Error sending the request to CIP."));
+					var err = new Error( 'Error sending the request to CIP.' );
 					console.error(is_error);
 					err.status = 500;
 					error(err);
@@ -403,17 +401,17 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 }
 
 function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped_asset_id, success, error) {
-	var variant_master_path = "metadata/linkrelatedasset/"
-		+ catalog_alias + "/"
-		+ asset_id + "/"
-		+ "isvariantmasterof/"
-		+ cropped_asset_id;
+	var variant_master_path = "metadata/linkrelatedasset/" +
+		catalog_alias + "/" +
+		asset_id + "/" +
+		"isvariantmasterof/" +
+		cropped_asset_id;
 
-	var variant_path = "metadata/linkrelatedasset/"
-		+ catalog_alias + "/"
-		+ cropped_asset_id + "/"
-		+ "isvariantof/"
-		+ asset_id;
+	var variant_path = "metadata/linkrelatedasset/" +
+		catalog_alias + "/" +
+		cropped_asset_id + "/" +
+		"isvariantof/" +
+		asset_id;
 	
 	console.log("Relating master to it's cropping.");
 	client.ciprequest(variant_master_path, {}, function( response ) {
@@ -422,13 +420,13 @@ function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped
 		client.ciprequest(variant_path, {}, function( response ) {
 			success( response );
 		}, function( response ) {
-			var err = new Error(__("Error linking the cropping to its original asset."));
+			var err = new Error( 'Error linking the cropping to its original asset.' );
 			console.error(response);
 			err.status = 500;
 			error(err);
 		});
 	}, function( response ) {
-		var err = new Error(__("Error linking the original asset to its cropping."));
+		var err = new Error( 'Error linking the original asset to its cropping.' );
 		console.log(response);
 		err.status = 500;
 		error(err);
@@ -443,7 +441,7 @@ function update_originals_cropping_status(client, catalog_alias, original_asset,
 	], {}, function( response ) {
 		success( response );
 	}, function( response ) {
-		var err = new Error(__("Error updating the original assets metadata."));
+		var err = new Error( 'Error updating the original assets metadata.' );
 		console.error(response);
 		err.status = 500;
 		error(err);
@@ -481,7 +479,7 @@ function delete_existing_croppings(client, catalog_alias, asset, success, error)
 router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
+	var id = parseInt(req.param('id'), 10);
 	assert("croppings" in req.body, "The request's body must be a json object with a croppings key with an array.");
 
 	var croppings = req.body.croppings;
@@ -493,11 +491,11 @@ router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 			var crop = croppings[c];
 			// Save this index in the information about the crop, such that this can
 			// be used in the crop's filename.
-			crop.index = parseInt(c);
+			crop.index = parseInt(c, 10);
 			console.log("Importing cropping #", (1+crop.index), "of", croppings.length);
 			import_asset_cropping(client, catalog_alias, original_asset, crop, function(cropped_asset) {
 				assert(cropped_asset && "id" in cropped_asset, "The cropped asset has to have an id.");
-				console.log("Cropping #", (1+parseInt(c)), "of", croppings.length, "successfully imported with id", cropped_asset.id, "Creating relations.");
+				console.log("Cropping #", (1+parseInt(c, 10)), "of", croppings.length, "successfully imported with id", cropped_asset.id, "Creating relations.");
 				// Create the relations between the assets.
 				create_cropped_asset_relations(client, catalog_alias, original_asset.fields.id, cropped_asset.id, function() {
 					console.log("Updating the original asset's cropping status.");
