@@ -132,7 +132,9 @@
 					croppings: $scope.croppings
 				}).then(function(response) {
 					console.log("Success!", response);
-				}, function() {
+					$scope.showMessage('success', 'Successfully cropped an asset.');
+				}, function(response) {
+					// TODO: Include response.message if it is defined.
 					$scope.showMessage('danger', 'Something went wrong when saving the croppings.');
 				});
 			};
