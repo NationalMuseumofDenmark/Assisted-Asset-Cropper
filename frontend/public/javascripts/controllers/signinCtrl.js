@@ -6,6 +6,7 @@
 
 			$scope.signed_in = true;
 			$scope.busy = false;
+			$scope.remember = false;
 
 			function redirect() {
 				$state.go('search');
