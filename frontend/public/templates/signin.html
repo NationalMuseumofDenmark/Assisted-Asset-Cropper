@@ -16,14 +16,21 @@
 			class="form-control"
 			placeholder="Kodeord"
 			required>
+		<!--div class="checkbox">
+			<label>
+				<input
+					ng-model="remember"
+					type="checkbox"> Husk mig
+			</label>
+		</div-->
 		<button
 			ng-click="signin"
 			class="btn btn-lg btn-primary btn-block"
 			ng-class="{disabled: busy}"
 			>Log ind</button>
 		<div class="progress" ng-show="busy">																																		
-		  <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
-		  </div>
+			<div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
+			</div>
 		</div>
 	</form>
 </div>
