@@ -132,10 +132,19 @@
 					croppings: $scope.croppings
 				}).then(function(response) {
 					console.log("Success!", response);
-					$scope.showMessage('success', 'Successfully cropped an asset.');
+					$scope.showMessage( 'success', 'Det lykkedes at gemme ' +
+						$scope.croppings.length +
+						' friskæringer af "' +
+						$scope.asset.metadata.filename +
+						'" (#' + $scope.asset_id + ' i ' + $scope.catalog_alias + ' kataloget)' );
 				}, function(response) {
+					console.log(response);
 					// TODO: Include response.message if it is defined.
-					$scope.showMessage('danger', 'Something went wrong when saving the croppings.');
+					$scope.showMessage( 'danger',
+						'Der opstod en uventet fejl, da friskæringerne af "' +
+						$scope.asset.metadata.filename +
+						'" (#' + $scope.asset_id + ' i ' + $scope.catalog_alias +
+						' kataloget) skulle gemmes.' );
 				});
 			};
 
