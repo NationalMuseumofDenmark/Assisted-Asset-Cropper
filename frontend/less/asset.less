@@ -16,8 +16,11 @@
 	}
 
 	#cropping-status {
+		/*
 		float: right;
-		clear: right;
+		clear: both;
+		*/
+		text-align: right;
 		span {
 			display: inline-block;
 			padding: 5px;
@@ -103,6 +106,14 @@
 			}
 			.handle-west {
 				cursor:w-resize;
+			}
+			.handle-rotation {
+				cursor: move;
+				fill: @brand-primary;
+			}
+			.handle-rotation-line {
+				stroke: @brand-primary;
+				stroke-width: 2;
 			}
 
 			.outline {
@@ -217,32 +228,28 @@
 				background-color: #D0D0D0;
 				vertical-align: middle;
 				overflow: hidden;
-				left: 10px;
 				img {
 					position: absolute;
 				}
 			}
 			.controls {
+				position: absolute;
+				top: 0px;
+				right: 0px;
 				line-height: initial;
 				float: right;
-				height: 100%;
 				padding: 8px;
-				.glyphicon {
-					-webkit-transition: all 0.3s ease-in-out;
-					-moz-transition: all 0.3s ease-in-out;
-					-o-transition: all 0.3s ease-in-out;
-					transition: all 0.3s ease-in-out;
+				button {
+					-webkit-transition: all 0.1s ease-in-out;
+					-moz-transition: all 0.1s ease-in-out;
+					-o-transition: all 0.1s ease-in-out;
+					transition: all 0.1s ease-in-out;
 
-					clear: right;
-					float: right;
-					margin-top: 3px;
-					margin: 0.2em;
+					padding: 0.2em;
 
-					cursor: pointer;
-				}
-				.glyphicon:hover {
-					font-size: 1.4em;
-					margin: 0em;
+					&:hover {
+						transform: scale(1.2);
+					}
 				}
 			}
 			.arrow {

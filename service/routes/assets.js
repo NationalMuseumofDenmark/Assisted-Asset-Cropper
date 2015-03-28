@@ -6,6 +6,7 @@ var express = require('express'),
 		request = require('request'),
 		gm = require('gm'),
 		temp = require('temp'),
+		q = require('q'),
 		router = express.Router();
 
 /**
@@ -150,6 +151,7 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 	*/
 });
 
+/*
 router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
@@ -211,27 +213,7 @@ router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, nex
 		});
 	});
 });
-
-function deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions) {
-	for(var s in suggestions) {
-		var url = "/" + [
-			"asset",
-			catalog_alias,
-			id,
-			"crop",
-			[
-				suggestions[s].left,
-				suggestions[s].top,
-				suggestions[s].width,
-				suggestions[s].height
-			].join(":"),
-			size,
-			"stream"
-		].join("/");
-		suggestions[s].thumbnail_url = url;
-	}
-	return suggestions;
-}
+*/
 
 router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 	// Localizing parameters
@@ -244,16 +226,19 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
 	client = cip.client(req, next);
-	cropping.suggest(client, catalog_alias, id, function(suggestions) {
-		suggestions = deriveSuggestionThumbnailURLs(catalog_alias, id, size, suggestions);
-		res.send(suggestions);
-	}, function(response) {
-		var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
-		err.status = 503;
-		next(err);
-	});
+	cropping.suggest(client, catalog_alias, id,
+		function(suggestions) {
+			res.send(suggestions);
+		},
+		function(response) {
+			var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
+			err.status = 503;
+			next(err);
+		}
+	);
 });
 
+/*
 router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
@@ -293,6 +278,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 		data.save( state_images[state] );
 	});
 });
+*/
 
 // Get the croppings 
 router.get('/:catalog_alias/:id/croppings/:size?', function(req, res, next) {
@@ -352,18 +338,35 @@ function perform_field_mapping(mappings, fields) {
 	return result;
 }
 
-function import_asset_cropping(client, catalog_alias, asset, crop, callback, error) {
-	crop.left = parseFloat(crop.left);
-	crop.top = parseFloat(crop.top);
+function import_asset_cropping(client, catalog_alias, asset, crop) {
+	var deferred = q.defer();
+
+	crop.center_x = parseFloat(crop.center_x);
+	crop.center_y = parseFloat(crop.center_y);
 	crop.width = parseFloat(crop.width);
 	crop.height = parseFloat(crop.height);
+	// Derive left and top coordinates.
+	crop.left = crop.center_x-crop.width/2;
+	crop.top = crop.center_y-crop.height/2;
+	// TODO: Add the rotation and check for invalid croppings, i.e. negative
+	// values and cropping outsid the original image.
 
 	var cropping_fields = perform_field_mapping(CROPPING_FIELD_MAPPINGS, asset.fields);
 	console.log(cropping_fields);
 	var cropping_details = cropping.generate_cropping_details(asset, crop.left, crop.top, crop.width, crop.height);
 	var cropping_url = cropping_details.thumbnail_url;
 
+	console.log("URL for the cropping:", cropping_url);
+
 	var cropping_buffer = request(cropping_url);
+
+	cropping_buffer.on('response', function(response) {
+    if(response.statusCode == 500) {
+			var err = new Error( 'Error loading the cropped image from the CIP.' );
+			err.status = response.statusCode;
+			deferred.reject(err);
+    }
+  });
 
 	var import_url = client.generate_url("asset/import/" + catalog_alias, false);
 
@@ -375,17 +378,15 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 			if(is_error || response.statusCode != 200) {
 				if(response) {
 					var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
-					console.error(response);
 					err.status = 503;
-					error(err);
+					deferred.reject(err);
 				} else {
 					var err = new Error( 'Error sending the request to CIP.' );
-					console.error(is_error);
 					err.status = 500;
-					error(err);
+					deferred.reject(err);
 				}
 			} else {
-				callback( JSON.parse(response.body) );
+				deferred.resolve( JSON.parse(response.body) );
 			}
 		}
 	);
@@ -398,9 +399,13 @@ function import_asset_cropping(client, catalog_alias, asset, crop, callback, err
 		filename: generate_cropped_filename(asset, crop.index),
 		contentType: 'image/jpeg'
 	});
+
+	return deferred.promise;
 }
 
-function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped_asset_id, success, error) {
+function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped_asset_id) {
+	var deferred = q.defer();
+
 	var variant_master_path = "metadata/linkrelatedasset/" +
 		catalog_alias + "/" +
 		asset_id + "/" +
@@ -418,33 +423,37 @@ function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped
 		// If this went well - let's link back.
 		console.log("Relating cropping to it's master.");
 		client.ciprequest(variant_path, {}, function( response ) {
-			success( response );
+			deferred.resolve( response );
 		}, function( response ) {
 			var err = new Error( 'Error linking the cropping to its original asset.' );
 			console.error(response);
 			err.status = 500;
-			error(err);
+			deferred.reject(err);
 		});
 	}, function( response ) {
 		var err = new Error( 'Error linking the original asset to its cropping.' );
 		console.log(response);
 		err.status = 500;
-		error(err);
+		deferred.reject(err);
 	});
+
+	return deferred.promise;
 }
 
-function update_originals_cropping_status(client, catalog_alias, original_asset, success, error) {
+function update_originals_cropping_status(client, catalog_alias, original_asset) {
+	var deferred = q.defer();
+
 	var request = client.ciprequest([
 		"metadata",
 		"setfieldvalues",
 		catalog_alias
 	], {}, function( response ) {
-		success( response );
+		deferred.resolve( response );
 	}, function( response ) {
 		var err = new Error( 'Error updating the original assets metadata.' );
 		console.error(response);
 		err.status = 500;
-		error(err);
+		deferred.reject(err);
 	});
 	var item = {
 		id: original_asset.fields.id
@@ -458,6 +467,8 @@ function update_originals_cropping_status(client, catalog_alias, original_asset,
 	request.setHeader("Content-Type", "application/json");
 	// Append the new values in the body.
 	request.end(body);
+
+	return deferred.promise;
 }
 
 /*
@@ -492,26 +503,23 @@ router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 			// Save this index in the information about the crop, such that this can
 			// be used in the crop's filename.
 			crop.index = parseInt(c, 10);
+
 			console.log("Importing cropping #", (1+crop.index), "of", croppings.length);
-			import_asset_cropping(client, catalog_alias, original_asset, crop, function(cropped_asset) {
+			import_asset_cropping(client, catalog_alias, original_asset, crop)
+			.then(function(cropped_asset) {
 				assert(cropped_asset && "id" in cropped_asset, "The cropped asset has to have an id.");
 				console.log("Cropping #", (1+parseInt(c, 10)), "of", croppings.length, "successfully imported with id", cropped_asset.id, "Creating relations.");
 				// Create the relations between the assets.
-				create_cropped_asset_relations(client, catalog_alias, original_asset.fields.id, cropped_asset.id, function() {
+				return create_cropped_asset_relations(client, catalog_alias, original_asset.fields.id, cropped_asset.id)
+				.then(function() {
 					console.log("Updating the original asset's cropping status.");
-					update_originals_cropping_status(client, catalog_alias, original_asset, function() {
+					return update_originals_cropping_status(client, catalog_alias, original_asset).then(function() {
 						res.send({
 							cropped_asset_id: cropped_asset.id
 						});
-					}, function(error) {
-						next(error);
 					});
-				}, function(error) {
-					next(error);
 				});
-			}, function(error) {
-				next(error);
-			});
+			}, next);
 		}
 	});
 });

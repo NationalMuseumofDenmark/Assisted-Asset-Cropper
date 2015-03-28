@@ -18,18 +18,21 @@
 			$scope.cropping_selected = false;
 
 			$scope.handle_padding = 5;
+			$scope.rotational_handle_radius = 10;
+			$scope.rotational_handle_length = 30;
 
 			function cropping(location) {
-				this.top = location.top;
-				this.left = location.left;
+				this.center_x = location.center_x;
+				this.center_y = location.center_y;
 				this.width = location.width;
 				this.height = location.height;
+				this.rotation = location.rotation;
 
-				var valid_top = this.top >= 0 && this.top <= 1;
-				var valid_left = this.left >= 0 && this.left <= 1;
+				var valid_center_x = this.center_x >= 0 && this.center_x <= 1;
+				var valid_center_y = this.center_y >= 0 && this.center_y <= 1;
 				var valid_width = this.width >= 0 && this.width <= 1;
 				var valid_height = this.height >= 0 && this.height <= 1;
-				if(valid_top && valid_left && valid_width && valid_height) {
+				if(valid_center_x && valid_center_y && valid_width && valid_height) {
 					$scope.croppings.push(this);
 				} else {
 					throw new Error("Trying to create an invalid cropping.");
@@ -85,10 +88,11 @@
 			$scope.dragCreateCropping = function(x, y) {
 				$scope.dragging_canvas = false;
 				var location = {
-					left: x,
-					top: y,
+					center_x: x,
+					center_y: y,
 					width: 0,
-					height: 0
+					height: 0,
+					rotation: 0
 				};
 				var c = new cropping(location);
 				c.select();
@@ -132,19 +136,34 @@
 					croppings: $scope.croppings
 				}).then(function(response) {
 					console.log("Success!", response);
-					$scope.showMessage( 'success', 'Det lykkedes at gemme ' +
-						$scope.croppings.length +
-						' friskæringer af "' +
-						$scope.asset.metadata.filename +
-						'" (#' + $scope.asset_id + ' i ' + $scope.catalog_alias + ' kataloget)' );
+					$scope.showMessage( 'success', [
+						'Det lykkedes at gemme ',
+						$scope.croppings.length,
+						' friskæringer af "',
+						$scope.asset.metadata.filename,
+						'" (#',
+						$scope.asset_id,
+						' i ',
+						$scope.catalog_alias,
+						' kataloget)'
+					] );
 				}, function(response) {
-					console.log(response);
+					var message = [
+						'Der opstod en uventet fejl, da friskæringerne af "',
+						$scope.asset.metadata.filename,
+						'" (#',
+						$scope.asset_id,
+						' i ',
+						$scope.catalog_alias,
+						' kataloget) skulle gemmes.'
+					];
+					if(response.data && response.data.message) {
+						message.push(' (');
+						message.push(response.data.message);
+						message.push(')');
+					}
 					// TODO: Include response.message if it is defined.
-					$scope.showMessage( 'danger',
-						'Der opstod en uventet fejl, da friskæringerne af "' +
-						$scope.asset.metadata.filename +
-						'" (#' + $scope.asset_id + ' i ' + $scope.catalog_alias +
-						' kataloget) skulle gemmes.' );
+					$scope.showMessage( 'danger', message );
 				});
 			};
 
@@ -190,10 +209,11 @@
 					if($scope.cropping.selected) {
 						this.grabbed_at = { x: x, y: y };
 						this.grabbed_offset = {
-							top: $scope.cropping.top,
-							left: $scope.cropping.left,
-							bottom: $scope.cropping.bottom,
-							right: $scope.cropping.right
+							center_x: $scope.cropping.center_x,
+							center_y: $scope.cropping.center_y,
+							width: $scope.cropping.width,
+							height: $scope.cropping.height,
+							rotation: $scope.cropping.rotation
 						};
 						this.grabbed = true;
 						this.direction = direction;
@@ -208,19 +228,20 @@
 				this.handleMoved = function(x, y) {
 					if($scope.cropping.selected) {
 						if(this.grabbed) {
-							if(this.direction.indexOf('move') >= 0) {
-								$scope.cropping.left = this.grabbed_offset.left - this.grabbed_at.x + x;
-								$scope.cropping.top = this.grabbed_offset.top - this.grabbed_at.y + y;
-								$scope.cropping.left = Math.max(0, $scope.cropping.left);
-								$scope.cropping.top = Math.max(0, $scope.cropping.top);
-								$scope.cropping.left = Math.min(1-$scope.cropping.width, $scope.cropping.left);
-								$scope.cropping.top = Math.min(1-$scope.cropping.height, $scope.cropping.top);
+							if(this.direction.indexOf('move') >= 0) { // Moving the whole cropping.
+								$scope.cropping.center_x = this.grabbed_offset.center_x - this.grabbed_at.x + x;
+								$scope.cropping.center_y = this.grabbed_offset.center_y - this.grabbed_at.y + y;
+								// Keeing the bounds.
+								$scope.cropping.center_x = Math.max($scope.cropping.width/2, $scope.cropping.center_x);
+								$scope.cropping.center_y = Math.max($scope.cropping.height/2, $scope.cropping.center_y);
+								$scope.cropping.center_x = Math.min(1-$scope.cropping.width/2, $scope.cropping.center_x);
+								$scope.cropping.center_y = Math.min(1-$scope.cropping.height/2, $scope.cropping.center_y);
 							} else {
 								var offsets = {
-									top: $scope.cropping.top,
-									left: $scope.cropping.left,
-									bottom: $scope.cropping.top + $scope.cropping.height,
-									right: $scope.cropping.left + $scope.cropping.width
+									left: $scope.cropping.center_x-$scope.cropping.width/2,
+									top: $scope.cropping.center_y-$scope.cropping.height/2,
+									right: $scope.cropping.center_x+$scope.cropping.width/2,
+									bottom: $scope.cropping.center_y+$scope.cropping.height/2,
 								};
 
 								// TODO: Switch around north and south and east and west.
@@ -249,8 +270,8 @@
 								if(this.direction.indexOf('west') >= 0) {
 									offsets.left = x;
 								}
-								$scope.cropping.top = offsets.top;
-								$scope.cropping.left = offsets.left;
+								$scope.cropping.center_x = offsets.left+(offsets.right-offsets.left)/2;
+								$scope.cropping.center_y = offsets.top+(offsets.bottom-offsets.top)/2;
 								$scope.cropping.height = Math.max(offsets.bottom - offsets.top, 0 );
 								$scope.cropping.width = Math.max(offsets.right - offsets.left, 0 );
 							}
@@ -325,17 +346,18 @@
 					$scope.cropping_thumbnail = {
 						width: large_thumbnail.width / zoom_factor,
 						height: large_thumbnail.height / zoom_factor,
-						top: -($scope.cropping.top * large_thumbnail.height) / zoom_factor,
-						left: -($scope.cropping.left * large_thumbnail.width) / zoom_factor,
+						left: -(($scope.cropping.center_x-$scope.cropping.width/2) * large_thumbnail.width) / zoom_factor,
+						top: -(($scope.cropping.center_y-$scope.cropping.height/2) * large_thumbnail.height) / zoom_factor,
 					};
 
 				}
 
-				$scope.$watch('cropping.left', updateThumbnail);
-				$scope.$watch('cropping.top', updateThumbnail);
+				$scope.$watch('cropping.center_x', updateThumbnail);
+				$scope.$watch('cropping.center_y', updateThumbnail);
 				$scope.$watch('cropping.width', updateThumbnail);
 				$scope.$watch('cropping.height', updateThumbnail);
 				$scope.$watch('thumbnail.loaded', updateThumbnail);
+				$(window).on('resize', $scope.$apply);
 			}],
 			controllerAs: 'cropping_thumbnail'
 		};
@@ -344,13 +366,15 @@
 		return {
 			restrict: 'A',
 			link: function(scope, element, attrs) {
-				element.bind('load', function() {
+				function updateThumbnailDimensions() {
 					scope.$apply(function() {
 						scope.thumbnail.width = element.width();
 						scope.thumbnail.height = element.height();
 						scope.thumbnail.loaded = true;
 					});
-				});
+				}
+				element.bind('load', updateThumbnailDimensions);
+				$(window).bind('resize', updateThumbnailDimensions);
 			}
 		};
 	});

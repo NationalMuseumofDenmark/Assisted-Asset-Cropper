@@ -138,10 +138,11 @@ exports.suggest = function(client, catalog_alias, id, callback, error_callback, 
 					boundingRect.height /= im.height();
 
 					suggestions.push({
-						left: boundingRect.x,
-						top: boundingRect.y,
+						center_x: boundingRect.x+(boundingRect.width/2),
+						center_y: boundingRect.y+(boundingRect.height/2),
 						width: boundingRect.width,
-						height: boundingRect.height
+						height: boundingRect.height,
+						rotation: 0
 					});
 				}
 

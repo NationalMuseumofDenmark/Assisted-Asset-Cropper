@@ -77,9 +77,12 @@
 	.run(['$rootScope', '$state', function($rootScope, $state) {
 		$rootScope.messages = [];
 		$rootScope.showMessage = function(style, body) {
+			if( typeof body === 'string' ) {
+				body = [ body ];
+			}
 			$rootScope.messages.push({
 				style: style,
-				body: body
+				body: body.join('')
 			});
 		};
 

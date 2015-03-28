@@ -31,8 +31,8 @@ exports.generate_cropping_details = function(asset, x, y, width, height, size) {
 	var image_options = {
 		left: Math.round(x * original_width),
 		top: Math.round(y * original_height),
-		width: Math.round(original_width * width),
-		height: Math.round(original_height * height)
+		width: Math.round(width * original_width),
+		height: Math.round(height * original_height)
 	}
 	if (size) {
 		image_options.maxsize = size;
