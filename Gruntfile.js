@@ -73,8 +73,8 @@ module.exports = function(grunt) {
 					'app.js',
 					'Gruntfile.js',
 					'javascripts/**/*.js',
-					'less/**/*.less',
-					'views/**/*.hbs'
+					'frontend/**/*.less',
+					'frontend/**/*.js'
 				],
 				tasks: ['public', 'express:dev'],
 				options: {
