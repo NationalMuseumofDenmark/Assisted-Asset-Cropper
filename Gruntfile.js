@@ -56,6 +56,11 @@ module.exports = function(grunt) {
 				]
 			},
 		},
+		env : {
+			dev: {
+				DEBUG: 'cropper'
+			}
+		},
 		express: {
 			options: {
 				// Override defaults here - might no longer be needed.
@@ -64,7 +69,7 @@ module.exports = function(grunt) {
 			dev: {
 				options: {
 					script: './bin/www'
-				},
+				}
 			},
 		},
 		watch: {
@@ -127,7 +132,7 @@ module.exports = function(grunt) {
 
 	// Use "grunt start" when developing, to reload the express app when
 	// files are changing in the folder structure.
-	grunt.registerTask('start', ['express:dev', 'watch']);
+	grunt.registerTask('start', ['env:dev', 'express:dev', 'watch']);
 
 	require('time-grunt')(grunt);
 };
