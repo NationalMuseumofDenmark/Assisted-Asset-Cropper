@@ -1,6 +1,5 @@
 var express = require('express'),
 		path = require('path'),
-		favicon = require('static-favicon'), // TODO: Consider changing this to serve-favicon
 		logger = require('morgan'),
 		cookieParser = require('cookie-parser'),
 		bodyParser = require('body-parser'),
@@ -17,17 +16,13 @@ var app = express();
 app.use('/CIP', cip_proxy);
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-//app.use(i18n.init);
-
 // Register the various application routes.
-//app.use('/', signin);
-//app.use('/overview', overview);
 app.use('/asset', assets);
 app.get('/', function(req, res) {
-  res.sendfile('./frontend/public/templates/index.html');
+  res.sendFile(__dirname + '/frontend/public/templates/index.html');
 });
 
 // Serve the static files from the public folder.
