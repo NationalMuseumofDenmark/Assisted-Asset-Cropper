@@ -217,9 +217,9 @@ router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, nex
 
 router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'), 10);
-	var size = req.param('size');
+	var catalog_alias = req.params['catalog_alias'];
+	var id = parseInt(req.params['id'], 10);
+	var size = req.params['size'];
 	if(size !== undefined) {
 		size = parseInt(size, 10);
 	} else {
