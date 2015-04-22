@@ -62,10 +62,6 @@ module.exports = function(grunt) {
 			}
 		},
 		express: {
-			options: {
-				// Override defaults here - might no longer be needed.
-				delay: 1
-			},
 			dev: {
 				options: {
 					script: './bin/www'
@@ -77,7 +73,7 @@ module.exports = function(grunt) {
 				files: [
 					'app.js',
 					'Gruntfile.js',
-					'javascripts/**/*.js',
+					'service/**/*.js',
 					'frontend/**/*.less',
 					'frontend/**/*.js'
 				],
