@@ -1,3 +1,4 @@
 node_modules/
 frontend/public/javascripts/lib/
 frontend/public/stylesheets/
+bower_components/
