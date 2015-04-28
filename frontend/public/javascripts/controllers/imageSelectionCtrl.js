@@ -24,15 +24,17 @@
 
 		$scope.draggingCanvas = false;
 
-		$scope.deselectSelection = function() {
-			$scope.selectedSelection = undefined;
-		};
-
 		$scope.selectSelection = function(selection) {
-			$scope.deselectSelection();
 			$scope.selectedSelection = selection;
+			// Parent controllers might want to know when the selection changes.
+			$scope.$emit('selectSelectionChanged', { selection: selection });
 		};
 
+		$scope.deselectSelection = function() {
+			$scope.selectSelection(undefined);
+		};
+
+		// TODO: Might be deleted - it's probably not used.
 		$scope.isSelected = function(selection) {
 			return $scope.selectedSelection === selection;
 		};
@@ -43,6 +45,7 @@
 				$scope.selections.splice(selection, 1);
 			} else {
 				$scope.selections = $scope.selections.filter(function(someSelection) {
+					console.log(someSelection, selection, someSelection !== selection);
 					return someSelection !== selection;
 				});
 			}
@@ -94,33 +97,16 @@
 			}
 		};
 
-		/*
+		// Parent controllers might want to affect the selection.
+		$scope.$on('selectSelection', function(e, args) {
+			$scope.selectSelection(args.selection);
+		});
 
-		$scope.isValidSelection = function(selection) {
-			var valid_center_x = selection.center_x >= 0 && selection.center_x <= 1;
-			var valid_center_y = selection.center_y >= 0 && selection.center_y <= 1;
-			var valid_width = selection.width >= 0 && selection.width <= 1;
-			var valid_height = selection.height >= 0 && selection.height <= 1;
-			var valid_rotation = selection.rotation >= 0 && selection.rotation <= 2*Math.PI;
-			return valid_center_x && valid_center_y && valid_width && valid_height && valid_rotation;
-		};
+		// Parent controllers might want to remove selections.
+		$scope.$on('removeSelection', function(e, args) {
+			$scope.removeSelection(args.selection);
+		});
 
-		// Validate selections as the selections array changes
-		// (not the selections them selves).
-		$scope.$watch('selections', function(selections) {
-			// Filter out any invalid selections.
-			selections = selections.filter($scope.isValidSelection);
-			// Update the selections scope variable again.
-			$scope.selections = selections;
-		}, true);
-		*/
-
-		/*
-
-
-
-
-		*/
 		$(window).keypress(function(e) {
 			if(e.keyCode === 127) { // The 'Delete' button
 				$scope.removeSelectedSelection();
@@ -151,10 +137,13 @@
 					scope.$apply(function() {
 						scope.image.width = $image.width();
 						scope.image.height = $image.height();
-						scope.image.loaded = true;
+						scope.$emit('imageUpdated', { image: scope.image });
 					});
 				}
-				$image.bind('load', updateThumbnailDimensions);
+				$image.bind('load', function() {
+					scope.image.loaded = true;
+					updateThumbnailDimensions();
+				});
 				$(window).bind('resize', updateThumbnailDimensions);
 				$(element).bind('click', function(e) {
 					// This prevents the click from deselecting.

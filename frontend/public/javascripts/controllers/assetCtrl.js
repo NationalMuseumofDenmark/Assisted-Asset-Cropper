@@ -78,8 +78,30 @@
 					$scope.showMessage( 'danger', message );
 				});
 			};
-	}]);
-	/*
+
+			$scope.selectCropping = function(cropping) {
+				$scope.$broadcast('selectSelection', {selection: cropping});
+			};
+
+			$scope.removeCropping = function(cropping) {
+				$scope.$broadcast('removeSelection', {selection: cropping});
+			};
+
+			function reflect(e, args) {
+				// If this was emitted by a child scope of ours.
+				if(e.targetScope.$parent === $scope) {
+					// Reflect this back to all children.
+					$scope.$broadcast(e.name, args);
+				}
+			}
+
+			// When the image selection changes.
+			$scope.$on('selectSelectionChanged', reflect);
+
+			$scope.$on('imageUpdated', function(e, args) {
+				$scope.image = args.image;
+			});
+	}])
 	.directive('croppingThumbnail', function() {
 		var THUMBNAIL_SIZE = 100;
 
@@ -87,15 +109,16 @@
 			restrict: 'E',
 			templateUrl: 'templates/partials/cropping-thumbnail.html',
 			controller: ['$scope', function($scope) {
-
 				function updateThumbnail() {
-					// Don't do anything before the large thumbnail has loaded.
-					if(!$scope.thumbnail.loaded) {
+					// Don't do anything before the image has loaded.
+					if(!$scope.$parent.image || !$scope.$parent.image.loaded) {
+						console.log('updateThumbnail returned as no image was loaded.');
 						return;
 					}
+
 					var large_thumbnail = {
-						width: $scope.thumbnail.width,
-						height: $scope.thumbnail.height
+						width: $scope.image.width,
+						height: $scope.image.height
 					};
 
 					var cropping_width_px = $scope.cropping.width * large_thumbnail.width;
@@ -145,19 +168,24 @@
 						left: -(($scope.cropping.center_x-$scope.cropping.width/2) * large_thumbnail.width) / zoom_factor,
 						top: -(($scope.cropping.center_y-$scope.cropping.height/2) * large_thumbnail.height) / zoom_factor,
 					};
-
 				}
-
 				$scope.$watch('cropping.center_x', updateThumbnail);
 				$scope.$watch('cropping.center_y', updateThumbnail);
 				$scope.$watch('cropping.width', updateThumbnail);
 				$scope.$watch('cropping.height', updateThumbnail);
+				$scope.$parent.$watch('image', updateThumbnail);
+				$scope.$on('selectSelectionChanged', function(e, args) {
+					$scope.cropping.selected = $scope.cropping === args.selection;
+				});
+				/*
 				$scope.$watch('thumbnail.loaded', updateThumbnail);
 				$(window).on('resize', $scope.$apply);
+				*/
 			}],
 			controllerAs: 'cropping_thumbnail'
 		};
-	})
+	});
+	/*
 	.directive('assetThumbnailOnload', function() {
 		return {
 			restrict: 'A',

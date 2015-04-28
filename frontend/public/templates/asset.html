@@ -52,7 +52,10 @@
 				</p>
 			</div>
 			<div id="suggestions" class="sidebar-box">
-				<cropping-thumbnail ng-repeat="cropping in croppings" class="col-xs-6 col-sm-4 col-md-12"></cropping-thumbnail>
+				<cropping-thumbnail
+					ng-repeat="cropping in croppings"
+					class="col-xs-6 col-sm-4 col-md-12">
+				</cropping-thumbnail>
 				<button class="btn" id="fetch-suggestions" ng-hide="croppings.length>0">
 					<span class="glyphicon glyphicon-transfer"></span>
 					Hent forslag

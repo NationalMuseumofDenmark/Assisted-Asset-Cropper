@@ -1,7 +1,7 @@
 <div class="suggestion"
 	ng-mouseenter="cropping.hovering=true"
 	ng-mouseleave="cropping.hovering=false"
-	ng-click="cropping.select()">
+	ng-click="selectCropping(cropping);$event.stopPropagation();">
 	<div class="image" ng-style="{
 			'width': cropping_thumbnail_container.width,
 			'height': cropping_thumbnail_container.height,
@@ -10,7 +10,7 @@
 			'margin-right': cropping_thumbnail_container.margin.right,
 			'margin-bottom': cropping_thumbnail_container.margin.bottom
 		}" >
-		<img ng-src="{{ thumbnail.url }}" ng-style="{
+		<img ng-src="{{ asset.get_thumbnail_url() }}" ng-style="{
 			'width': cropping_thumbnail.width,
 			'height': cropping_thumbnail.height,
 			'left': cropping_thumbnail.left,
@@ -20,7 +20,7 @@
 	<div class="controls" ng-show="cropping.hovering">
 		<button class="btn btn-danger delete-btn">
 			<span class="glyphicon glyphicon-trash"
-				ng-click="cropping.remove()"></span>
+				ng-click="removeCropping(cropping);$event.stopPropagation();"></span>
 		</button>
 	</div>
 	<div class="arrow" ng-show="cropping.selected||cropping.hovering">
