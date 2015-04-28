@@ -26,15 +26,12 @@
 
 <div class="container asset" ng-class="'cropping-status-' + asset.metadata.cropping_status.id">
 	<div class="row controls">
-		<div class="col-md-10">
-			<div class="canvas">
-				<img id="asset" ng-src="{{ thumbnail.url }}" asset-thumbnail-onload>
-				<svg id="outlines" ng-show="thumbnail.loaded"
-					ng-mousedown="dragging_canvas=!cropping_selected"
-					ng-mouseup="dragging_canvas=false"
-					ng-mousemove="dragging_canvas && dragCreateCropping($event.offsetX/thumbnail.width, $event.offsetY/thumbnail.height)">
-					<cropping-outline ng-repeat="cropping in croppings"></cropping-outline>
-				</svg>
+		<div class="col-md-10 text-center">
+			<div class="frame">
+				<image-selection-canvas
+					src="{{asset.get_thumbnail_url()}}"
+					selections="croppings">
+				</image-selection-canvas>
 			</div>
 		</div>
 		<div id="cropping-status" class="col-md-2">Status: <span>{{ asset.metadata.cropping_status.displaystring }}</span></div>

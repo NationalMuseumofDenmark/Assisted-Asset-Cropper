@@ -1,0 +1,131 @@
+<g	ng-mouseup="handleReleased()"
+		ng-mousemove="mouseMoved($event.offsetX, $event.offsetY)"
+		ng-show="visible">
+	<defs>
+		<mask ng-attr-id="{{maskId}}">
+			<rect
+				ng-attr-x="0"
+				ng-attr-y="0"
+				ng-attr-width="{{ image.width }}"
+				ng-attr-height="{{ image.height }}"
+				fill="white"  />
+			<rect ng-attr-x="{{ left }}"
+				ng-attr-y="{{ top }}"
+				ng-attr-width="{{ width }}"
+				ng-attr-height="{{ height }}"
+				fill="black"
+				ng-attr-style="{{ rotationStyle }}" />
+		</mask>
+	</defs>
+
+	<rect 
+		class="mask"
+		ng-attr-x="0"
+		ng-attr-y="0"
+		ng-attr-width="{{ image.width }}"
+		ng-attr-height="{{ image.height }}"
+		ng-attr-mask="url(#{{maskId}})"
+		ng-show="selected"
+		ng-click="deselect()" />
+		
+	<g ng-attr-style="{{ rotationStyle }}">
+
+		<!-- The actual outline -->
+		<rect
+			class="outline" ng-class="{ selected: selected, hover: hovering }"
+			ng-attr-x="{{ left }}"
+			ng-attr-y="{{ top }}"
+			ng-attr-width="{{ width }}"
+			ng-attr-height="{{ height }}"
+			ng-mousedown="handleGrabbed('move', $event)"
+			ng-mouseenter="hovering=true"
+			ng-mouseleave="hovering=false" />
+
+		<!-- Horizontal handles -->
+		<rect
+			ng-show="selected"
+			class="handle handle-north"
+			ng-attr-x="{{ left + handlePadding }}"
+			ng-attr-y="{{ top - handlePadding }}"
+			ng-attr-width="{{ width - handlePadding*2 }}"
+			ng-attr-height="{{ handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('north', $event)" />
+		<rect
+			ng-show="selected"
+			class="handle handle-south"
+			ng-attr-x="{{ left + handlePadding }}"
+			ng-attr-y="{{ top + height - handlePadding }}"
+			ng-attr-width="{{ width - handlePadding*2 }}"
+			ng-attr-height="{{ handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('south', $event)" />
+
+		<!-- Vertical handles -->
+		<rect
+			ng-show="selected"
+			class="handle handle-west"
+			ng-attr-x="{{ left - handlePadding }}"
+			ng-attr-y="{{ top + handlePadding }}"
+			ng-attr-width="{{ handlePadding*2 }}"
+			ng-attr-height="{{ height - handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('west', $event)" />
+		<rect
+			ng-show="selected"
+			class="handle handle-east"
+			ng-attr-x="{{ left + width - handlePadding }}"
+			ng-attr-y="{{ top + handlePadding }}"
+			ng-attr-width="{{ handlePadding*2 }}"
+			ng-attr-height="{{ height - handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('east', $event)" />
+
+		<!-- Corners -->
+		<rect
+			ng-show="selected"
+			class="handle corner handle-north-west"
+			ng-attr-x="{{ left - handlePadding }}"
+			ng-attr-y="{{ top - handlePadding }}"
+			ng-attr-width="{{ handlePadding*2 }}"
+			ng-attr-height="{{ handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('north-west', $event)" />
+		<rect
+			ng-show="selected"
+			class="handle corner handle-north-east"
+			ng-attr-x="{{ left + width - handlePadding }}"
+			ng-attr-y="{{ top - handlePadding }}"
+			ng-attr-width="{{ handlePadding*2 }}"
+			ng-attr-height="{{ handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('north-east', $event)" />
+
+		<rect
+			ng-show="selected"
+			class="handle corner handle-south-west"
+			ng-attr-x="{{ left - handlePadding }}"
+			ng-attr-y="{{ top + height - handlePadding }}"
+			ng-attr-width="{{ handlePadding*2 }}"
+			ng-attr-height="{{ handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('south-west', $event)" />
+		<rect
+			ng-show="selected"
+			class="handle corner handle-south-east"
+			ng-attr-x="{{ left + width - handlePadding }}"
+			ng-attr-y="{{ top + height - handlePadding }}"
+			ng-attr-width="{{ handlePadding*2 }}"
+			ng-attr-height="{{ handlePadding*2 }}"
+			ng-mousedown="handleGrabbed('south-east', $event)" />
+
+		<!-- Rotational handle -->
+		<line
+			ng-show="selected && canRotate"
+			class="handle-rotation-line"
+			ng-attr-x1="{{ centerX }}"
+			ng-attr-y1="{{ top - rotationalHandleLength + rotationalHandleRadius }}"
+			ng-attr-x2="{{ centerX }}"
+			ng-attr-y2="{{ top }}" />
+		<circle
+			ng-show="selected && canRotate"
+			class="handle handle-rotation"
+			ng-attr-cx="{{ centerX }}"
+			ng-attr-cy="{{ top - rotationalHandleLength }}"
+			ng-attr-r="{{ rotationalHandleRadius }}"
+			ng-mousedown="handleGrabbed('rotational', $event)" />
+	</g>
+</g>

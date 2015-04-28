@@ -1,0 +1,50 @@
+image-selection-canvas {
+	position: relative;
+	display: block;
+
+	svg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		@import "outline.less";
+	}
+	img#asset {
+		display: block;
+		margin: auto;
+		/*
+		padding: 3px;
+		border: 1px solid #D0D0D0;
+		*/
+		background-color: #F0F0F0;
+		width: 100%;
+	}
+	&.editing {
+		.outlines {
+			display: none;
+		}
+	}
+
+	#asset-algorithm-states {
+		display: none; /* Hidden by default */
+		overflow: hidden;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 15px;
+		right: 15px;
+		img {
+			position: absolute;
+			display: block;
+			width: 100%;
+			margin: auto;
+		}
+	}
+
+	.can-rotational-toggle-btn {
+		position: absolute;
+		bottom: 1em;
+		right: 1em;
+	}
+}

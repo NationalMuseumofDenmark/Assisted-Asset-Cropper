@@ -1,0 +1,15 @@
+<div class="canvas">
+	<img id="asset" ng-src="{{ imageSrc }}">
+	<svg ng-show="image.loaded"
+		ng-mousedown="mouseDown(); $event.stopPropagation();"
+		ng-mouseup="mouseUp()"
+		ng-mousemove="mouseMove($event.offsetX, $event.offsetY)">
+		<image-selection-outline ng-repeat="selection in selections">
+		</image-selection-outline>
+	</svg>
+	<button ng-click="toggleCanRotate()"
+	        class="btn btn-default btn-sm can-rotational-toggle-btn"
+	        ng-class="{active: canRotate}">
+	  Rotateable (experimental)
+	</button>
+</div>
