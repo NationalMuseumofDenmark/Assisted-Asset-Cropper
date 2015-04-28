@@ -361,12 +361,39 @@ function import_asset_cropping(client, catalog_alias, asset, crop) {
 	var cropping_buffer = request(cropping_url);
 
 	cropping_buffer.on('response', function(response) {
-    if(response.statusCode == 500) {
-			var err = new Error( 'Error loading the cropped image from the CIP.' );
-			err.status = response.statusCode;
-			deferred.reject(err);
-    }
-  });
+		// Keep a body string to buffer the response.
+		var responseBody = '';
+		response.on('data', function (chunk) {
+			responseBody += chunk;
+		});
+		// When the response has ended - let's react.
+		response.on('end', function () {
+			if(response.statusCode == 500) {
+				var errorMessage = 'Error loading the cropped image from the CIP: ';
+				try {
+					// If
+					var jsonResponseBody = JSON.parse(responseBody);
+					if('message' in jsonResponseBody) {
+						errorMessage += jsonResponseBody.message;
+					} else {
+						// Append it directly
+						errorMessage += responseBody;
+					}
+				} catch(e) {
+					if(e instanceof SyntaxError) {
+						// Append it directly.
+						errorMessage += responseBody;
+					} else {
+						throw e;
+					}
+				}
+
+				var err = new Error( errorMessage );
+				err.status = response.statusCode;
+				deferred.reject(err);
+			}
+		});
+	});
 
 	var import_url = client.generate_url("asset/import/" + catalog_alias, false);
 
