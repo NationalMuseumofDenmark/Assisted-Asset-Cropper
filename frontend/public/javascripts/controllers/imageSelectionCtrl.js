@@ -40,6 +40,9 @@
 		};
 
 		$scope.removeSelection = function(selection) {
+			if($scope.isSelected(selection)) {
+				$scope.deselectSelection();
+			}
 			if(typeof(selection) === 'number') {
 				// The selection argument is the index.
 				$scope.selections.splice(selection, 1);
