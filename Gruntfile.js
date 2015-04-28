@@ -12,7 +12,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-express-server');
 	grunt.loadNpmTasks('grunt-env');
-	grunt.loadNpmTasks('grunt-text-replace');
 
 	grunt.config.merge({
 		pkg: grunt.file.readJSON('package.json'),
@@ -62,6 +61,10 @@ module.exports = function(grunt) {
 			}
 		},
 		express: {
+			options: {
+				// Override defaults here
+				delay: 1
+			},
 			dev: {
 				options: {
 					script: './bin/www'
