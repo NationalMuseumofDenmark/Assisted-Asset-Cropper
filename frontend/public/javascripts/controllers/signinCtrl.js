@@ -4,6 +4,8 @@
 		.controller('signinCtrl', ['$scope', '$http', '$state', 'cip',
 			function($scope, $http, $state, cip) {
 
+			// TODO: Consider throwing this into the $rootScope instead of $scope.
+
 			$scope.signed_in = true;
 			$scope.busy = false;
 			$scope.remember = false;
