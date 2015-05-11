@@ -5,7 +5,8 @@ var querystring = require('querystring');
 var cip = require('../lib/cip-natmus.js');
 //var algorithm = require('./cropping-algorithm-simple-canny.js');
 //var algorithm = require('./cropping-algorithm-advanced-canny.js');
-var algorithm = require('./cropping-algorithm-canny-with-solidity.js');
+//var algorithm = require('./cropping-algorithm-canny-with-solidity.js');
+var algorithm = require('./cropping-algorithm-card-color-canny-with-solidity.js');
 //var algorithm = require('./cropping-algorithm-hue-canny-with-solidity.js');
 
 var ASSET_WIDTH_FIELD = "{af4b2e11-5f6a-11d2-8f20-0000c0e166dc}";
