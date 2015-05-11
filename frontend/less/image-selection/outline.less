@@ -9,13 +9,18 @@
 }
 
 .mask {
-	//fill: fade(black, 50%);
 	fill: fade(white, 50%);
 }
 
 .handle {
 	fill: transparent;
-	//fill: fade(blue, 50%);
+	stroke-width: 0;
+	cursor: move;
+	&:hover {
+		//stroke: @brand-primary;
+		//stroke-width: 1;
+		fill: fade(@brand-primary, 10%);
+	}
 }
 
 .corner {
@@ -23,6 +28,7 @@
 	//fill: fade(green, 50%);
 }
 
+/*
 .handle-south-west {
 	cursor:sw-resize;
 }
@@ -47,6 +53,8 @@
 .handle-west {
 	cursor:w-resize;
 }
+*/
+
 .handle-rotation {
 	cursor: move;
 	fill: fade(@brand-primary, 50%);

@@ -6904,6 +6904,32 @@ image-selection-canvas svg {
   left: 0;
   width: 100%;
   height: 100%;
+  /*
+.handle-south-west {
+	cursor:sw-resize;
+}
+.handle-south-east {
+	cursor:se-resize;
+}
+.handle-north-west {
+	cursor:nw-resize;
+}
+.handle-north-east {
+	cursor:ne-resize;
+}
+.handle-south {
+	cursor:s-resize;
+}
+.handle-east {
+	cursor:e-resize;
+}
+.handle-north {
+	cursor:n-resize;
+}
+.handle-west {
+	cursor:w-resize;
+}
+*/
 }
 @-webkit-keyframes dash-walk {
   from {
@@ -6926,33 +6952,14 @@ image-selection-canvas svg .mask {
 }
 image-selection-canvas svg .handle {
   fill: transparent;
+  stroke-width: 0;
+  cursor: move;
+}
+image-selection-canvas svg .handle:hover {
+  fill: rgba(151, 22, 35, 0.1);
 }
 image-selection-canvas svg .corner {
   fill: transparent;
-}
-image-selection-canvas svg .handle-south-west {
-  cursor: sw-resize;
-}
-image-selection-canvas svg .handle-south-east {
-  cursor: se-resize;
-}
-image-selection-canvas svg .handle-north-west {
-  cursor: nw-resize;
-}
-image-selection-canvas svg .handle-north-east {
-  cursor: ne-resize;
-}
-image-selection-canvas svg .handle-south {
-  cursor: s-resize;
-}
-image-selection-canvas svg .handle-east {
-  cursor: e-resize;
-}
-image-selection-canvas svg .handle-north {
-  cursor: n-resize;
-}
-image-selection-canvas svg .handle-west {
-  cursor: w-resize;
 }
 image-selection-canvas svg .handle-rotation {
   cursor: move;
