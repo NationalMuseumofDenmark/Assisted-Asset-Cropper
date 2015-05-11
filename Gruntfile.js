@@ -43,6 +43,7 @@ module.exports = function(grunt) {
 					},
 				]
 			},
+			/*
 			cip_js: {
 				files: [
 					{
@@ -54,6 +55,7 @@ module.exports = function(grunt) {
 					},
 				]
 			},
+			*/
 		},
 		env : {
 			dev: {
@@ -96,7 +98,13 @@ module.exports = function(grunt) {
 				},
 				files: {
 					'./frontend/public/javascripts/lib/libs.min.js': [
+						// A Canto Integration Platform JavaScript SDK
+						CIP_JS_PATH + '/dist/cip.min.js',
+						// jQuery - you know?
 						'bower_components/jquery/dist/jquery.js',
+						// A 2D Vector lib
+						'bower_components/victor/build/victor.js',
+						// Angular
 						'bower_components/angular/angular.js',
 						'bower_components/angular-ui-router/release/angular-ui-router.js',
 						'bower_components/angular-cookies/angular-cookies.js',
@@ -120,10 +128,8 @@ module.exports = function(grunt) {
 		}, done);
 	});
 
-	// Build and copy CIP JS
-	grunt.registerTask('cip-js', ['build-cip-js', 'copy:cip_js']);
 	// Build and copy all the libs to the /public folder.
-	grunt.registerTask('libs', ['uglify', 'cip-js']);
+	grunt.registerTask('libs', ['build-cip-js', 'uglify']);
 	// Build and copy all local public files
 	grunt.registerTask('public', ['less']);
 
