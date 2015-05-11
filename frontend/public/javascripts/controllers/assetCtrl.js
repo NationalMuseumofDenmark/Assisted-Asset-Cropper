@@ -24,7 +24,6 @@
 				// Fetch all suggested croppings
 				$http.get(load_suggested_croppings_url).then(function(response) {
 					response.data.forEach( function(selection) {
-						//selection.rotation = 10;
 						$scope.croppings.push(selection);
 					} );
 				});
@@ -162,17 +161,27 @@
 						}
 					};
 
+					var rotate = $scope.cropping.rotation / Math.PI / 2 * 360;
+					var left = (($scope.cropping.center_x-$scope.cropping.width/2) * large_thumbnail.width) / zoom_factor;
+					var top = (($scope.cropping.center_y-$scope.cropping.height/2) * large_thumbnail.height) / zoom_factor;
+
+					var transform_origin_x = (left+thumbnail_width/2)+ 'px';
+					var transform_origin_y = (top+thumbnail_height/2)+ 'px';
+
 					$scope.cropping_thumbnail = {
 						width: large_thumbnail.width / zoom_factor,
 						height: large_thumbnail.height / zoom_factor,
-						left: -(($scope.cropping.center_x-$scope.cropping.width/2) * large_thumbnail.width) / zoom_factor,
-						top: -(($scope.cropping.center_y-$scope.cropping.height/2) * large_thumbnail.height) / zoom_factor,
+						left: 0-left,
+						top: 0-top,
+						transform: 'rotate('+rotate+'deg)',
+						transform_origin: transform_origin_x+' '+transform_origin_y
 					};
 				}
 				$scope.$watch('cropping.center_x', updateThumbnail);
 				$scope.$watch('cropping.center_y', updateThumbnail);
 				$scope.$watch('cropping.width', updateThumbnail);
 				$scope.$watch('cropping.height', updateThumbnail);
+				$scope.$watch('cropping.rotation', updateThumbnail);
 				$scope.$parent.$watch('image', updateThumbnail);
 				$scope.$on('selectSelectionChanged', function(e, args) {
 					$scope.cropping.selected = $scope.cropping === args.selection;
