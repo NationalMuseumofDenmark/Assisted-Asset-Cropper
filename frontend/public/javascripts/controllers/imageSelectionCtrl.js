@@ -10,19 +10,23 @@
 			height: 1000 // Fake it till you know it.
 		};
 
-		$scope.canRotate = false;
+		$scope.canRotate = true;
+		$scope.rotationSensibility = 0.5;
 
 		$scope.toggleCanRotate = function() {
 			$scope.canRotate = !$scope.canRotate;
 		};
 
-		$scope.handlePadding = 5;
+		var DRAG_CREATE_THRESHOLD = 10;
+
+		$scope.handlePadding = 8;
 		$scope.rotationalHandleRadius = 6;
 		$scope.rotationalHandleLength = 15;
 
 		$scope.selectedSelection = undefined;
 
 		$scope.draggingCanvas = false;
+		$scope.draggingCanvasFrom = undefined;
 
 		$scope.selectSelection = function(selection) {
 			$scope.selectedSelection = selection;
@@ -63,7 +67,7 @@
 			$scope.deselectSelection();
 		};
 
-		$scope.dragCreateSelection = function(offsetX, offsetY) {
+		$scope.dragCreateSelection = function(offsetX, offsetY, handleDirection) {
 			$scope.dragging_canvas = false;
 			var selection = {
 				center_x: offsetX / $scope.image.width,
@@ -78,14 +82,16 @@
 				$scope.$broadcast('onSelectionDragCreated', {
 					selection: selection,
 					offsetX: offsetX,
-					offsetY: offsetY
+					offsetY: offsetY,
+					handleDirection: handleDirection
 				});
 			}, 1);
 		};
 
 		// Manipulating the canvas
-		$scope.mouseDown = function() {
+		$scope.mouseDown = function(offsetX, offsetY) {
 			$scope.draggingCanvas = true;
+			$scope.draggingCanvasFrom = new Victor(offsetX, offsetY);
 			$scope.deselectSelection();
 		};
 
@@ -96,7 +102,28 @@
 		$scope.mouseMove = function(offsetX, offsetY) {
 			var nothingSelected = typeof($scope.selectedSelection) === 'undefined';
 			if($scope.draggingCanvas && nothingSelected) {
-				$scope.dragCreateSelection(offsetX, offsetY);
+				// The difference between the mouse and the point from which the user
+				// initiated the dragging.
+				var diff = new Victor(offsetX, offsetY)
+					.subtract($scope.draggingCanvasFrom);
+				if(diff.length() > DRAG_CREATE_THRESHOLD) {
+					// Determine in which direction the user drags.
+					var handleDirection = '';
+					if(diff.y > 0) {
+						handleDirection += 'south';
+					} else {
+						handleDirection += 'north';
+					}
+					handleDirection += '-';
+					if(diff.x > 0) {
+						handleDirection += 'east';
+					} else {
+						handleDirection += 'west';
+					}
+					$scope.dragCreateSelection(	$scope.draggingCanvasFrom.x,
+																			$scope.draggingCanvasFrom.y,
+																			handleDirection);
+				}
 			}
 		};
 
@@ -140,6 +167,11 @@
 					scope.$apply(function() {
 						scope.image.width = $image.width();
 						scope.image.height = $image.height();
+						// The following resizing of the svg might not be needed.
+						$('svg', element).attr({
+							width: scope.image.width,
+							height: scope.image.height
+						});
 						scope.$emit('imageUpdated', { image: scope.image });
 					});
 				}
@@ -156,19 +188,12 @@
 		};
 	})
 	.controller('imageSelectionCtrl', ['$scope', function($scope) {
+		// In pixel
+		var MIN_SELECTION_SIZE = 10;
+
 		// The corner in which 
 		$scope.grabbed = false;
-		$scope.grabbedAt = {
-			x: undefined,
-			y: undefined
-		};
 		$scope.grabbedHandleDirection = undefined;
-		$scope.grabbedOffset = {
-			top: undefined,
-			left: undefined,
-			bottom: undefined,
-			right: undefined
-		};
 
 		$scope.visible = false;
 		$scope.hovering = false;
@@ -184,8 +209,9 @@
 			$scope.height = selection.height * image.height;
 			$scope.centerX = selection.center_x * image.width;
 			$scope.centerY = selection.center_y * image.height;
+			var rotationDegrees = 0.0 - selection.rotation * 360.0 / Math.PI / 2.0;
 			$scope.rotationStyle = [
-				'transform: rotate(' +selection.rotation+ 'deg)',
+				'transform: rotate(' +rotationDegrees+ 'deg)',
 				'transform-origin: '+$scope.centerX+ 'px ' +$scope.centerY+ 'px'
 			].join(';');
 		};
@@ -195,19 +221,18 @@
 			var y = $event.offsetY / $scope.image.height;
 			// Make this selection, the selected selection.
 			$scope.$parent.selectSelection($scope.selection);
-			
-			$scope.grabbedAt = {
-				x: x,
-				y: y
-			};
+
 			// Save a copy of the selection when grapped.
-			$scope.grabbedOffset = {
-				center_x: $scope.selection.center_x,
-				center_y: $scope.selection.center_y,
+			var state = {
+				center: new Victor($scope.selection.center_x, $scope.selection.center_y),
 				width: $scope.selection.width,
 				height: $scope.selection.height,
+				at: { x: x, y: y },
 				rotation: $scope.selection.rotation
 			};
+
+			$scope.grabbedState = state;
+
 			$scope.grabbed = true;
 			$scope.grabbedHandleDirection = direction;
 
@@ -224,64 +249,166 @@
 		};
 
 		$scope.mouseMoved = function(x, y) {
-			// Normalize the coordinates.
-			x /= $scope.image.width;
-			y /= $scope.image.height;
-
 			if($scope.selected && $scope.grabbed) {
+
+				var grabbedState = $scope.grabbedState;
+				var selection = $scope.selection;
+
+				var imageDimensions = new Victor(
+					$scope.image.width,
+					$scope.image.height
+					);
+
+				var viewGrabbedCenter = grabbedState.center.clone()
+					.multiply(imageDimensions);
+
+				var viewMouse = new Victor(x, y);
+				var mouse = viewMouse.clone().divide(imageDimensions);
+
 				if($scope.grabbedHandleDirection === 'move') {
 					// Moving the whole selection.
-					$scope.selection.center_x = $scope.grabbedOffset.center_x - $scope.grabbedAt.x + x;
-					$scope.selection.center_y = $scope.grabbedOffset.center_y - $scope.grabbedAt.y + y;
+					selection.center_x = grabbedState.center.x - grabbedState.at.x + mouse.x;
+					selection.center_y = grabbedState.center.y - grabbedState.at.y + mouse.y;
 					// Keeing the bounds.
-					$scope.selection.center_x = Math.max($scope.selection.width/2, $scope.selection.center_x);
-					$scope.selection.center_y = Math.max($scope.selection.height/2, $scope.selection.center_y);
-					$scope.selection.center_x = Math.min(1-$scope.selection.width/2, $scope.selection.center_x);
-					$scope.selection.center_y = Math.min(1-$scope.selection.height/2, $scope.selection.center_y);
+					selection.center_x = Math.max(selection.width/2,selection.center_x);
+					selection.center_y = Math.max(selection.height/2, selection.center_y);
+					selection.center_x = Math.min(1-selection.width/2, selection.center_x);
+					selection.center_y = Math.min(1-selection.height/2, selection.center_y);
 				} else if($scope.grabbedHandleDirection === 'rotational') {
-					var diffX = $scope.selection.center_x - x;
-					var diffY = $scope.selection.center_y - y;
-					var radians = Math.atan2(diffY, diffX);
-					$scope.selection.rotation = (radians / Math.PI / 2 * 360) - 90;
+					var diff = viewMouse.clone().subtract(viewGrabbedCenter);
+					// 0-y because a mathematical coordinate system has y growing upwards.
+					var radians = Math.atan2(0-diff.y, diff.x);
+					var rotationNow = radians - (Math.PI / 2);
+					var rotationDiff = rotationNow - grabbedState.rotation;
+					// Fixing the bounds.
+					if(rotationDiff < 0-Math.PI) {
+						rotationDiff += Math.PI * 2;
+					}
+					rotationDiff *= $scope.rotationSensibility;
+					// Subtract a quarter of a turn as the handle is located in the top.
+					selection.rotation = grabbedState.rotation + rotationDiff;
 				} else {
-					var offsets = {
-						left: $scope.selection.center_x - $scope.selection.width/2,
-						top: $scope.selection.center_y - $scope.selection.height/2,
-						right: $scope.selection.center_x + $scope.selection.width/2,
-						bottom: $scope.selection.center_y + $scope.selection.height/2,
+					var grabbed = {
+						west: $scope.grabbedHandleDirection.indexOf('west') >= 0,
+						east: $scope.grabbedHandleDirection.indexOf('east') >= 0,
+						north: $scope.grabbedHandleDirection.indexOf('north') >= 0,
+						south: $scope.grabbedHandleDirection.indexOf('south') >= 0
 					};
 
-					// TODO: Switch around north and south and east and west.
+					// The 0-sin because we are at a computer screen, not a mathematical
+					// coordinate system.
+					var viewRotationalDirection = new Victor(
+						Math.cos($scope.grabbedState.rotation),
+						0-Math.sin($scope.grabbedState.rotation)
+						);
+
+					var viewDirections = {
+						east: viewRotationalDirection.clone(),
+						west: viewRotationalDirection.clone().rotateDeg(180),
+						north: viewRotationalDirection.clone().rotateDeg(-90),
+						south: viewRotationalDirection.clone().rotateDeg(90)
+					};
+
+					// Let's have this scaled to the view and with proper care taken
+					// towards the rotation.
+					var viewSelectionWidthHalf = new Victor(
+						$scope.grabbedState.width * imageDimensions.x / 2,
+						$scope.grabbedState.width * imageDimensions.x / 2
+						);
+					var viewSelectionHeightHalf = new Victor(
+						$scope.grabbedState.height * imageDimensions.y / 2,
+						$scope.grabbedState.height * imageDimensions.y / 2
+						);
+
+					var viewOffsets = {
+						east: viewDirections.east.clone().multiply(viewSelectionWidthHalf),
+						west: viewDirections.west.clone().multiply(viewSelectionWidthHalf),
+						north: viewDirections.north.clone().multiply(viewSelectionHeightHalf),
+						south: viewDirections.south.clone().multiply(viewSelectionHeightHalf)
+					};
+
+					// The mouse location relative to the opposite part of the selection.
+					var opposite = viewGrabbedCenter.clone();
+					if(grabbed.west) {
+						opposite.add(viewOffsets.east);
+					} else if(grabbed.east) {
+						opposite.add(viewOffsets.west);
+					}
+
+					if(grabbed.north) {
+						opposite.add(viewOffsets.south);
+					} else if(grabbed.south) {
+						opposite.add(viewOffsets.north);
+					}
+
+					var mousePrime = viewMouse.clone().subtract(opposite);
+					// console.log(mousePrime);
+
+					// Let's start with the selection's current width and height.
+					var newWidth = grabbedState.width * $scope.image.width;
+					var newHeight = grabbedState.height * $scope.image.height;
+					// They are how much of mouse prime points in the direction unit
+					// vectors pointing towards the handles that were grabbed.
+					if(grabbed.west) {
+						newWidth = mousePrime.dot(viewDirections.west);
+					} else if(grabbed.east) {
+						newWidth = mousePrime.dot(viewDirections.east);
+					}
+
+					if(grabbed.north) {
+						newHeight = mousePrime.dot(viewDirections.north);
+					} else if(grabbed.south) {
+						newHeight = mousePrime.dot(viewDirections.south);
+					}
+
+					// Let's not allow negative values for these guys.
+					newWidth = Math.max(newWidth, MIN_SELECTION_SIZE);
+					newHeight = Math.max(newHeight, MIN_SELECTION_SIZE);
+
+					// Creating vectors of half width and height to multiply onto
+					// directional unit vectors.
+					var halfWidthVector = new Victor(newWidth/2.0, newWidth/2.0);
+					var halfHeightVector = new Victor(newHeight/2.0, newHeight/2.0);
+
+					// Let's calculate a new center coordinate.
+					newCenter = viewGrabbedCenter.clone();
+					
+					var newCenter = opposite.clone();
+
+					if(grabbed.west) {
+						newCenter.add(viewDirections.west.clone().multiply(halfWidthVector));
+					} else if(grabbed.east) {
+						newCenter.add(viewDirections.east.clone().multiply(halfWidthVector));
+					}
+					if(grabbed.north) {
+						newCenter.add(viewDirections.north.clone().multiply(halfHeightVector));
+					} else if(grabbed.south) {
+						newCenter.add(viewDirections.south.clone().multiply(halfHeightVector));
+					}
+
 					/*
-					if(offsets.left < x) {
-						$scope.grabbedHandleDirection = $scope.grabbedHandleDirection.replace('west', 'east');
-					} else if(offsets.right > x) {
-						$scope.grabbedHandleDirection = $scope.grabbedHandleDirection.replace('east', 'west');
-					}
-					if(offsets.top < y) {
-						$scope.grabbedHandleDirection = $scope.grabbedHandleDirection.replace('south', 'north');
-					} else if(offsets.bottom > y) {
-						$scope.grabbedHandleDirection = $scope.grabbedHandleDirection.replace('north', 'south');
-					}
+					// Placing a circle for debugging.
+					var ns = "http://www.w3.org/2000/svg";
+					var circle = document.createElementNS(ns, "circle");
+					var $circle = $(circle).attr({
+						r: '5',
+						cx: opposite.x,
+						cy: opposite.y,
+						fill: 'green'
+					});
+					$('.canvas svg').append($circle);
 					*/
 
-					if($scope.grabbedHandleDirection.indexOf('north') >= 0) {
-						offsets.top = y;
-					}
-					if($scope.grabbedHandleDirection.indexOf('east') >= 0) {
-						offsets.right = x;
-					}
-					if($scope.grabbedHandleDirection.indexOf('south') >= 0) {
-						offsets.bottom = y;
-					}
-					if($scope.grabbedHandleDirection.indexOf('west') >= 0) {
-						offsets.left = x;
-					}
-					$scope.selection.center_x = offsets.left+(offsets.right-offsets.left)/2;
-					$scope.selection.center_y = offsets.top+(offsets.bottom-offsets.top)/2;
-					$scope.selection.height = Math.max(offsets.bottom - offsets.top, 0 );
-					$scope.selection.width = Math.max(offsets.right - offsets.left, 0 );
+					// Update the selection with the new values.
+					$scope.selection.center_x = newCenter.x / $scope.image.width;
+					$scope.selection.center_y = newCenter.y / $scope.image.height;
+
+					// Map the new width and height to ratios of the image width and height.
+					$scope.selection.width = newWidth / $scope.image.width;
+					$scope.selection.height = newHeight / $scope.image.height;
 				}
+				// Update the scope selection.
+				$scope.selection = selection;
 			}
 		};
 
@@ -307,7 +434,7 @@
 		$scope.$on('onSelectionDragCreated', function(e, args) {
 			if(args.selection === $scope.selection) {
 				// This is the selection that was just added.
-				$scope.handleGrabbed('south-east', {
+				$scope.handleGrabbed(args.handleDirection, {
 					offsetX: args.offsetX,
 					offsetY: args.offsetY
 				});
