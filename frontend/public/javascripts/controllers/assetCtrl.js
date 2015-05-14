@@ -46,10 +46,12 @@
 				$http.post(save_croppings_url, {
 					croppings: $scope.croppings
 				}).then(function(response) {
+					var assets = response.data.assets;
+					
 					console.log("Success!", response);
 					$scope.showMessage( 'success', [
 						'Det lykkedes at gemme ',
-						$scope.croppings.length,
+						assets.length,
 						' friskæringer af "',
 						$scope.asset.metadata.filename,
 						'" (#',
