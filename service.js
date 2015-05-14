@@ -1,4 +1,6 @@
 var express = require('express'),
+		session = require('express-session'),
+		crypto = require('crypto'),
 		path = require('path'),
 		logger = require('morgan'),
 		cookieParser = require('cookie-parser'),
@@ -6,6 +8,7 @@ var express = require('express'),
 		request = require('request');
 
 var assets = require('./service/routes/assets');
+var state = require('./service/routes/state');
 var cip_proxy = require('./service/routes/cip_proxy');
 
 var app = express();
@@ -19,8 +22,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Let's generate a long string that we will be using for securing the session.
+var secret = crypto.randomBytes(64).toString('hex');
+app.use(session({
+	secret: secret,
+	resave: false,
+	saveUninitialized: true
+}));
+
 // Register the various application routes.
 app.use('/asset', assets);
+app.use('/state', state);
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/frontend/public/templates/index.html');
 });
