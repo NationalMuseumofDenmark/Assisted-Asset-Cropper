@@ -1341,10 +1341,10 @@ a.text-success:hover {
   color: #2b542c;
 }
 .text-info {
-  color: #31708f;
+  color: #222222;
 }
 a.text-info:hover {
-  color: #245269;
+  color: #090909;
 }
 .text-warning {
   color: #8a6d3b;
@@ -1372,10 +1372,10 @@ a.bg-success:hover {
   background-color: #c1e2b3;
 }
 .bg-info {
-  background-color: #d9edf7;
+  background-color: #eeeeee;
 }
 a.bg-info:hover {
-  background-color: #afd9ee;
+  background-color: #d5d5d5;
 }
 .bg-warning {
   background-color: #fcf8e3;
@@ -2368,14 +2368,14 @@ table th[class*="col-"] {
 .table > thead > tr.info > th,
 .table > tbody > tr.info > th,
 .table > tfoot > tr.info > th {
-  background-color: #d9edf7;
+  background-color: #eeeeee;
 }
 .table-hover > tbody > tr > td.info:hover,
 .table-hover > tbody > tr > th.info:hover,
 .table-hover > tbody > tr.info:hover > td,
 .table-hover > tbody > tr:hover > .info,
 .table-hover > tbody > tr.info:hover > th {
-  background-color: #c4e3f3;
+  background-color: #e2e2e2;
 }
 .table > thead > tr > td.warning,
 .table > tbody > tr > td.warning,
@@ -4940,15 +4940,15 @@ a.thumbnail.active {
   color: #2b542c;
 }
 .alert-info {
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-  color: #31708f;
+  background-color: #eeeeee;
+  border-color: #dddddd;
+  color: #222222;
 }
 .alert-info hr {
-  border-top-color: #a6e1ec;
+  border-top-color: #d0d0d0;
 }
 .alert-info .alert-link {
-  color: #245269;
+  color: #090909;
 }
 .alert-warning {
   background-color: #fcf8e3;
@@ -5199,26 +5199,26 @@ a.list-group-item-success.active:focus {
   border-color: #3c763d;
 }
 .list-group-item-info {
-  color: #31708f;
-  background-color: #d9edf7;
+  color: #222222;
+  background-color: #eeeeee;
 }
 a.list-group-item-info {
-  color: #31708f;
+  color: #222222;
 }
 a.list-group-item-info .list-group-item-heading {
   color: inherit;
 }
 a.list-group-item-info:hover,
 a.list-group-item-info:focus {
-  color: #31708f;
-  background-color: #c4e3f3;
+  color: #222222;
+  background-color: #e2e2e2;
 }
 a.list-group-item-info.active,
 a.list-group-item-info.active:hover,
 a.list-group-item-info.active:focus {
   color: #fff;
-  background-color: #31708f;
-  border-color: #31708f;
+  background-color: #222222;
+  border-color: #222222;
 }
 .list-group-item-warning {
   color: #8a6d3b;
@@ -5558,22 +5558,22 @@ a.list-group-item-danger.active:focus {
   border-bottom-color: #d6e9c6;
 }
 .panel-info {
-  border-color: #bce8f1;
+  border-color: #dddddd;
 }
 .panel-info > .panel-heading {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
+  color: #222222;
+  background-color: #eeeeee;
+  border-color: #dddddd;
 }
 .panel-info > .panel-heading + .panel-collapse > .panel-body {
-  border-top-color: #bce8f1;
+  border-top-color: #dddddd;
 }
 .panel-info > .panel-heading .badge {
-  color: #d9edf7;
-  background-color: #31708f;
+  color: #eeeeee;
+  background-color: #222222;
 }
 .panel-info > .panel-footer + .panel-collapse > .panel-body {
-  border-bottom-color: #bce8f1;
+  border-bottom-color: #dddddd;
 }
 .panel-warning {
   border-color: #faebcc;
@@ -6578,6 +6578,20 @@ body {
 }
 .messages .glyphicon-remove {
   cursor: pointer;
+}
+.messages .state .job ol.tasks {
+  margin-top: 5px;
+  border-top: 1px solid #dddddd;
+  padding: 0px;
+  padding-top: 5px;
+  margin-bottom: -10px;
+}
+.messages .state .job ol.tasks li {
+  list-style: none;
+}
+.messages .state .job ol.tasks li .progress {
+  margin-bottom: 10px;
+  height: 15px;
 }
 body .container.signin-form {
   max-width: 400px;
