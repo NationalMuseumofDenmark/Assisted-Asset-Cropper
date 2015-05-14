@@ -34,8 +34,9 @@ exports.generate_cropping_details = function(asset, x, y, width, height, size) {
 		top: Math.round(y * original_height),
 		width: Math.round(width * original_width),
 		height: Math.round(height * original_height)
-	}
-	if (size) {
+	};
+
+	if(size) {
 		image_options.maxsize = size;
 	}
 
@@ -50,7 +51,7 @@ exports.generate_cropping_details = function(asset, x, y, width, height, size) {
 		crop_height: image_options.height,
 		thumbnail_url: thumbnail_url
 	};
-}
+};
 
 exports.thumbnail = function(client, catalog_alias, asset_id, x, y, width, height, size, success) {
 	// Create a session with Canto Cumulus.
@@ -58,7 +59,7 @@ exports.thumbnail = function(client, catalog_alias, asset_id, x, y, width, heigh
 		var cropping_details = exports.generate_cropping_details(asset, x, y, width, height, size);
 		success( cropping_details, asset );
 	});
-}
+};
 
 exports.algorithm = algorithm;
 exports.suggest = algorithm.suggest;
