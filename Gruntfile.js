@@ -24,7 +24,7 @@ module.exports = function(grunt) {
 					{
 						expand: true, // Enable dynamic expansion.
 						cwd: './frontend/less/', // Src matches are relative to this path.
-						src: ['app.less'], // Actual pattern(s) to match.
+						src: ['cropper.less'], // Actual pattern(s) to match.
 						dest: './frontend/public/stylesheets/', // Destination path prefix.
 						ext: '.css', // Dest filepaths will have this extension.
 					},

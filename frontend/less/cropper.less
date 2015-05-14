@@ -39,6 +39,24 @@ body {
 	.glyphicon-remove {
 		cursor: pointer;
 	}
+	.state {
+		.job {
+			ol.tasks {
+				margin-top: 5px;
+				border-top: 1px solid @state-info-border;
+				padding: 0px;
+				padding-top: 5px;
+				margin-bottom: -10px;
+				li {
+					list-style: none;
+					.progress {
+						margin-bottom: 10px;
+						height: 15px;
+					}
+				}
+			}
+		}
+	}
 }
 
 @import "signin-form.less";
