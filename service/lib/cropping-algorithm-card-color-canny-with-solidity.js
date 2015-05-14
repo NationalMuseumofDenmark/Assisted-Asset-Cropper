@@ -12,7 +12,7 @@ var DEFAULT_PARAMETERS = {
 	'max_area_ratio': 0.90,
 	'solidity_threshold': 0.8,
 	'card_similary_threshold': 45, // This is 15% off on every channel
-	'post_scale': 0.96, // Take 2% from each side
+	'post_erode_factor': 0.02, // Take 1% of the image width from each side
 };
 exports.DEFAULT_PARAMETERS = DEFAULT_PARAMETERS;
 
@@ -246,14 +246,15 @@ exports.suggest = function(client, catalog_alias, id, callback, error_callback, 
 						rotation: 0-minAreaRect.angle / 360 * Math.PI * 2
 					};
 
+					// Taking off 2.5% on each side - we fit in most cases.
+					var postErode = parameters.post_erode_factor * im.width();
+					selection.width -= postErode;
+					selection.height -= postErode;
+
 					selection.center_x /= im.width();
 					selection.center_y /= im.height();
 					selection.width /= im.width();
 					selection.height /= im.height();
-
-					// Taking off 2.5% on each side - we fit in most cases.
-					selection.width *= parameters.post_scale;
-					selection.height *= parameters.post_scale;
 
 					suggestions.push(selection);
 				}
