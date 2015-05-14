@@ -111,5 +111,59 @@
 				$rootScope.previous_search = fromParams;
 			}
 		});
-	}]);
+	}])
+	.directive('stateJobs', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'templates/partials/state-jobs.html',
+			replace: true,
+			controller: ['$rootScope', 'state', function($rootScope, state) {
+				var STATUS_LONG_POLL_TIMEOUT = 10000;
+				$rootScope.state = {
+					busy: false,
+					jobs: []
+				};
+
+				function updateState(longPoll) {
+					var statePromise, currentStateRevision;
+
+					if($rootScope.state && $rootScope.state.revision) {
+						currentStateRevision = $rootScope.state.revision;
+					}
+
+					if(longPoll) {
+						statePromise = state.longPoll(currentStateRevision);
+					} else {
+						statePromise = state.get();
+					}
+					// Update the root scope with the new status.
+					return statePromise.then(function(newState) {
+						$rootScope.status = newState.status;
+						$rootScope.state.jobs = newState.jobs;
+					});
+				}
+
+				var fails = 0;
+
+				function keepUpdatingState() {
+					// Update and keep updating.
+					return updateState(true)
+					.then(function() {
+						return keepUpdatingState();
+					}, function() {
+						fails++;
+						if(fails > 3) {
+							console.error('Stopped updating state after', fails, 'fails.');
+						} else {
+							// Keep on trying - event when getting errors ...
+							return keepUpdatingState();
+						}
+					});
+				}
+
+				// Update the status once and keep updating it.
+				updateState().then(keepUpdatingState);
+			}]
+		};
+	});
 })();
