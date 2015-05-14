@@ -1,12 +1,13 @@
 var express = require('express'),
 		http = require('http'), // TODO: Consider using request instead.
-		cropping = require('../lib/cropping.js'),
+		cropping = require('../lib/cropping'),
+		state = require('../lib/state'),
 		cip = require('../lib/cip-natmus'),
 		assert = require('assert'),
 		request = require('request'),
 		gm = require('gm'),
 		temp = require('temp'),
-		q = require('q'),
+		Q = require('q'),
 		router = express.Router();
 
 /**
@@ -320,7 +321,7 @@ CROPPING_FIELD_MAPPINGS[LICENSE_FIELD] = identity_enum_mapping;
 CROPPING_FIELD_MAPPINGS[PHOTOGRAPHER_FIELD] = identity_mapping;
 CROPPING_FIELD_MAPPINGS[CROPPING_STATUS_FIELD] = 3; // Er en friskæring
 
-function perform_field_mapping(mappings, fields) {
+function performFieldMapping(mappings, fields) {
 	var result = {};
 	for(var field_key in mappings) {
 		var mapping = mappings[field_key];
@@ -338,37 +339,70 @@ function perform_field_mapping(mappings, fields) {
 	return result;
 }
 
-function import_asset_cropping(client, catalog_alias, asset, crop) {
-	var deferred = q.defer();
+function importAssetCropping(options) {
+	var deferred = Q.defer();
 
-	crop.center_x = parseFloat(crop.center_x);
-	crop.center_y = parseFloat(crop.center_y);
-	crop.width = parseFloat(crop.width);
-	crop.height = parseFloat(crop.height);
+	// client, catalog_alias, asset, crop
+	var client = options.client;
+	var catalogAlias = options.catalogAlias;
+	var selection = options.selection;
+	var masterAsset = options.masterAsset;
+
+	/*
+	selection.center_x = parseFloat(selection.center_x);
+	selection.center_y = parseFloat(selection.center_y);
+	selection.width = parseFloat(selection.width);
+	selection.height = parseFloat(selection.height);
+	*/
 	// Derive left and top coordinates.
-	crop.left = crop.center_x-crop.width/2;
-	crop.top = crop.center_y-crop.height/2;
+	selection.left = selection.center_x-selection.width/2;
+	selection.top = selection.center_y-selection.height/2;
+
 	// TODO: Add the rotation and check for invalid croppings, i.e. negative
 	// values and cropping outsid the original image.
 
-	var cropping_fields = perform_field_mapping(CROPPING_FIELD_MAPPINGS, asset.fields);
-	console.log(cropping_fields);
-	var cropping_details = cropping.generate_cropping_details(asset, crop.left, crop.top, crop.width, crop.height);
-	var cropping_url = cropping_details.thumbnail_url;
+	var croppingFields = performFieldMapping(CROPPING_FIELD_MAPPINGS, masterAsset.fields);
 
-	console.log("URL for the cropping:", cropping_url);
+	// TODO: Consider using a selection object instead of passing each of the four
+	// values one at a time.
+	var croppingDetails = cropping.generate_cropping_details(	masterAsset,
+																														selection.left,
+																														selection.top,
+																														selection.width,
+																														selection.height);
+	var croppingURL = croppingDetails.thumbnail_url;
 
-	var cropping_buffer = request(cropping_url);
+	console.log("URL for the cropping:", croppingURL);
 
-	cropping_buffer.on('response', function(response) {
+	var croppingBuffer = request(croppingURL);
+
+	croppingBuffer.on('response', function(response) {
 		// Keep a body string to buffer the response.
 		var responseBody = '';
+		var responseLength = parseInt(response.headers['content-length'], 10);
 		response.on('data', function (chunk) {
 			responseBody += chunk;
+
+			state.updateJobTask(
+				options.req,
+				options.jobId,
+				options.taskDescriptions.uploading,
+				responseBody.length,
+				responseLength
+			);
 		});
 		// When the response has ended - let's react.
 		response.on('end', function () {
-			if(response.statusCode == 500) {
+			// Update the state t reflect that we are infact done uploading the image.
+			state.updateJobTask(
+				options.req,
+				options.jobId,
+				options.taskDescriptions.uploading,
+				responseLength,
+				responseLength
+			);
+
+			if(response.statusCode === 500) {
 				var errorMessage = 'Error loading the cropped image from the CIP: ';
 				try {
 					// If
@@ -393,107 +427,107 @@ function import_asset_cropping(client, catalog_alias, asset, crop) {
 				deferred.reject(err);
 			}
 		});
-	});
+	}).on('error', deferred.reject);
 
-	var import_url = client.generate_url("asset/import/" + catalog_alias, false);
+	var importUrl = client.generate_url("asset/import/" + catalogAlias, false);
 
 	// TODO: Consider using the ciprequest instead.
-	var asset_import_request = request.post({
-			url: import_url,
+	var assetImportRequest = request.post({
+			url: importUrl,
 			method: 'POST',
 		}, function(is_error, response, body) {
 			if(is_error || response.statusCode != 200) {
-				if(response) {
-					var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
-					err.status = 503;
-					deferred.reject(err);
-				} else {
-					var err = new Error( 'Error sending the request to CIP.' );
-					err.status = 500;
-					deferred.reject(err);
-				}
+				deferred.reject(new Error( 'Error sending the request to CIP.'));
 			} else {
-				deferred.resolve( JSON.parse(response.body) );
+				var newAsset = JSON.parse(response.body);
+				options.newAssetId = newAsset.id;
+				deferred.resolve( options );
 			}
 		}
 	);
 
 	// See: https://github.com/mikeal/request#forms
-	var form = asset_import_request.form();
-	form.append('fields', JSON.stringify(cropping_fields));
+	var form = assetImportRequest.form();
+	form.append('fields', JSON.stringify(croppingFields));
 	//form.append('fields', "{}");
-	form.append('file', cropping_buffer, {
-		filename: generate_cropped_filename(asset, crop.index),
+	form.append('file', croppingBuffer, {
+		filename: generate_cropped_filename(masterAsset, options.selectionIndex),
 		contentType: 'image/jpeg'
 	});
 
 	return deferred.promise;
 }
 
-function create_cropped_asset_relations(client, catalog_alias, asset_id, cropped_asset_id) {
-	var deferred = q.defer();
+function createCroppedAssetRelations(options) {
+	var deferred = Q.defer();
+
+	var client = options.client;
+	var catalogAlias = options.catalogAlias;
+	var masterAssetId = options.masterAsset.fields.id;
+	var newAssetId =  options.newAssetId;
 
 	var variant_master_path = "metadata/linkrelatedasset/" +
-		catalog_alias + "/" +
-		asset_id + "/" +
+		catalogAlias + "/" +
+		masterAssetId + "/" +
 		"isvariantmasterof/" +
-		cropped_asset_id;
+		newAssetId;
 
 	var variant_path = "metadata/linkrelatedasset/" +
-		catalog_alias + "/" +
-		cropped_asset_id + "/" +
+		catalogAlias + "/" +
+		newAssetId + "/" +
 		"isvariantof/" +
-		asset_id;
+		masterAssetId;
 	
 	console.log("Relating master to it's cropping.");
 	client.ciprequest(variant_master_path, {}, function( response ) {
 		// If this went well - let's link back.
 		console.log("Relating cropping to it's master.");
 		client.ciprequest(variant_path, {}, function( response ) {
-			deferred.resolve( response );
+			deferred.resolve( options );
 		}, function( response ) {
 			var err = new Error( 'Error linking the cropping to its original asset.' );
-			console.error(response);
-			err.status = 500;
 			deferred.reject(err);
 		});
 	}, function( response ) {
 		var err = new Error( 'Error linking the original asset to its cropping.' );
-		console.log(response);
-		err.status = 500;
 		deferred.reject(err);
 	});
 
 	return deferred.promise;
 }
 
-function update_originals_cropping_status(client, catalog_alias, original_asset) {
-	var deferred = q.defer();
+function updateOriginalsCroppingStatus(options) {
+	var deferred = Q.defer();
+
+	var client = options.client;
+	var catalogAlias = options.catalogAlias;
+	var masterAsset = options.masterAsset;
+
+	console.log('Updating the master asset´s cropping status.');
+
+	var item = {
+		id: masterAsset.fields.id
+	};
+	item[CROPPING_STATUS_FIELD] = 2; // "Er blevet friskæret"
+
+	var body = JSON.stringify({
+		items: [ item ]
+	});
 
 	var request = client.ciprequest([
 		"metadata",
 		"setfieldvalues",
-		catalog_alias
+		catalogAlias
 	], {}, function( response ) {
-		deferred.resolve( response );
-	}, function( response ) {
-		var err = new Error( 'Error updating the original assets metadata.' );
-		console.error(response);
-		err.status = 500;
+		deferred.resolve( options );
+	}, function( err ) {
+		err = new Error( 'Error updating the master asset´s metadata: ' + err.message );
 		deferred.reject(err);
 	});
-	var item = {
-		id: original_asset.fields.id
-	};
-	// "Er blevet friskæret"
-	item[CROPPING_STATUS_FIELD] = 2;
-	var body = JSON.stringify({
-		items: [ item ]
-	});
+
 	request.setHeader("Content-Length", body.length);
 	request.setHeader("Content-Type", "application/json");
-	// Append the new values in the body.
-	request.end(body);
+	request.write(body);
 
 	return deferred.promise;
 }
@@ -513,64 +547,135 @@ function delete_existing_croppings(client, catalog_alias, asset, success, error)
 }
 */
 
+function updateCroppedAssetRelations(options) {
+	assert(	options.newAssetId,
+					"The cropped asset has to have an id.");
+
+	// Create the relations between the assets.
+	return createCroppedAssetRelations(options)
+		.then(updateOriginalsCroppingStatus);
+}
+
 // Get the croppings 
 router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
-	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'), 10);
-	assert("croppings" in req.body, "The request's body must be a json object with a croppings key with an array.");
 
-	var croppings = req.body.croppings;
+	assert(	"croppings" in req.body,
+					"The request's body must be a json object with a croppings key.");
+	assert(	"catalog_alias" in req.params,
+					"The request must specify a catalog alias.");
+	assert(	"id" in req.params,
+					"The request must specify a master asset id from which the cropping "+
+					"should be performed.");
 
-	client = cip.client(req, next);
-	client.get_asset(catalog_alias, id, true, function(original_asset) {
-		// Import the new croppings into the new ones
-		for(var c in croppings) {
-			var crop = croppings[c];
-			// Save this index in the information about the crop, such that this can
-			// be used in the crop's filename.
-			crop.index = parseInt(c, 10);
+	var client = cip.client(req, next);
 
-			console.log("Importing cropping #", (1+crop.index), "of", croppings.length);
-			import_asset_cropping(client, catalog_alias, original_asset, crop)
-			.then(function(cropped_asset) {
-				assert(cropped_asset && "id" in cropped_asset, "The cropped asset has to have an id.");
-				console.log("Cropping #", (1+parseInt(c, 10)), "of", croppings.length, "successfully imported with id", cropped_asset.id, "Creating relations.");
-				// Create the relations between the assets.
-				return create_cropped_asset_relations(client, catalog_alias, original_asset.fields.id, cropped_asset.id)
-				.then(function() {
-					console.log("Updating the original asset's cropping status.");
-					return update_originals_cropping_status(client, catalog_alias, original_asset).then(function() {
-						res.send({
-							cropped_asset_id: cropped_asset.id
-						});
-					});
-				});
-			}, next);
-		}
-	});
-});
+	var selections = req.body.croppings;
+	var catalogAlias = req.params['catalog_alias'];
+	var masterAssetId = parseInt(req.params['id'], 10);
 
-// Get the croppings
-/*
-router.post('/:catalog_alias/:id/croppings/delete', function(req, res, next) {
-	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'));
-	assert("croppings" in req.body, "The request's body must be a json object with a croppings key with an array.");
+	// Communicate that an asset has been successfully imported.
+	function assetSucessImported(options) {
+		var catalogAlias = options.catalogAlias;
+		var newAssetId = options.newAssetId;
+		var selectionIndex = options.selectionIndex;
+		var selectionCount = options.selectionCount;
 
-	var croppings = req.body.croppings;
+		console.log("Done uploading the cropped asset:",
+								catalogAlias +'-'+ newAssetId,
+								'cropping',
+								selectionIndex + 1,
+								'of',
+								selectionCount);
 
-	client = cip.client(req, next);
-	client.get_asset(catalog_alias, id, false, function(original_asset) {
-		// Delete existing croppings.
-		delete_existing_croppings(client, catalog_alias, original_asset, function(deleted_assets) {
-			res.send(deleted_assets);
-		}, function(error) {
-			next(error);
+		return options;
+	}
+
+	// Send the final response to the client.
+	function respond(assets) {
+		assets = assets.map(function(asset) {
+			return asset.catalogAlias +'-'+ asset.newAssetId;
 		});
-	});
+		res.send({
+			assets: assets
+		});
+	}
+
+	function handleMasterAsset(masterAsset) {
+		return state.get(req).then(function(currentState) {
+			var newAssetPromises = [];
+
+			var jobDescription = [
+				'Cropping ',
+				catalogAlias,
+				'-',
+				masterAsset.fields.id
+			].join('');
+
+			var jobId = currentState.createJob(jobDescription);
+			currentState.changeJobStatus(jobId, 'started');
+			// currentState.updateJobTask(jobId, 'Downloading master asset.');
+
+			// Import the new selection into the new ones
+			for(var s in selections) {
+				var selection = selections[s];
+
+				// TODO: Consider that we might want to parseFloat the object's value.
+				// console.log(selection);
+
+				// Save this index in the information about the crop, such that this can
+				// be used in the crop's filename.
+				var options = {
+					req: req,
+					client: client,
+					catalogAlias: catalogAlias,
+					masterAsset: masterAsset,
+					selection: selection,
+					selectionIndex: parseInt(s, 10),
+					selectionCount: selections.length,
+					jobId: jobId
+				};
+
+				options.taskDescriptions = {
+					// cutting: 'Cutting out selection #' +(options.selectionIndex+1),
+					uploading: 'Uploading selection #' +(options.selectionIndex+1)
+				};
+
+				for(var t in options.taskDescriptions) {
+					var taskDescription = options.taskDescriptions[t];
+					// Touch the job task.
+					currentState.updateJobTask(jobId, taskDescription);
+				}
+				currentState.save();
+
+				console.log('Importing cropping #',
+										options.selectionIndex + 1,
+										'of',
+										options.selectionCount);
+
+				var newAssetPromise = importAssetCropping(options)
+					.then(assetSucessImported)
+					.then(updateCroppedAssetRelations);
+
+				newAssetPromises.push(newAssetPromise);
+			}
+
+			return Q.all(newAssetPromises).then(function(assets) {
+				state.changeJobStatus(req, jobId, 'success');
+
+				respond(assets);
+			}, function(err) {
+				// Change the status of the job.
+				state.changeJobStatus(req, jobId, 'failed');
+
+				console.error(err.stack || 'Error: No stack available.');
+				err.status = 500;
+				next(err);
+			});
+		});
+	}
+
+	// Use the CIP to get the master asset and handle it.
+	client.get_asset(catalogAlias, masterAssetId, true, handleMasterAsset);
 });
-*/
 
 module.exports = router;
