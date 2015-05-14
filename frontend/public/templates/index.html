@@ -5,12 +5,13 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Den assisterede friskærer</title>
-		<link rel="stylesheet" href="/stylesheets/app.css" />
+		<link rel="stylesheet" href="/stylesheets/cropper.css" />
 
 		<script type="text/javascript" src="/javascripts/lib/libs.min.js"></script>
 
-		<script type="text/javascript" src="/javascripts/services/cip.js"></script>
 		<script type="text/javascript" src="/javascripts/cropper.js"></script>
+		<script type="text/javascript" src="/javascripts/services/cip.js"></script>
+		<script type="text/javascript" src="/javascripts/services/state.js"></script>
 
 		<script type="text/javascript" src="/javascripts/controllers/imageSelectionCtrl.js"></script>
 
@@ -32,6 +33,7 @@
 					ng-click="removeMessage($index)"></span>
 				<p>{{ message.body }}</p>
 			</div>
+			<state-jobs></state-jobs>
 		</div>
 	</body>
 </html>

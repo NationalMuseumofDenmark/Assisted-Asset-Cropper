@@ -1,0 +1,31 @@
+<div class="state">
+	<div
+		ng-repeat="job in state.jobs"
+		class="alert job"
+		ng-class="{
+			'alert-info': job.status=='started',
+			'alert-danger': job.status=='failed'
+		}"
+		ng-hide="job.status==='success'"
+		role="alert">
+		<p>{{job.description}}</p>
+		<ol class="tasks">
+			<li
+				ng-repeat="task in job.tasks"
+				class="task">
+				<small>{{ task.description }}</small>
+				<div class="progress">
+					<div
+						class="progress-bar"
+						role="progressbar"
+						aria-valuenow="{{task.progress}}"
+						aria-valuemin="0"
+						aria-valuemax="{{task.progressMax}}"
+						style="width: {{task.progress/task.progressMax*100}}%">
+						<span class="sr-only">{{task.progress/task.progressMax*100}}% Complete</span>
+					</div>
+				</div>
+			</li>
+		</ol>
+	</div>
+</div>
