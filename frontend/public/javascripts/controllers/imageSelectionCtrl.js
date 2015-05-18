@@ -270,10 +270,10 @@
 					selection.center_x = grabbedState.center.x - grabbedState.at.x + mouse.x;
 					selection.center_y = grabbedState.center.y - grabbedState.at.y + mouse.y;
 					// Keeing the bounds.
-					selection.center_x = Math.max(selection.width/2,selection.center_x);
-					selection.center_y = Math.max(selection.height/2, selection.center_y);
-					selection.center_x = Math.min(1-selection.width/2, selection.center_x);
-					selection.center_y = Math.min(1-selection.height/2, selection.center_y);
+					selection.center_x = Math.max(0,selection.center_x);
+					selection.center_y = Math.max(0, selection.center_y);
+					selection.center_x = Math.min(1, selection.center_x);
+					selection.center_y = Math.min(1, selection.center_y);
 				} else if($scope.grabbedHandleDirection === 'rotational') {
 					var diff = viewMouse.clone().subtract(viewGrabbedCenter);
 					// 0-y because a mathematical coordinate system has y growing upwards.
