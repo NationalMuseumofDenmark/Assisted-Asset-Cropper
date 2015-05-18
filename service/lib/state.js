@@ -1,4 +1,5 @@
-var Q = require('q');
+var Q = require('q'),
+		assert = require('assert');
 
 var mockState = {
 	jobs: [
@@ -149,6 +150,8 @@ State.prototype.save = function() {
 function get(req) {
 	var deferred = Q.defer();
 
+	assert(req.session, 'Expected the req object to have a session attribute.');
+
 	req.session.reload(function(err) {
 		if(err) {
 			deferred.reject(err);
@@ -190,9 +193,19 @@ function changeJobStatus(req, jobId, status) {
 	});
 }
 
+function createJob(req, jobDescription) {
+	return get(req).then(function(currentState) {
+		var jobId = currentState.createJob(jobDescription);
+		currentState.save();
+		return jobId;
+	});
+}
+
 
 exports.get = get;
 
 exports.updateJobTask = updateJobTask;
 
 exports.changeJobStatus = changeJobStatus;
+
+exports.createJob = createJob;
