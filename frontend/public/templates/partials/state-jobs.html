@@ -3,8 +3,8 @@
 		ng-repeat="job in state.jobs"
 		class="alert job"
 		ng-class="{
-			'alert-info': job.status=='started',
-			'alert-danger': job.status=='failed'
+			'alert-info': job.status!=='failed',
+			'alert-danger': job.status==='failed'
 		}"
 		ng-hide="job.status==='success'"
 		role="alert">
