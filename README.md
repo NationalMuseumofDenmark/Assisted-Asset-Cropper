@@ -120,3 +120,4 @@ Paste in the following or similar script (changing the value of app to the locat
 	#!/bin/bash -e
 	app=/home/$USER/Assisted-Asset-Cropper
 	cd $app && forever start bin/www
+
