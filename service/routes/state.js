@@ -28,31 +28,8 @@ router.get('/', function(req, res) {
 });
 
 router.get('/long-poll/:revision*?', function(req, res) {
-	state.get(req).then(function(initialState) {
-		if(req.params.revision && req.params.revision < initialState.revision) {
-			res.send(initialState.getData());
-		} else {
-			// Turn it into a string - for easy comparison.
-			initialState = JSON.stringify(initialState.getData());
-
-			var longPollInterval = setInterval(function() {
-				// Once the requesting connection times out - let's stop checking for
-				// state change.
-				if(req.connection.destroyed) {
-					// Stop checking for changes when the connection gets destroyed.
-					clearInterval(longPollInterval);
-				}
-
-				state.get(req).then(function(currentState) {
-					var currentStateData = currentState.getData();
-					if(initialState !== JSON.stringify(currentStateData) ) {
-						// Let's stop polling.
-						clearInterval(longPollInterval);
-						res.send(currentStateData);
-					}
-				});
-			}, LONGPOLL_INTERVAL);
-		}
+	state.watch(req.params.revision).then(function(newState) {
+		res.send(newState.getData());
 	});
 });
 
