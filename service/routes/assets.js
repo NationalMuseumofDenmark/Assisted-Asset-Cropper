@@ -100,45 +100,6 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 });
 
 /*
-router.get('/:catalog_alias/:id/crop/:left::top::width::height/:size/:type?', function(req, res, next) {
-	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'), 10);
-	var left = parseFloat(req.param('left'));
-	var top = parseFloat(req.param('top'));
-	var width = parseFloat(req.param('width'));
-	var height = parseFloat(req.param('height'));
-	var size = req.param('size');
-	if(size === 'maximal') {
-		size = undefined;
-	} else {
-		size = parseInt(size, 10);
-	}
-	var type = req.param('type');
-	client = cip.client(req, next);
-	cropping.thumbnail(client, catalog_alias, id, left, top, width, height, size, function(cropping_details, asset) {
-		if(type === 'stream' || type === 'download') {
-			if(type === 'download') {
-				var download_filename = generate_cropped_filename(asset);
-				res.attachment(download_filename);
-			}
-			// TODO: Consider saving this in a memory-cache.
-			http.get(cropping_details.thumbnail_url, function(thumbnail_res) {
-				delete thumbnail_res.headers['content-disposition'];
-				res.writeHead(thumbnail_res.statusCode, thumbnail_res.headers);
-				thumbnail_res.on('data', function(chunk) {
-					res.write(chunk);
-				}).on('end', function() {
-					res.end();
-				});
-			});
-		} else {
-			// Simply return the json.
-			res.send(cropping_details);
-		}
-	});
-});
-
 router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, next) {
 	// Localizing parameters
 	var catalog_alias = req.param('catalog_alias');
