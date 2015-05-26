@@ -63,7 +63,7 @@ Optionally remove the archive and directory.
 Install the dependencies
 
 	sudo npm install -g forever
-	sudo apt-get install nginx
+	sudo apt-get install nginx imagemagick
 
 Install git and install OpenCV using a repo cloned from GitHub.
 
