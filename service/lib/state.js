@@ -150,6 +150,7 @@ State.prototype.save = function() {
 function get(req) {
 	var deferred = Q.defer();
 
+	assert(req, 'Expected the req object.');
 	assert(req.session, 'Expected the req object to have a session attribute.');
 
 	req.session.reload(function(err) {
@@ -201,10 +202,15 @@ function createJob(req, jobDescription) {
 	});
 }
 
+// Consider doing this even faster.
+var WATCH_INTERVAL = 50;
+
 function watch(req, revision) {
-	state.get(req).then(function(initialState) {
+	var deferred = Q.defer();
+
+	get(req).then(function(initialState) {
 		if(req.params.revision && req.params.revision < initialState.revision) {
-			res.send(initialState.getData());
+			deferred.resolve(initialState);
 		} else {
 			// Turn it into a string - for easy comparison.
 			initialState = JSON.stringify(initialState.getData());
@@ -217,17 +223,19 @@ function watch(req, revision) {
 					clearInterval(longPollInterval);
 				}
 
-				state.get(req).then(function(currentState) {
+				get(req).then(function(currentState) {
 					var currentStateData = currentState.getData();
 					if(initialState !== JSON.stringify(currentStateData) ) {
-						// Let's stop polling.
+						// The state changed! Let's stop polling.
 						clearInterval(longPollInterval);
-						res.send(currentStateData);
+						deferred.resolve(currentState);
 					}
 				});
-			}, LONGPOLL_INTERVAL);
+			}, WATCH_INTERVAL);
 		}
 	});
+
+	return deferred.promise;
 }
 
 

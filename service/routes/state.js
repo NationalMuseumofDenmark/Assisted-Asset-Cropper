@@ -2,9 +2,6 @@ var express = require('express'),
 		router = express.Router(),
 		state = require('../lib/state');
 
-// Consider doing this even faster.
-var LONGPOLL_INTERVAL = 50;
-
 /*
 var currentState = state.get(req);
 for(var j in currentState.jobs) {
@@ -28,7 +25,7 @@ router.get('/', function(req, res) {
 });
 
 router.get('/long-poll/:revision*?', function(req, res) {
-	state.watch(req.params.revision).then(function(newState) {
+	state.watch(req, req.params.revision).then(function(newState) {
 		res.send(newState.getData());
 	});
 });
