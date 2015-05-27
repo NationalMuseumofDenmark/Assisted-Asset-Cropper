@@ -109,6 +109,8 @@ module.exports = function(grunt) {
 						'bower_components/angular-ui-router/release/angular-ui-router.js',
 						'bower_components/angular-cookies/angular-cookies.js',
 						'bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
+						// Bootstrap dropdowns
+						'bower_components/bootstrap/js/dropdown.js',
 					]
 				}
 			}
