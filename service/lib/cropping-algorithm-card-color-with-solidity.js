@@ -8,7 +8,7 @@ var DEFAULT_PARAMETERS = {
 	'max_area_ratio': 0.90,
 	'solidity_threshold': 0.8,
 	'card_similary_threshold': 38,
-	'post_erode_factor': 0.02, // Take 1% of the image width from each side
+	'post_erode_factor': 0.01, // Take 0.5% of the image width from each side
 };
 exports.DEFAULT_PARAMETERS = DEFAULT_PARAMETERS;
 
