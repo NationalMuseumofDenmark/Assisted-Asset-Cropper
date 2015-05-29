@@ -439,6 +439,18 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 		});
 	}
 
+	function deleteAssetCroppingFile(options) {
+		console.log('Delete', options.croppedAssetPath);
+		fs.unlinkSync(options.croppedAssetPath);
+		return options;
+	}
+
+	function deleteMasterAssetFile(jobOptions) {
+		console.log('Deleteing', jobOptions.masterAssetFilePath);
+		fs.unlinkSync(jobOptions.masterAssetFilePath);
+		return jobOptions;
+	}
+
 	function createSubAssets(jobOptions) {
 		var jobId = jobOptions.id;
 		var masterAsset = jobOptions.masterAsset;
@@ -488,16 +500,20 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 				var newAssetPromise = Q(options)
 					.then(performAssetCropping)
 					.then(importAssetCropping)
-					//.then(deleteAssetCropping) // TODO: Implement this
+					.then(deleteAssetCroppingFile)
 					.then(assetSucessImported)
 					.then(updateCroppedAssetRelations);
 
 				newAssetPromises.push(newAssetPromise);
 			}
 
-			return Q.all(newAssetPromises).then(function(assets) {
+			return Q.all(newAssetPromises)
+			.then(function(assets) {
 				state.changeJobStatus(req, jobId, 'success');
 				respond(assets);
+			})
+			.then(function() {
+				return deleteMasterAssetFile(jobOptions);
 			});
 		});
 	}
