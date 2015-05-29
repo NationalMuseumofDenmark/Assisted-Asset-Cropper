@@ -6,15 +6,12 @@ var express = require('express'),
 		assert = require('assert'),
 		request = require('request'),
 		gm = require('gm'),
-		temp = require('temp'),
+		temp = require('temp').track(),
 		Q = require('q'),
 		router = express.Router();
 
 // TODO: Consider cleaning up the code using var sequence = Futures.sequence();
 // http://stackoverflow.com/questions/6048504/synchronous-request-in-nodejs
-
-// Automatically track and cleanup files at exit
-temp.track();
 
 // The default thumbnail size used when requesting an asset.
 var DEFAULT_THUMBNAIL_SIZE = 200;
