@@ -20,6 +20,7 @@
     "angular-ui-router": "~0.2.13",
     "bootstrap": "~3.3.4",
     "ngInfiniteScroll": "~1.2.0",
-    "victor": "~0.2.6"
+    "victor": "~0.2.6",
+    "angulartics": "~0.18.0"
   }
 }

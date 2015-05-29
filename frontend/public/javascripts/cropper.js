@@ -1,6 +1,6 @@
 (function() {
 	angular
-	.module('cropper', ['ui.router', 'cip', 'infinite-scroll'])
+	.module('cropper', ['ui.router', 'cip', 'infinite-scroll', 'angulartics', 'angulartics.google.analytics'])
 	.config(['$urlRouterProvider', '$stateProvider',
 	function($urlRouterProvider, $stateProvider) {
 

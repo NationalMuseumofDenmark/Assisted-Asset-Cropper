@@ -111,6 +111,9 @@ module.exports = function(grunt) {
 						'bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
 						// Bootstrap dropdowns
 						'bower_components/bootstrap/js/dropdown.js',
+						// Angular Google Analytics
+						'bower_components/angulartics/src/angulartics.js',
+						'bower_components/angulartics/src/angulartics-ga.js',
 					]
 				}
 			}
