@@ -21,7 +21,7 @@
 	};
 
 	var CROPPING_STATUS_FIELD = '{bf7a30ac-e53b-4147-95e0-aea8c71340ca}',
-			FILENAME_FIELD = '{af4b2e00-5f6a-11d2-8f20-0000c0e166dc}';
+			FILENAME_FIELD = 'name'; // This changed from {af4b2e00-5f6a-11d2-8f20-0000c0e166dc}
 
 	var cip_client = new CIPClient(NatMusConfig);
 
