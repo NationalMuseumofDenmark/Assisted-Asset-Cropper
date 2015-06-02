@@ -4,7 +4,7 @@
 		endpoint: "/CIP/",
 		constants: {
 				catch_all_alias: "any",
-				layout_alias: "web" // TODO: Change to registrering?
+				layout_alias: "Registrering"
 		},
 		catalog_aliases: {
 			"Alle": "ALL",
@@ -120,7 +120,7 @@
 				var deferred = $q.defer();
 
 				var catalog = new CIPCatalog(this, { alias: catalog_alias });
-				var table = new cip_table.CIPTable(cip, catalog, "AssetRecords");
+				var table = new cip_table.CIPTable(cip_client, catalog, "AssetRecords");
 
 				var query_string = CROPPING_STATUS_FIELD + ' == 1';
 
