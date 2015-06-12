@@ -76,7 +76,7 @@ module.exports = function(grunt) {
 		watch: {
 			publics: {
 				files: [
-					'app.js',
+					'service.js',
 					'Gruntfile.js',
 					'service/**/*.js',
 					'frontend/**/*.less',
@@ -114,6 +114,11 @@ module.exports = function(grunt) {
 						// Angular Google Analytics
 						'bower_components/angulartics/src/angulartics.js',
 						'bower_components/angulartics/src/angulartics-ga.js',
+						// Auth0 and dependencies
+						'bower_components/auth0-lock/build/auth0-lock.js',
+						'bower_components/a0-angular-storage/dist/angular-storage.js',
+						'bower_components/angular-jwt/dist/angular-jwt.js',
+						'bower_components/auth0-angular/build/auth0-angular.js'
 					]
 				}
 			}
