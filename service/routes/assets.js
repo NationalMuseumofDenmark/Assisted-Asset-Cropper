@@ -13,6 +13,35 @@ var express = require('express'),
 // TODO: Consider cleaning up the code using var sequence = Futures.sequence();
 // http://stackoverflow.com/questions/6048504/synchronous-request-in-nodejs
 
+// Search in assets
+router.get('/search/:catalog_alias', function(req, res, next) {
+	var catalog_alias = req.params['catalog_alias'];
+	var term = req.query['term'];
+
+	cip.client().then(function (client) {
+		return cip.search(client, catalog_alias, term)
+		.then(function(response) {
+			res.send({
+				collection_id: response.collection_id,
+				total_rows: response.total_rows
+			});
+		});
+	}, next);
+});
+
+router.get('/search-results/:collection_id/:count/:offset', function(req, res, next) {
+	var collection_id = req.params['collection_id'];
+	var count = req.params['count'];
+	var offset = req.params['offset'];
+
+	cip.client().then(function (client) {
+		return cip.searchResults(client, collection_id, count, offset)
+		.then(function(assets) {
+			res.send(assets);
+		});
+	}, next);
+});
+
 // The default thumbnail size used when requesting an asset.
 var DEFAULT_THUMBNAIL_SIZE = 200;
 
@@ -48,44 +77,17 @@ function append_croppings(client, asset, catalog_alias, render_options, callback
 }
 
 router.get('/:catalog_alias/:id', function(req, res, next) {
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseFloat(req.param('id'));
-	client = cip.client(req, next);
-	client.get_asset(catalog_alias, id, true, function(asset) {
-		var asset_title = asset.fields[TITLE_FIELD];
-		asset_title = asset_title ? asset_title : 'Asset without a titel';
-		
-		var image_size = cropping.algorithm.DEFAULT_PARAMETERS.image_size;
-		var asset_filename = asset.fields[FILENAME_FIELD];
-		//var asset_image_url = asset.get_image_url({ maxsize: image_size });
-		var asset_image_url = cip.wrap_proxy(asset.get_thumbnail_url());
-		var asset_algoritm_states_url = "/asset/" + catalog_alias + "/"
-			+ id + "/suggestion-states";
-		var cropping_status = asset.fields[CROPPING_STATUS_FIELD].id;
-		var cropping_status_text = asset.fields[CROPPING_STATUS_FIELD].displaystring;
-
-		var render_options = {
-			jsessionid: client.jsessionid,
-			title: asset_title + " - "+ 'Assisted asset cropper',
-			catalog_alias: catalog_alias,
-			asset_title: asset_title,
-			asset_id: id,
-			asset_filename: asset_filename,
-			asset_image_url: asset_image_url,
-			asset_algoritm_states_url: asset_algoritm_states_url,
-			cropping_status: cropping_status ? cropping_status : 0,
-			cropping_status_text: cropping_status_text ? cropping_status_text : "",
-		};
-
-		append_master(client, asset, catalog_alias, render_options, function(render_options) {
-			append_croppings(client, asset, catalog_alias, render_options, function(render_options) {
-				res.render('asset', render_options);
-			});
+	var catalog_alias = req.params['catalog_alias'];
+	var id = parseInt(req.params['id'], 10);
+	cip.client().then(function (client) {
+		client.get_asset(catalog_alias, id, true, function(asset) {
+			// TODO: Consider checking if any fields suggests a violation of confidentiality.
+			res.send(asset.fields);
+		}, function() {
+			var err = new Error( 'No such asset in Cumulus!' );
+			err.status = 404;
+			next(err);
 		});
-	}, function() {
-		var err = new Error( 'No such asset in Cumulus!' );
-		err.status = 404;
-		next(err);
 	});
 
 	/*
@@ -96,20 +98,30 @@ router.get('/:catalog_alias/:id', function(req, res, next) {
 	*/
 });
 
-/*
-router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, next) {
+
+router.get('/:catalog_alias/:id/thumbnail/:size?', function(req, res, next) {
 	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'), 10);
-	var size = req.param('size');
+	var catalog_alias = req.params['catalog_alias'];
+	var id = parseInt(req.params['id'], 10);
+	var size = req.params['size'];
 	if(size !== undefined) {
 		size = parseInt(size, 10);
-	} else {
-		size = DEFAULT_THUMBNAIL_SIZE;
 	}
-	client = cip.client(req, next);
-	cropping.thumbnail(client, catalog_alias, id, 0.0, 0.0, 1.0, 1.0, size, function(asset) {
-		http.get(asset.thumbnail_url, function(thumbnail_res) {
+
+	cip.client().then(function (client) {
+		var params = {};
+		if(size) {
+			params.size = size;
+		}
+
+		var thumbnailURL = client.generate_url([
+			'preview',
+			'thumbnail',
+			catalog_alias,
+			id
+		].join('/'), params);
+
+		http.get(thumbnailURL, function(thumbnail_res) {
 			res.writeHead(thumbnail_res.statusCode, thumbnail_res.headers);
 			thumbnail_res.on('data', function(chunk) {
 				res.write(chunk);
@@ -119,7 +131,6 @@ router.get('/:catalog_alias/:id/thumbnail/:size?/stream', function(req, res, nex
 		});
 	});
 });
-*/
 
 router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 	// Localizing parameters
@@ -131,57 +142,61 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
-	client = cip.client(req, next);
-	cropping.suggest(client, catalog_alias, id,
-		function(suggestions) {
-			res.send(suggestions);
-		},
-		function(response) {
-			var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
-			err.status = 503;
-			next(err);
-		}
-	);
+
+	cip.client().then(function (client) {
+		cropping.suggest(client, catalog_alias, id,
+			function(suggestions) {
+				res.send(suggestions);
+			},
+			function(response) {
+				var err = new Error( 'Cumulus responded with status code ' + response.statusCode);
+				err.status = 503;
+				next(err);
+			}
+		);
+	});
 });
 
 
 router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, next) {
 	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'), 10);
-	var size = req.param('size');
+	var catalog_alias = req.params['catalog_alias'];
+	var id = parseInt(req.params['id'], 10);
+	var size = req.params['size'];
 	if(size !== undefined) {
 		size = parseInt(size, 10);
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
 	var state_images = [];
-	client = cip.client(req, next);
-	cropping.suggest(client, catalog_alias, id, function(suggestions) {
-		var result;
-		for(var s in state_images) {
-			if(result) {
-				result = result.append(state_images[s]);
-			} else {
-				result = gm(state_images[s]);
+	
+	cip.client().then(function (client) {
+		cropping.suggest(client, catalog_alias, id, function(suggestions) {
+			var result;
+			for(var s in state_images) {
+				if(result) {
+					result = result.append(state_images[s]);
+				} else {
+					result = gm(state_images[s]);
+				}
 			}
-		}
-		result.stream(function streamOut (err, stdout, stderr) {
-      if (err) return next(err);
-      stdout.pipe(res);
-      // TODO: Delete all the images in state_images.
-      stdout.on('error', next);
-    });
-    // temp.cleanupSync();
-	}, function(response) {
-		var err = new Error( 'Cumulus responded with status code ' + response.statusCode );
-		console.error(response);
-		err.status = 503;
-		next(err);
-	}, {}, function(state, data) {
-		// Map every Open CV matrix to a temporary file.
-		state_images[state] = temp.path({suffix: '.jpg'});
-		data.save( state_images[state] );
+			result.stream(function streamOut (err, stdout, stderr) {
+				if (err) return next(err);
+					stdout.pipe(res);
+					// TODO: Delete all the images in state_images.
+					stdout.on('error', next);
+				});
+				// temp.cleanupSync();
+		}, function(response) {
+			var err = new Error( 'Cumulus responded with status code ' + response.statusCode );
+			console.error(response);
+			err.status = 503;
+			next(err);
+		}, {}, function(state, data) {
+			// Map every Open CV matrix to a temporary file.
+			state_images[state] = temp.path({suffix: '.jpg'});
+			data.save( state_images[state] );
+		});
 	});
 });
 
@@ -189,22 +204,23 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 // Get the croppings 
 router.get('/:catalog_alias/:id/croppings/:size?', function(req, res, next) {
 	// Localizing parameters
-	var catalog_alias = req.param('catalog_alias');
-	var id = parseInt(req.param('id'), 10);
-	var size = req.param('size');
+	var catalog_alias = req.params['catalog_alias'];
+	var id = parseInt(req.params['id'], 10);
+	var size = req.params['size'];
 	if(size !== undefined) {
 		size = parseInt(size, 10);
 	} else {
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
 
-	client = cip.client(req, next);
-	client.ciprequest(
-		"metadata/getrelatedassets/" +
-		catalog_alias + "/" +
-		id + "/isvariantof", {}, function(response) {
-		//console.log( response );
-		res.send( response );
+	cip.client().then(function (client) {
+		client.ciprequest(
+			"metadata/getrelatedassets/" +
+			catalog_alias + "/" +
+			id + "/isvariantof", {}, function(response) {
+			//console.log( response );
+			res.send( response );
+		});
 	});
 });
 
@@ -219,13 +235,13 @@ router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 					"The request must specify a master asset id from which the cropping "+
 					"should be performed.");
 
-	var client = cip.client(req, next);
+	cip.client().then(function (client) {
+		var selections = req.body.croppings;
+		var catalogAlias = req.params['catalog_alias'];
+		var masterAssetId = parseInt(req.params['id'], 10);
 
-	var selections = req.body.croppings;
-	var catalogAlias = req.params['catalog_alias'];
-	var masterAssetId = parseInt(req.params['id'], 10);
-
-	cropping.performCropping(req, res, next, catalogAlias, masterAssetId, selections);
+		cropping.performCropping(req, res, next, catalogAlias, masterAssetId, selections);
+	});
 });
 
 module.exports = router;

@@ -30,22 +30,27 @@
 		$(window).scroll();
 	});
 
-	app.controller('searchCtrl', ['$scope', '$http', '$state', '$stateParams', 'cip', 'catalogs',
-		function($scope, $http, $state, $stateParams, cip, catalogs) {
+	app.controller('searchCtrl', ['$scope', '$http', '$state', '$stateParams', 'assets', 'catalogs',
+		function($scope, $http, $state, $stateParams, assets, catalogs) {
 		$scope.catalogs = catalogs;
 		$scope.empty_result = false;
 		$scope.assets = [];
 		$scope.result = undefined;
 		$scope.result_pointer = 0;
 
-		function performSearch(term, catalog_alias) {
+		function performSearch(catalog_alias, term) {
 			$scope.is_searching = true;
-			cip.search(term, catalog_alias).then(function(result) {
+			assets.doSearch(catalog_alias, term)
+			.then(function(result) {
 				$scope.is_searching = false;
 				$scope.empty_result = result.total_rows === 0;
 				if(!$scope.empty_result) {
 					$scope.result = result;
+					$scope.loading = false;
 					$scope.result_pointer = 0;
+					$scope.result.catalog_alias = catalog_alias;
+					// Results are in ..
+					$scope.loadMoreSearchResult();
 				}
 			});
 		}
@@ -82,11 +87,17 @@
 		};
 
 		$scope.loadMoreSearchResult = function() {
-			// If the result pointer is less than total rows.
-			if($scope.result && $scope.result_pointer < $scope.result.total_rows) {
-				$scope.result.get(ASSETS_PER_REQUEST, $scope.result_pointer, function(response) {
+			if($scope.result && $scope.result.collection_id && !$scope.empty_result && $scope.result_pointer < $scope.result.total_rows && !$scope.loading) {
+				$scope.loading = true;
+				assets.getSearchResults($scope.result.collection_id, ASSETS_PER_REQUEST, $scope.result_pointer)
+				.then(function(response) {
+					$scope.loading = false;
 					response.forEach(function(new_asset) {
-						new_asset.metadata = cip.transformAssetMetadata(new_asset);
+						new_asset.metadata = assets.transformAssetMetadata(new_asset);
+						new_asset.catalog_alias = $scope.result.catalog_alias;
+						new_asset.getThumbnailURL = assets.getThumbnailURL;
+						new_asset.getThumbnailURL.bind(new_asset);
+
 						new_asset.loaded = false;
 						$scope.assets.push(new_asset);
 						$scope.result_pointer += 1;

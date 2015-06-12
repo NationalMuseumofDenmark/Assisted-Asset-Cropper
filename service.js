@@ -5,10 +5,12 @@ var express = require('express'),
 		logger = require('morgan'),
 		cookieParser = require('cookie-parser'),
 		bodyParser = require('body-parser'),
-		request = require('request');
+		request = require('request'),
+		jwt = require('express-jwt');
 
 var assets = require('./service/routes/assets');
 var state = require('./service/routes/state');
+var catalogs = require('./service/routes/catalogs');
 var cip_proxy = require('./service/routes/cip_proxy');
 
 var app = express();
@@ -30,25 +32,36 @@ app.use(session({
 	saveUninitialized: true
 }));
 
-// Register the various application routes.
-app.use('/asset', assets);
-app.use('/state', state);
+// Serve the static files from the public folder.
+app.use(express.static(path.join(__dirname, 'frontend/public')));
+
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/frontend/public/templates/index.html');
 });
 
-// Serve the static files from the public folder.
-app.use(express.static(path.join(__dirname, 'frontend/public')));
+// Authentication using auth0
+var settings = require('./settings.json');
 
-// Set the scripts that needs to be loaded into every view.
-//app.set('view options', { locals: { scripts: ['jquery.js'] } });
-app.use(function(err, req, res, next) {
-	// Redirect to the signin page.
-	if(err.status === 401) {
-		res.redirect('/');
-	}
-	next(err);
+var jwtCheck = jwt({
+  secret: new Buffer(settings.auth0.secret, 'base64'),
+  audience: settings.auth0.clientID
 });
+
+function jwtQuery2Header(req, res, next) {
+	if(req.query.jwt) {
+		req.headers.authorization = 'Bearer '+req.query.jwt;
+	}
+	next();
+}
+
+app.use(jwtQuery2Header);
+
+app.use(jwtCheck);
+
+// Register the various application routes.
+app.use('/asset', assets);
+app.use('/state', state);
+app.use('/catalogs', catalogs);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -69,6 +82,7 @@ if (app.get('env') === 'development') {
 			message: err.message,
 			error: err
 		});
+		console.error(err.message, err.stack);
 	});
 } else {
 	// production error handler

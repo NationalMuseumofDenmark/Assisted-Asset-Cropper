@@ -9,7 +9,7 @@
 			<div class="col-sm-2 col-xs-4 col-sm-push-7 sm-small-text">
 				<ul class="nav navbar-nav navbar-right">
 					<li>
-						<a id="signout-btn" ui-sref="signOut">
+						<a id="signout-btn" ng-click="signout()">
 							<span class="glyphicon glyphicon-off"></span> Log ud
 						</a>
 					</li>
@@ -60,10 +60,10 @@
 	<a class="asset"
 		ng-repeat="asset in assets"
 		ng-show="asset.thumbnail_loaded"
-		ui-sref="asset({ catalog_alias: catalog_alias, asset_id: asset.fields.id })">
+		ui-sref="asset({ catalog_alias: catalog_alias, asset_id: asset.id })">
 		<div class="suggestions"></div>
 		<div class="metadata">{{ asset.metadata.cropping_status.displaystring }}</div>
-		<img ng-src="{{ asset.get_thumbnail_url({ size:200 }) }}" assetloaded />
+		<img ng-src="{{ asset.getThumbnailURL(200) }}" assetloaded />
 	</a>
 </div>
 

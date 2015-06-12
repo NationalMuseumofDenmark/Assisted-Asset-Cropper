@@ -1,8 +1,8 @@
 (function() {
 	angular
 	.module('cropper')
-	.controller('assetCtrl', ['$scope', '$state', '$stateParams', '$http', 'cip', 'asset',
-		function($scope, $state, $stateParams, $http, cip, asset) {
+	.controller('assetCtrl', ['$scope', '$state', '$stateParams', '$http', 'asset',
+		function($scope, $state, $stateParams, $http, asset) {
 			$scope.catalog_alias = $stateParams.catalog_alias;
 			$scope.asset_id = $stateParams.asset_id;
 
