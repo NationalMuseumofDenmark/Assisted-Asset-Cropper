@@ -138,6 +138,21 @@ module.exports = function(grunt) {
 		}, done);
 	});
 
+	grunt.registerTask('copy-auth0-non-secrets', function() {
+		var done = this.async();
+		/*
+		grunt.util.spawn({
+			cmd: 'bash',
+			args: ['build.sh'],
+			opts: {
+				stdio: 'inherit',
+				cwd: CIP_JS_PATH
+			},
+		}, done);
+		*/
+		done();
+	});
+
 	// Build and copy all the libs to the /public folder.
 	grunt.registerTask('libs', ['build-cip-js', 'uglify']);
 	// Build and copy all local public files
