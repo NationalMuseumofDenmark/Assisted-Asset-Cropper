@@ -6556,9 +6556,6 @@ a {
 form {
   word-wrap: break-word;
 }
-#logout-btn {
-  float: right;
-}
 body {
   background-repeat: no-repeat;
   background-position: 2% 98%;
@@ -6593,25 +6590,8 @@ body {
   margin-bottom: 10px;
   height: 15px;
 }
-body .container.signin-form {
-  max-width: 400px;
-  margin: auto;
-}
-body .container.signin-form input[name=username] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-body .container.signin-form input[name=password] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-body .container.signin-form .checkbox {
-  font-weight: normal;
-}
-body .container.signin-form .progress {
-  margin-top: 1em;
+.container.introduction .row {
+  margin-top: 3em;
 }
 @media (max-width: 991px) and (min-width: 768px) {
   .sm-small-text,

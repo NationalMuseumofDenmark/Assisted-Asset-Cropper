@@ -11,11 +11,17 @@
 	]).config(['$urlRouterProvider', '$stateProvider', 'authProvider', 'jwtInterceptorProvider', '$httpProvider',
 	function($urlRouterProvider, $stateProvider, authProvider, jwtInterceptorProvider, $httpProvider) {
 
-		$urlRouterProvider.otherwise('/search//');
+		//$urlRouterProvider.otherwise('/search//');
+		$urlRouterProvider.otherwise('/');
 
 		var catalogs;
 
 		$stateProvider
+		.state('introduction', {
+			url: '/',
+			templateUrl: 'templates/introduction.html',
+			controller: 'introductionCtrl'
+		})
 		.state('search', {
 			url: '/search/:catalog_alias/:term',
 			templateUrl: 'templates/search.html',
@@ -49,27 +55,32 @@
 		});
 	
 		// Initialize auth0
-		// TODO: Fetch this from the settings.json file somehow.
-		authProvider.init({
-			domain: 'natmus.eu.auth0.com',
-			clientID: 'haiLMiAprg6kc95CliKcOfBsq6qti5xx'
-		});
-
-
+		if(!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
+			console.error('Auth0 settings missing: Please re-grunt the app.');
+		} else {
+			authProvider.init({
+				domain: AUTH0_DOMAIN,
+				clientID: AUTH0_CLIENT_ID
+			});
+		}
 		jwtInterceptorProvider.tokenGetter = ['store', function(store) {
 			return store.get('token');
 		}];
 
 		$httpProvider.interceptors.push('jwtInterceptor');
-
 	}])
 	.run(['$rootScope', '$state', 'user', function($rootScope, $state, user) {
 
 		$rootScope.signout = function() {
+			// First - tell the user service to forget about the user.
 			user.forget();
+			$state.go('introduction');
+			/*
+			// Then ask for the user to authenticate.
 			user.get().then(function(user) {
 				$state.go('search');
 			});
+			*/
 		};
 
 		$rootScope.messages = [];
@@ -88,14 +99,16 @@
 		};
 	
 		// If a state change error occurs due to Unauthorized, change to the signIn state.
+		/*
 		$rootScope.$on('$stateChangeError',
 		function (event, toState, toParams, fromState, fromParams, error) {
-			console.error(error, error.stackkraen);
+			console.error(error, error.stack);
 			if(error && error.indexOf && error.indexOf('Unauthorized') !== -1) {
 				event.preventDefault();
 				$state.go('signIn');
 			}
 		});
+		*/
 		$rootScope.$on('$stateChangeSuccess',
 		function (ev, to, toParams, from, fromParams) {
 			// Save the params of the last search when leaving the state.
