@@ -140,23 +140,28 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('copy-auth0-non-secrets', function() {
 		var done = this.async();
-		/*
-		grunt.util.spawn({
-			cmd: 'bash',
-			args: ['build.sh'],
-			opts: {
-				stdio: 'inherit',
-				cwd: CIP_JS_PATH
-			},
-		}, done);
-		*/
+
+		var settings = grunt.file.readJSON('settings.json');
+		var nonSecrets = {
+			AUTH0_DOMAIN: settings.auth0.domain,
+			AUTH0_CLIENT_ID: settings.auth0.clientID
+		};
+
+		// Write this to globally available variables.
+		var content = '';
+		for(var key in nonSecrets) {
+			content += 'var ' + key + ' = "'+nonSecrets[key]+'";\n';
+		}
+
+		grunt.file.write('frontend/public/javascripts/settings.js', content);
+
 		done();
 	});
 
 	// Build and copy all the libs to the /public folder.
 	grunt.registerTask('libs', ['build-cip-js', 'uglify']);
 	// Build and copy all local public files
-	grunt.registerTask('public', ['less']);
+	grunt.registerTask('public', ['less', 'copy-auth0-non-secrets']);
 
 	grunt.registerTask('default', ['libs', 'public']);
 
