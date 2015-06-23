@@ -9,8 +9,14 @@
 			<div class="col-sm-4 col-xs-7 col-sm-push-5 sm-small-text">
 				<ul class="nav navbar-nav navbar-right">
 					<li>
-						<a id="logout-btn" ui-sref="signOut"><span class="glyphicon glyphicon-off"></span> Log ud</a>
-						<a id="overview-btn" ui-sref="search(previous_search)" class="pull-right"><span class="glyphicon glyphicon-th"></span> Søg</a>
+						<a id="overview-btn" ui-sref="search(previous_search)" class="pull-right">
+							<span class="glyphicon glyphicon-th"></span> Søg
+						</a>
+					</li>
+					<li>
+						<a id="signout-btn" ng-click="signout()">
+							<span class="glyphicon glyphicon-off"></span> Log ud
+						</a>
 					</li>
 				</ul>
 			</div>
