@@ -6556,6 +6556,10 @@ a {
 form {
   word-wrap: break-word;
 }
+html,
+body {
+  min-height: 100%;
+}
 body {
   background-repeat: no-repeat;
   background-position: 2% 98%;

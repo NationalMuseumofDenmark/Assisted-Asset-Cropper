@@ -14,6 +14,11 @@ form {
 	word-wrap: break-word;
 }
 
+html, body {
+	// Fixes issues with fixed backgrounds on Android.
+	min-height: 100%;
+}
+
 body {
 	background-repeat: no-repeat;
 	background-position: 2% 98%;
