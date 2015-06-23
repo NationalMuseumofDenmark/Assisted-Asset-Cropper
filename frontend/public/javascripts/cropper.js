@@ -49,9 +49,10 @@
 		});
 	
 		// Initialize auth0
+		// TODO: Fetch this from the settings.json file somehow.
 		authProvider.init({
-			domain: 'socialsquare.eu.auth0.com',
-			clientID: 'lERh4X3aiJJN6SFLbySZI6R6YO2DI8RS'
+			domain: 'natmus.eu.auth0.com',
+			clientID: 'haiLMiAprg6kc95CliKcOfBsq6qti5xx'
 		});
 
 
