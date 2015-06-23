@@ -87,13 +87,20 @@
 			};
 
 			assets.getThumbnailURL = function(size) {
-				return '/' + [
+				var url = '/' + [
 					'asset',
 					this.catalog_alias,
 					this.id,
 					'thumbnail',
 					size
-				].join('/') + '?jwt=' + store.get('token');
+				].join('/');
+
+				var token = store.get('token');
+				if(token) {
+					return url + '?jwt=' + token;
+				} else {
+					return url;
+				}
 			};
 
 			return assets;
