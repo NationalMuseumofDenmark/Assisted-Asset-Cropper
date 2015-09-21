@@ -106,19 +106,25 @@ module.exports = function(grunt) {
 						'bower_components/victor/build/victor.js',
 						// Angular
 						'bower_components/angular/angular.js',
+						// Angular module: Angular UI Router
 						'bower_components/angular-ui-router/release/angular-ui-router.js',
-						'bower_components/angular-cookies/angular-cookies.js',
+						// Angular module: ngInfiniteScroll
 						'bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
+						// Angular module: Angular Gestures
+						'bower_components/hammerjs/hammer.js',
+						'bower_components/angular-gestures/gestures.js',
 						// Bootstrap dropdowns
 						'bower_components/bootstrap/js/dropdown.js',
 						// Angular Google Analytics
 						'bower_components/angulartics/src/angulartics.js',
 						'bower_components/angulartics/src/angulartics-ga.js',
 						// Auth0 and dependencies
-						'bower_components/auth0-lock/build/auth0-lock.js',
 						'bower_components/a0-angular-storage/dist/angular-storage.js',
 						'bower_components/angular-jwt/dist/angular-jwt.js',
 						'bower_components/auth0-angular/build/auth0-angular.js'
+					],
+					'./frontend/public/javascripts/lib/non-strict-libs.min.js': [
+						'bower_components/auth0-lock/build/auth0-lock.js',
 					]
 				}
 			}
