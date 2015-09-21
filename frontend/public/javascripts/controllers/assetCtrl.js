@@ -1,12 +1,21 @@
 (function() {
 	angular
 	.module('cropper')
-	.controller('assetCtrl', ['$scope', '$state', '$stateParams', '$http', 'asset',
-		function($scope, $state, $stateParams, $http, asset) {
+	.controller('assetCtrl', ['$scope', '$state', '$stateParams', '$http', 'assets', 'asset',
+		function($scope, $state, $stateParams, $http, assets, asset) {
 			$scope.catalog_alias = $stateParams.catalog_alias;
 			$scope.asset_id = $stateParams.asset_id;
-
+			
 			$scope.asset = asset;
+			$scope.is_busy = false;
+
+			function reloadAsset() {
+				//$state.go($state.current, {}, {reload: true});
+				assets.get($scope.catalog_alias, $scope.asset_id)
+				.then(function(asset) {
+					$scope.asset = asset;
+				});
+			}
 
 			$scope.croppings = [];
 
@@ -21,16 +30,65 @@
 				].join('/');
 
 			$scope.loadSuggestedCroppings = function() {
+				$scope.is_busy = true;
 				// Fetch all suggested croppings
 				$http.get(load_suggested_croppings_url).then(function(response) {
 					response.data.forEach( function(selection) {
 						$scope.croppings.push(selection);
 					} );
+					$scope.is_busy = false;
 				});
 			};
 
 			// Call this right away.
 			$scope.loadSuggestedCroppings();
+
+			function getAssetIndex(asset) {
+				if($scope.$parent && $scope.$parent.assets) {
+					return $scope.$parent.assets.reduce(function(currentValue, a, index) {
+						if(a.id === asset.id) {
+							return index;
+						}
+						return currentValue;
+					}, undefined);
+				}
+			}
+
+			function getPreviousAssetId(currentIndex) {
+				if($scope.$parent && $scope.$parent.assets) {
+					if(currentIndex > 0) {
+						return $scope.$parent.assets[currentIndex-1].id;
+					}
+				}
+			}
+
+			function getNextAssetId(currentIndex) {
+				if($scope.$parent && $scope.$parent.assets) {
+					if(currentIndex < $scope.$parent.assets.length) {
+						return $scope.$parent.assets[currentIndex+1].id;
+					}
+				}
+			}
+			
+			$scope.previousAsset = function() {
+				var currentIndex = getAssetIndex($scope.asset);
+				var previousAssetId = getPreviousAssetId(currentIndex);
+				if(previousAssetId) {
+					$state.go('search.asset', {
+						asset_id: previousAssetId
+					});
+				}
+			};
+			
+			$scope.nextAsset = function() {
+				var currentIndex = getAssetIndex($scope.asset);
+				var nextAssetId = getNextAssetId(currentIndex);
+				if(nextAssetId) {
+					$state.go('search.asset', {
+						asset_id: nextAssetId
+					});
+				}
+			};
 
 			var save_croppings_url = [
 				'',
@@ -42,12 +100,13 @@
 				].join('/');
 
 			$scope.saveCroppings = function() {
+				$scope.is_busy = true;
 				console.log("Saving croppings!");
 				$http.post(save_croppings_url, {
 					croppings: $scope.croppings
 				}).then(function(response) {
+					$scope.is_busy = false;
 					var assets = response.data.assets;
-					
 					console.log("Success!", response);
 					$scope.showMessage( 'success', [
 						'Det lykkedes at gemme ',
@@ -60,7 +119,10 @@
 						$scope.catalog_alias,
 						' kataloget)'
 					] );
+					//reloadAsset();
+					$scope.nextAsset();
 				}, function(response) {
+					$scope.is_busy = false;
 					var message = [
 						'Der opstod en uventet fejl, da friskæringerne af "',
 						$scope.asset.metadata.filename,
@@ -77,6 +139,17 @@
 					}
 					// TODO: Include response.message if it is defined.
 					$scope.showMessage( 'danger', message );
+					reloadAsset();
+				});
+			};
+
+			$scope.addCropping = function() {
+				$scope.croppings.push({
+					center_x: 0.5,
+					center_y: 0.5,
+					width: 0.5,
+					height: 0.5,
+					rotation: 0
 				});
 			};
 
@@ -86,6 +159,10 @@
 
 			$scope.removeCropping = function(cropping) {
 				$scope.$broadcast('removeSelection', {selection: cropping});
+			};
+
+			$scope.dismiss = function() {
+				$state.go('search');
 			};
 
 			function reflect(e, args) {

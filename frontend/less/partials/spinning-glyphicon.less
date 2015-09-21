@@ -1,0 +1,23 @@
+.spinning.glyphicon {
+	@-webkit-keyframes rotate {
+		from {-webkit-transform: rotate(0deg);}
+		to {-webkit-transform: rotate(360deg);}
+	}
+
+	@-moz-keyframes rotate {
+		from {-moz-transform: rotate(0deg);}
+		to {-moz-transform: rotate(360deg);}
+	}
+	
+	-webkit-animation-name: rotate;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	-webkit-transition-property: -webkit-transform;
+
+	-moz-animation-name: rotate;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	-moz-transition-property: -moz-transform;
+}

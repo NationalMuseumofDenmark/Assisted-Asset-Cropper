@@ -3,6 +3,11 @@
 		font-size: 13px;
 	}
 }
+@media (max-width: @screen-md-max) and (min-width: @screen-sm-min) {
+	.md-small-text, .md-small-text .navbar-brand {
+		font-size: 13px;
+	}
+}
 
 .search-controls {
 	height: @navbar-height;
@@ -103,33 +108,8 @@
 	top: 48%;
 	text-align: center;
 	width: 100%;
-
-	.icon span {
+	.glyphicon {
 		font-size: 3em;
-
-		&.glyphicon-refresh {
-			@-webkit-keyframes rotate {
-				from {-webkit-transform: rotate(0deg);}
-				to {-webkit-transform: rotate(360deg);}
-			}
-
-			@-moz-keyframes rotate {
-				from {-moz-transform: rotate(0deg);}
-				to {-moz-transform: rotate(360deg);}
-			}
-			
-			-webkit-animation-name: rotate;
-			-webkit-animation-duration: 1s;
-			-webkit-animation-iteration-count: infinite;
-			-webkit-animation-timing-function: linear;
-			-webkit-transition-property: -webkit-transform;
-
-			-moz-animation-name: rotate;
-			-moz-animation-duration: 1s;
-			-moz-animation-iteration-count: infinite;
-			-moz-animation-timing-function: linear;
-			-moz-transition-property: -moz-transform;
-		}
 	}
 	.text {
 		margin-top: 1em;

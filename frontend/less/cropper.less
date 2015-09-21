@@ -19,11 +19,16 @@ html, body {
 	min-height: 100%;
 }
 
+html.modal-opened {
+	overflow: hidden;
+}
+
 body {
 	background-repeat: no-repeat;
 	background-position: 2% 98%;
 	background-attachment: fixed;
 	background-image: url(@brand-logo-location);
+	padding-bottom: 80px;
 }
 
 .navbar {
@@ -72,5 +77,7 @@ body {
 @import "introduction.less";
 @import "search.less";
 @import "asset.less";
+
+@import "partials/spinning-glyphicon.less";
 
 @import "image-selection/canvas.less";

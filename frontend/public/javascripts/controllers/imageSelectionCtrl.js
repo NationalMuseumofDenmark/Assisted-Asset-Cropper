@@ -68,7 +68,7 @@
 		};
 
 		$scope.dragCreateSelection = function(offsetX, offsetY, handleDirection) {
-			$scope.dragging_canvas = false;
+			$scope.draggingCanvas = false;
 			var selection = {
 				center_x: offsetX / $scope.image.width,
 				center_y: offsetY / $scope.image.height,
@@ -127,6 +127,33 @@
 			}
 		};
 
+		$scope.dragStart = function($event) {
+			/*
+			//console.log('dragStart', $event);
+			var offset = $($event.target).offset();
+			var x = $event.center.x - offset.left;
+			var y = $event.center.y - offset.top;
+			//console.log('dragStart', x, y);
+			$scope.mouseDown(x, y);
+			*/
+		};
+
+
+		$scope.dragEnd = function() {
+			//console.log('dragEnd');
+			$scope.mouseUp();
+		};
+
+		$scope.drag = function($event) {
+			/*
+			var offset = $($event.target).offset();
+			var x = $event.center.x - offset.left;
+			var y = $event.center.y - offset.top;
+			//console.log('drag', x, y);
+			$scope.mouseMove(x, y);
+			*/
+		};
+
 		// Parent controllers might want to affect the selection.
 		$scope.$on('selectSelection', function(e, args) {
 			$scope.selectSelection(args.selection);
@@ -155,8 +182,8 @@
 		return {
 			restrict: 'E',
 			templateUrl: 'templates/image-selection/canvas.html',
-			templateNamespace: 'svg',
 			controller: 'imageSelectionCanvasCtrl',
+			replace: true,
 			scope: {
 				'imageSrc': '@src',
 				'selections': '='
@@ -187,7 +214,7 @@
 			}
 		};
 	})
-	.controller('imageSelectionCtrl', ['$scope', function($scope) {
+	.controller('imageSelectionCtrl', ['$scope', '$element', function($scope, $element) {
 		// In pixel
 		var MIN_SELECTION_SIZE = 10;
 
@@ -216,9 +243,9 @@
 			].join(';');
 		};
 
-		$scope.handleGrabbed = function(direction, $event) {
-			var x = $event.offsetX / $scope.image.width;
-			var y = $event.offsetY / $scope.image.height;
+		function handleGrabbed(direction, x, y) {
+			x /= $scope.image.width;
+			y /= $scope.image.height;
 			// Make this selection, the selected selection.
 			$scope.$parent.selectSelection($scope.selection);
 
@@ -235,7 +262,10 @@
 
 			$scope.grabbed = true;
 			$scope.grabbedHandleDirection = direction;
+		};
 
+		$scope.handleGrabbed = function(direction, $event) {
+			handleGrabbed(direction, $event.offsetX, $event.offsetY);
 			// If this is infact a real $event and not just an object with
 			// offsetX and offsetY. Let's make sure this click does not propagate.
 			if($event.stopPropagation) {
@@ -412,6 +442,29 @@
 			}
 		};
 
+		$scope.dragEnd = function() {
+			console.log('dragEnd');
+			$scope.handleReleased();
+		};
+
+		$scope.dragStart = function(direction, $event) {
+			var offset = $element.parent().offset();
+			var x = $event.center.x - offset.left;
+			var y = $event.center.y - offset.top;
+			handleGrabbed(direction, x, y);
+			if($event.stopPropagation) {
+				$event.stopPropagation();
+			}
+		};
+
+		$scope.drag = function($event) {
+			var offset = $element.parent().offset();
+			var x = $event.center.x - offset.left;
+			var y = $event.center.y - offset.top;
+			console.log('Outline drag', x, y);
+			$scope.mouseMoved(x, y);
+		};
+
 		// Derive the scope when the image loads.
 		$scope.$watch('image.loaded', function(nowLoaded, oldLoaded) {
 			var justLoaded = nowLoaded && nowLoaded !== oldLoaded;
@@ -434,10 +487,7 @@
 		$scope.$on('onSelectionDragCreated', function(e, args) {
 			if(args.selection === $scope.selection) {
 				// This is the selection that was just added.
-				$scope.handleGrabbed(args.handleDirection, {
-					offsetX: args.offsetX,
-					offsetY: args.offsetY
-				});
+				handleGrabbed(args.handleDirection, args.offsetX, args.offsetY);
 			}
 		});
 	}])

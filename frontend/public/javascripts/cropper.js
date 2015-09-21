@@ -7,21 +7,16 @@
 		'angulartics.google.analytics',
 		'auth0',
 		'angular-storage',
-		'angular-jwt'
-	]).config(['$urlRouterProvider', '$stateProvider', 'authProvider', 'jwtInterceptorProvider', '$httpProvider',
-	function($urlRouterProvider, $stateProvider, authProvider, jwtInterceptorProvider, $httpProvider) {
+		'angular-jwt',
+		'angular-gestures'
+	]).config(['$urlRouterProvider', '$stateProvider', 'authProvider', 'jwtInterceptorProvider', '$httpProvider', 'hammerDefaultOptsProvider',
+	function($urlRouterProvider, $stateProvider, authProvider, jwtInterceptorProvider, $httpProvider, hammerDefaultOptsProvider) {
 
-		//$urlRouterProvider.otherwise('/search//');
-		$urlRouterProvider.otherwise('/');
+		$urlRouterProvider.otherwise('/search//');
 
 		var catalogs;
 
 		$stateProvider
-		.state('introduction', {
-			url: '/',
-			templateUrl: 'templates/introduction.html',
-			controller: 'introductionCtrl'
-		})
 		.state('search', {
 			url: '/search/:catalog_alias/:term',
 			templateUrl: 'templates/search.html',
@@ -43,8 +38,8 @@
 				}]
 			}
 		})
-		.state('asset', {
-			url: '/asset/:catalog_alias/:asset_id',
+		.state('search.asset', {
+			url: '/asset/:asset_id',
 			templateUrl: 'templates/asset.html',
 			controller: 'assetCtrl',
 			resolve: {
@@ -68,6 +63,13 @@
 		}];
 
 		$httpProvider.interceptors.push('jwtInterceptor');
+
+		hammerDefaultOptsProvider.set({
+			recognizers: [
+				[Hammer.Tap, {time: 250}],
+				[Hammer.Pan, {}]
+			]
+    });
 	}])
 	.run(['$rootScope', '$state', 'user', function($rootScope, $state, user) {
 
@@ -109,11 +111,15 @@
 			}
 		});
 		*/
+		$rootScope.modalOpened = false;
 		$rootScope.$on('$stateChangeSuccess',
 		function (ev, to, toParams, from, fromParams) {
 			// Save the params of the last search when leaving the state.
-			if(from.name === 'search') {
-				$rootScope.previous_search = fromParams;
+			if(from.name === 'search.asset') {
+				$rootScope.modalOpened = false;
+			}
+			if(to.name === 'search.asset') {
+				$rootScope.modalOpened = true;
 			}
 		});
 	}])

@@ -1,5 +1,7 @@
 <g	ng-mouseup="handleReleased()"
 		ng-mousemove="mouseMoved($event.offsetX, $event.offsetY)"
+		hm-dragend="handleReleased()"
+		hm-drag="drag($event)"
 		ng-show="visible">
 	<defs>
 		<mask ng-attr-id="{{maskId}}">
@@ -38,6 +40,7 @@
 			ng-attr-width="{{ width }}"
 			ng-attr-height="{{ height }}"
 			ng-mousedown="handleGrabbed('move', $event)"
+			hm-dragstart="dragStart('move', $event)"
 			ng-mouseenter="hovering=true"
 			ng-mouseleave="hovering=false" />
 
@@ -49,7 +52,8 @@
 			ng-attr-y="{{ top - handlePadding }}"
 			ng-attr-width="{{ width - handlePadding*2 }}"
 			ng-attr-height="{{ handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('north', $event)" />
+			ng-mousedown="handleGrabbed('north', $event)"
+			hm-dragstart="dragStart('north', $event)" />
 		<rect
 			ng-show="selected"
 			class="handle handle-south"
@@ -57,7 +61,8 @@
 			ng-attr-y="{{ top + height - handlePadding }}"
 			ng-attr-width="{{ width - handlePadding*2 }}"
 			ng-attr-height="{{ handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('south', $event)" />
+			ng-mousedown="handleGrabbed('south', $event)"
+			hm-dragstart="dragStart('south', $event)" />
 
 		<!-- Vertical handles -->
 		<rect
@@ -67,7 +72,8 @@
 			ng-attr-y="{{ top + handlePadding }}"
 			ng-attr-width="{{ handlePadding*2 }}"
 			ng-attr-height="{{ height - handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('west', $event)" />
+			ng-mousedown="handleGrabbed('west', $event)"
+			hm-dragstart="dragStart('west', $event)" />
 		<rect
 			ng-show="selected"
 			class="handle handle-east"
@@ -75,7 +81,8 @@
 			ng-attr-y="{{ top + handlePadding }}"
 			ng-attr-width="{{ handlePadding*2 }}"
 			ng-attr-height="{{ height - handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('east', $event)" />
+			ng-mousedown="handleGrabbed('east', $event)"
+			hm-dragstart="dragStart('east', $event)" />
 
 		<!-- Corners -->
 		<rect
@@ -85,7 +92,8 @@
 			ng-attr-y="{{ top - handlePadding }}"
 			ng-attr-width="{{ handlePadding*2 }}"
 			ng-attr-height="{{ handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('north-west', $event)" />
+			ng-mousedown="handleGrabbed('north-west', $event)"
+			hm-dragstart="dragStart('north-west', $event)" />
 		<rect
 			ng-show="selected"
 			class="handle corner handle-north-east"
@@ -93,7 +101,8 @@
 			ng-attr-y="{{ top - handlePadding }}"
 			ng-attr-width="{{ handlePadding*2 }}"
 			ng-attr-height="{{ handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('north-east', $event)" />
+			ng-mousedown="handleGrabbed('north-east', $event)"
+			hm-dragstart="dragStart('north-east', $event)" />
 
 		<rect
 			ng-show="selected"
@@ -102,7 +111,8 @@
 			ng-attr-y="{{ top + height - handlePadding }}"
 			ng-attr-width="{{ handlePadding*2 }}"
 			ng-attr-height="{{ handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('south-west', $event)" />
+			ng-mousedown="handleGrabbed('south-west', $event)"
+			hm-dragstart="dragStart('south-west', $event)" />
 		<rect
 			ng-show="selected"
 			class="handle corner handle-south-east"
@@ -110,7 +120,8 @@
 			ng-attr-y="{{ top + height - handlePadding }}"
 			ng-attr-width="{{ handlePadding*2 }}"
 			ng-attr-height="{{ handlePadding*2 }}"
-			ng-mousedown="handleGrabbed('south-east', $event)" />
+			ng-mousedown="handleGrabbed('south-east', $event)"
+			hm-dragstart="dragStart('south-east', $event)" />
 
 		<!-- Rotational handle -->
 		<line
@@ -126,6 +137,7 @@
 			ng-attr-cx="{{ centerX }}"
 			ng-attr-cy="{{ top - rotationalHandleLength }}"
 			ng-attr-r="{{ rotationalHandleRadius }}"
-			ng-mousedown="handleGrabbed('rotational', $event)" />
+			ng-mousedown="handleGrabbed('rotational', $event)"
+			hm-dragstart="dragStart('rotational', $event)" />
 	</g>
 </g>

@@ -2,7 +2,7 @@
 	<div class="container">
 		<div class="row">
 
-			<div class="navbar-header col-sm-3 col-xs-8 sm-small-text">
+			<div class="navbar-header col-sm-3 col-xs-8 md-small-text">
 				<a class="navbar-brand" href="/">Den assisterede friskærer</a>
 			</div>
 
@@ -60,7 +60,7 @@
 	<a class="asset"
 		ng-repeat="asset in assets"
 		ng-show="asset.thumbnail_loaded"
-		ui-sref="asset({ catalog_alias: catalog_alias, asset_id: asset.id })">
+		ui-sref="search.asset({ catalog_alias: catalog_alias, asset_id: asset.id })">
 		<div class="suggestions"></div>
 		<div class="metadata">{{ asset.metadata.cropping_status.displaystring }}</div>
 		<img ng-src="{{ asset.getThumbnailURL(200) }}" assetloaded />
@@ -68,18 +68,16 @@
 </div>
 
 <div id="searching-status" class="modal-status" ng-show="is_searching">
-	<div class="icon">
-		<span class="glyphicon glyphicon-refresh"></span>
-	</div>
+	<span class="spinning glyphicon glyphicon-refresh"></span>
 	<div class="text">Søger ...</div>
 </div>
 
 <div id="empty-result-status" class="modal-status" ng-show="empty_result">
-	<div class="icon">
-		<span class="glyphicon glyphicon-ban-circle"></span>
-	</div>
+	<span class="glyphicon glyphicon-ban-circle"></span>
 	<div class="text">
 		<p>Fandt ingen billeder :(</p>
 		<p>Prøv venligst en anden søgestreng eller katalog.</p>
 	</div>
 </div>
+
+<div ui-view></div>
