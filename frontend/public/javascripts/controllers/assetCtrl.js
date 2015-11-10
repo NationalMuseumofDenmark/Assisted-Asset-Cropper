@@ -108,6 +108,7 @@
 					$scope.is_busy = false;
 					var assets = response.data.assets;
 					console.log("Success!", response);
+					/*
 					$scope.showMessage( 'success', [
 						'Det lykkedes at gemme ',
 						assets.length,
@@ -119,6 +120,7 @@
 						$scope.catalog_alias,
 						' kataloget)'
 					] );
+					*/
 					//reloadAsset();
 					$scope.nextAsset();
 				}, function(response) {

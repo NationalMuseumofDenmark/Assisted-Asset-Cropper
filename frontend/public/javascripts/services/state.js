@@ -24,6 +24,12 @@ angular
 				.then(function(response) {
 					return response.data;
 				});
+			},
+			dismissJob: function(jobId) {
+				return $http.get(BASE_URL+'/dismiss-job/' + jobId)
+				.then(function(response) {
+					return response.data;
+				});
 			}
 		};
 	}]);

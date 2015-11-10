@@ -128,11 +128,36 @@
 			restrict: 'E',
 			templateUrl: 'templates/partials/state-jobs.html',
 			replace: true,
-			controller: ['$rootScope', 'state', function($rootScope, state) {
+			controller: ['$rootScope', '$timeout', 'state',
+			function($rootScope, $timeout, state) {
 				var STATUS_LONG_POLL_TIMEOUT = 10000;
+				var AUTO_DISMISS_TIMEOUT = 3000;
+
 				$rootScope.state = {
 					busy: false,
 					jobs: []
+				};
+
+				// TODO: Watch the state's jobs and put a timeout that dismisses jobs
+				// when they are done or has errors after some time.
+				var autoDismissTimeouts = {};
+				$rootScope.$watch('state.jobs', function(jobs) {
+					jobs.forEach(function(job) {
+						if(!autoDismissTimeouts[job.id] && job.status && job.status==='success') {
+							autoDismissTimeouts[job.id] = $timeout(function() {
+								$rootScope.dismissJob(job.id);
+							}, AUTO_DISMISS_TIMEOUT);
+						}
+					});
+				});
+
+				function overwriteState(s) {
+					$rootScope.status = s.status;
+					$rootScope.state.jobs = s.jobs;
+				}
+
+				$rootScope.dismissJob = function(id) {
+					state.dismissJob(id).then(overwriteState);
 				};
 
 				function updateState(longPoll) {
@@ -148,13 +173,8 @@
 						statePromise = state.get();
 					}
 					// Update the root scope with the new status.
-					return statePromise.then(function(newState) {
-						$rootScope.status = newState.status;
-						$rootScope.state.jobs = newState.jobs;
-					});
+					return statePromise.then(overwriteState);
 				}
-
-				var fails = 0;
 
 				function keepUpdatingState() {
 					// Update and keep updating.
@@ -162,13 +182,8 @@
 					.then(function() {
 						return keepUpdatingState();
 					}, function() {
-						fails++;
-						if(fails > 3) {
-							console.error('Stopped updating state after', fails, 'fails.');
-						} else {
-							// Keep on trying - event when getting errors ...
-							return keepUpdatingState();
-						}
+						// Keep on trying - even when getting errors ...
+						$timeout(keepUpdatingState, 5000);
 					});
 				}
 

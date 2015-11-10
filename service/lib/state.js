@@ -1,18 +1,7 @@
 var Q = require('q'),
-		assert = require('assert');
+		assert = require('assert'),
+		crypto = require('crypto');
 
-var mockState = {
-	jobs: [
-		{
-			description: 'Cropping asset #123 (in Cropper)',
-			tasks: [
-				{ description: 'Downloading image', progress: 20, progressMax: 100 },
-				{ description: 'Cropping image', progress: 0, progressMax: 100 },
-				{ description: 'Uploading image', progress: 0, progressMax: 100 }
-			]
-		}
-	]
-};
 
 function State(state) {
 	this.jobs = [];
@@ -94,8 +83,7 @@ State.prototype.getOrCreateJobTask = function(jobId, taskDescription) {
 };
 
 State.prototype.createJob = function(jobDescription) {
-	var jobId = process.hrtime();
-	jobId = jobId[0] +'.'+ jobId[1];
+	var jobId = crypto.randomBytes(24).toString('hex');
 	this.jobs.push({
 		id: jobId,
 		description: jobDescription,
@@ -128,6 +116,12 @@ State.prototype.changeJobStatus = function(jobId, status) {
 	return this;
 };
 
+State.prototype.dismissJob = function(jobId) {
+	var j = this.getJobIndex(jobId);
+	this.jobs.splice(j, 1);
+	return this;
+};
+
 State.prototype.save = function() {
 	var deferred = Q.defer();
 
@@ -147,6 +141,21 @@ State.prototype.save = function() {
 	return deferred.promise;
 };
 
+
+function initMockState(state) {
+	var jobIdA = state.createJob('Cropping asset #123 (in Cropper)');
+	state.changeJobStatus(jobIdA, 'success');
+	state.updateJobTask(jobIdA, 'Downloading image', 20, 100);
+	state.updateJobTask(jobIdA, 'Cropping image', 5, 100);
+	state.updateJobTask(jobIdA, 'Uploading image', 0, 100);
+
+	var jobIdB = state.createJob('Cropping asset #321 (in Cropper)');
+	state.changeJobStatus(jobIdB, 'failed');
+	state.updateJobTask(jobIdB, 'Downloading image', 50, 100);
+	state.updateJobTask(jobIdB, 'Cropping image', 25, 100);
+	state.updateJobTask(jobIdB, 'Uploading image', 10, 100);
+}
+
 function get(req) {
 	var deferred = Q.defer();
 
@@ -160,15 +169,22 @@ function get(req) {
 			var state = req.session.state;
 			if(!state) {
 				state = new State();
+				//initMockState(state);
 			} else {
 				state = new State(state);
 			}
 
-			if(!state.revision) {
-				state.revision = 1;
-			}
 			state.req = req;
-			deferred.resolve(state);
+			if(!state.revision) {
+				state.revision = 0;
+				// Save this initial version in the session and resolve the promise
+				// returning the state.
+				state.save().then(function() {
+					deferred.resolve(state);
+				}, deferred.reject);
+			} else {
+				deferred.resolve(state);
+			}
 		}
 	});
 
@@ -199,6 +215,12 @@ function createJob(req, jobDescription) {
 		var jobId = currentState.createJob(jobDescription);
 		currentState.save();
 		return jobId;
+	});
+}
+
+function dismissJob(req, jobId) {
+	return get(req).then(function(currentState) {
+		return currentState.dismissJob(jobId).save();
 	});
 }
 
@@ -246,5 +268,7 @@ exports.updateJobTask = updateJobTask;
 exports.changeJobStatus = changeJobStatus;
 
 exports.createJob = createJob;
+
+exports.dismissJob = dismissJob;
 
 exports.watch = watch;

@@ -30,4 +30,11 @@ router.get('/long-poll/:revision*?', function(req, res) {
 	});
 });
 
+router.get('/dismiss-job/:jobId*?', function(req, res) {
+	var jobId = req.params.jobId;
+	state.dismissJob(req, jobId).then(function(newStateData) {
+		res.send(newStateData);
+	});
+});
+
 module.exports = router;

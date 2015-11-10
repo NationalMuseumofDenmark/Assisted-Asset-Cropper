@@ -3,11 +3,15 @@
 		ng-repeat="job in state.jobs"
 		class="alert job"
 		ng-class="{
-			'alert-info': job.status!=='failed',
+			'alert-info': job.status!=='failed' && job.status!=='success',
+			'alert-success': job.status==='success',
 			'alert-danger': job.status==='failed'
 		}"
-		ng-hide="job.status==='success'"
 		role="alert">
+		<span
+			class="glyphicon glyphicon-remove pull-right"
+			aria-hidden="true"
+			ng-click="dismissJob(job.id)"></span>
 		<p>{{job.description}}</p>
 		<ol class="tasks">
 			<li
