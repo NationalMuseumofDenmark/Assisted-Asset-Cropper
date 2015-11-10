@@ -33,7 +33,7 @@ First install build dependencies
 
 Get the source code for node onto the machine
 
-	wget http://nodejs.org/dist/v0.10.31/node-v0.10.31.tar.gz
+	wget http://nodejs.org/dist/v0.12.7/node-v0.12.7.tar.gz
 
 Untar the archive
 
