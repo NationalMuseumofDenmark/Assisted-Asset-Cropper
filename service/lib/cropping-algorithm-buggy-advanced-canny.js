@@ -1,6 +1,6 @@
 var cv = require('opencv');
 var http = require('http');
-var cip = require('../lib/cip-natmus.js');
+var cip = require('../lib/cip.js');
 
 var DEFAULT_PARAMETERS = {
 	'canny_details_low_threshold': 0,

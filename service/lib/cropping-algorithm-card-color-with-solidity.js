@@ -1,6 +1,6 @@
 var cv = require('opencv');
 var http = require('http');
-var cip = require('../lib/cip-natmus.js');
+var cip = require('../lib/cip');
 
 var DEFAULT_PARAMETERS = {
 	'image_size': 850,
@@ -32,12 +32,12 @@ var GRAY = [100, 100, 100];
 
 var PREVIEW_IMAGE_SIZE = 850;
 
-exports.suggest = function(client, catalog_alias, id, callback, error_callback, given_parameters, state_change_callback) {
+exports.suggest = function(catalog_alias, id, callback, error_callback, given_parameters, state_change_callback) {
 	var parameters = {};
 	if(typeof(given_parameters) !== 'object') {
 		given_parameters = {};
 	}
-	for(p in DEFAULT_PARAMETERS) {
+	for(var p in DEFAULT_PARAMETERS) {
 		if(p in given_parameters) {
 			parameters[p] = given_parameters[p];
 		} else {
@@ -47,11 +47,15 @@ exports.suggest = function(client, catalog_alias, id, callback, error_callback, 
 
 	var produce_intermediary_states = (typeof(state_change_callback) === 'function');
 
-	// var preview_url = client.generate_url("preview/image/"+ catalog_alias +"/" + id, { maxsize: parameters.image_size });
-	var preview_url = client.generate_url("preview/thumbnail/"+ catalog_alias +"/" + id);
+	var previewURL = cip.buildURL([
+		'preview',
+		'thumbnail',
+		catalog_alias,
+		id
+	]);
 
 	var suggestions = [];
-	http.get(preview_url, function(thumbnail_res) {
+	http.get(previewURL, function(thumbnail_res) {
 		if(thumbnail_res.statusCode == 200) {
 			var image_stream = new cv.ImageDataStream();
 			image_stream.on('load', function(im) {

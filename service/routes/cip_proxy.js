@@ -1,5 +1,5 @@
 var express = require('express'),
-    cip = require('../lib/cip-natmus'),
+    cip = require('../lib/cip'),
     router = express.Router();
 /**
  * ALL requests going to this route is tunneled through to the Cumulus CIP

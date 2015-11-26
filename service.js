@@ -8,6 +8,27 @@ var express = require('express'),
 		request = require('request'),
 		jwt = require('express-jwt');
 
+// Initialize the cip client
+var settings = require('./settings.json');
+var cip = require('./service/lib/cip');
+cip.setConfig({
+	baseURL: "http://cumulus.natmus.dk/CIP/",
+	catalogAliases: {
+		"Alle": "ALL",
+		"Antiksamlingen": "AS",
+		"Bevaringsafdelingen": "BA",
+		"Danmarks Middelalder og Renæssance": "DMR",
+		"Danmarks Nyere Tid": "DNT",
+		"Etnografisk samling": "ES",
+		"Frihedsmuseet": "FHM",
+		"Den Kgl. Mønt- og Medaljesamling": "KMM",
+		"Musikmuseet": "MUM",
+		"Cropper": "Cropper"
+	},
+	layoutAlias: 'Registrering'
+});
+cip.setCredentials(settings.cip.username, settings.cip.password);
+
 var assets = require('./service/routes/assets');
 var state = require('./service/routes/state');
 var catalogs = require('./service/routes/catalogs');
