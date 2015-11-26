@@ -3,7 +3,6 @@ var node_process;
 module.exports = function(grunt) {
 
 	var BOOTSTRAP_PATH = './bower_components/bootstrap';
-	var CIP_JS_PATH = './node_modules/cip-js';
 	var FRONTEND_PUBLIC_PATH = './frontend/public';
 
 	grunt.loadNpmTasks('grunt-contrib-less');
@@ -42,20 +41,7 @@ module.exports = function(grunt) {
 						filter: 'isFile'
 					},
 				]
-			},
-			/*
-			cip_js: {
-				files: [
-					{
-						expand: true,
-						src: [CIP_JS_PATH + '/dist/cip.min.js'],
-						flatten: true,
-						dest: FRONTEND_PUBLIC_PATH + '/javascripts/lib/',
-						filter: 'isFile'
-					},
-				]
-			},
-			*/
+			}
 		},
 		env : {
 			dev: {
@@ -98,8 +84,6 @@ module.exports = function(grunt) {
 				},
 				files: {
 					'./frontend/public/javascripts/lib/libs.min.js': [
-						// A Canto Integration Platform JavaScript SDK
-						CIP_JS_PATH + '/dist/cip.min.js',
 						// jQuery - you know?
 						'bower_components/jquery/dist/jquery.js',
 						// A 2D Vector lib
@@ -131,19 +115,6 @@ module.exports = function(grunt) {
 		},
 	});
 
-	// CIP-js
-	grunt.registerTask('build-cip-js', function() {
-		var done = this.async();
-		grunt.util.spawn({
-			cmd: 'bash',
-			args: ['build.sh'],
-			opts: {
-				stdio: 'inherit',
-				cwd: CIP_JS_PATH
-			},
-		}, done);
-	});
-
 	grunt.registerTask('copy-auth0-non-secrets', function() {
 		var done = this.async();
 
@@ -165,7 +136,7 @@ module.exports = function(grunt) {
 	});
 
 	// Build and copy all the libs to the /public folder.
-	grunt.registerTask('libs', ['build-cip-js', 'uglify']);
+	grunt.registerTask('libs', ['uglify']);
 	// Build and copy all local public files
 	grunt.registerTask('public', ['less', 'copy-auth0-non-secrets']);
 
