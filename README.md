@@ -10,114 +10,116 @@ The following is a guide getting you up to speed, which requires some dependenci
 
 Clone this repository onto your development machine
 
-	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
-	
+    git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
+
 Install the node dependencies
 
-	npm install
-	
+    npm install
+
 Run the Grunt tool
 
-	grunt
+    grunt
 
 And use grunt to boot up the app
 
-	grunt start
+    grunt start
 
-## Installing dependencies (on a Ubuntu server)
-Getting node.js compiled and installed - find the newest link on http://nodejs.org/http://nodejs.org/
+# Deploying (on a Ubuntu server)
 
-First install build dependencies
+## Install the OpenCV depencency
 
-	sudo apt-get install gcc make g++
+As a sudoer install git and install OpenCV using a repo cloned from GitHub.
 
-Get the source code for node onto the machine
+    sudo apt-get install git
+    git clone https://github.com/jayrambhia/Install-OpenCV.git
+    cd Install-OpenCV/Ubuntu/
+    ./opencv_latest.sh
 
-	wget http://nodejs.org/dist/v0.12.7/node-v0.12.7.tar.gz
+## Install nginx and the imagemagick depencency
 
-Untar the archive
+    sudo apt-get install nginx imagemagick
 
-	tar -xvf node-*.tar.gz node
+## Create an application user
 
-Change directory into the node folder
+Create a seperate 'cropper' user on the server
 
-	cd node
+    sudo adduser --disabled-password cropper
 
-Configure, build and install
+## Install node and npm
+As the new cropper user make sure the deployment machine has a version of node and npm installed, I like to use the node version manager tool for this (see https://github.com/creationix/nvm)
 
-	./configure
-	make
-	sudo make install
+    sudo su cropper
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.29.0/install.sh | bash
 
-Verify the installation
+Install the v0.12.8 version of node and npm (latest stable is not compatible with the opencv lib at the moment of writing)
 
-	node --version
-	npm --version
+    nvm install v0.12.8
 
-Optionally remove the archive and directory.
+Install the bower, grunt and forever command line tools
 
-	rm -rf node*
+    npm install -g bower grunt-cli forever
 
-## Deploy using forever and nginx as a forward proxy.
-
-Install the dependencies
-
-	sudo npm install -g forever
-	sudo apt-get install nginx imagemagick
-
-Install git and install OpenCV using a repo cloned from GitHub.
-
-	sudo apt-get install git
-	git clone https://github.com/jayrambhia/Install-OpenCV.git
-
-	cd Install-OpenCV/Ubuntu/
-	./opencv_latest.sh 
+## Deploy using nginx as a reverse proxy
 
 Create a site for the Cropper on the nginx installation
 
-	cd /etc/nginx/sites-available/
-	sudo nano Assisted-Asset-Cropper
+    cd /etc/nginx/sites-available/
+    sudo nano 000-cropper
 
 Paste in the following or similar configuration
 
-	server {
-		listen 80 default_server;
-		listen [::]:80 default_server ipv6only=on;
+    server {
+      listen 80 default_server;
+      listen [::]:80 default_server ipv6only=on;
 
-		# root /usr/share/nginx/html;
-		# index index.html index.htm;
+      location / {
+        proxy_pass       http://localhost:3000;
+        proxy_set_header Host      $host;
+        proxy_set_header X-Real-IP $remote_addr;
+      }
+    }
 
-		# Make site accessible from http://localhost/
-		server_name localhost;
+Disable any default site and enable this and restart nginx
 
-		location / {
-		    proxy_pass       http://localhost:3000;
-		    proxy_set_header Host      $host;
-		    proxy_set_header X-Real-IP $remote_addr;
-		}
-	}
-
-Disable any default site and enable this
-
-	cd /etc/nginx/sites-available/sites-enabled/
-	unlink default 
-	sudo ln -s /etc/nginx/sites-available/Assisted-Asset-Cropper Assisted-Asset-Cropper
-
-Restart nginx
-
-	sudo service nginx restart
+    sudo unlink /etc/nginx/sites-enabled/default
+    sudo ln -s /etc/nginx/sites-available/000-cropper /etc/nginx/sites-enabled/000-cropper
+    sudo service nginx restart
 
 ## Clone this repository onto the server
 
-	git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
+    git clone https://github.com/NationalMuseumofDenmark/Assisted-Asset-Cropper.git
+
+Create a build (such as build.sh) to build the Assisted-Asset-Cropper using npm, bower and grunt
+
+    touch build.sh
+    chmod u+x build.sh
+    nano build.sh
+
+Paste in the following or similar script
+
+    #!/bin/bash -e
+    export NVM_DIR="/home/cropper/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+    nvm use v0.12.8
+    app=/home/$USER/Assisted-Asset-Cropper
+    cd $app && npm install && bower install && grunt
+
+For bower to work behind an HTTP proxy, configure git to use https when asked to use the git:// url scheme
+
+    git config --global url.https://github.com/.insteadOf git://github.com/
 
 Create a script (such as start.sh) to start the Assisted-Asset-Cropper using forever
 
-	nano start.sh
+    touch start.sh
+    chmod u+x start.sh
+    nano start.sh
 
 Paste in the following or similar script (changing the value of app to the location of the app)
 
-	#!/bin/bash -e
-	app=/home/$USER/Assisted-Asset-Cropper
-	cd $app && forever start bin/www
+    #!/bin/bash -e
+    export NVM_DIR="/home/cropper/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+    nvm use v0.12.8
+    app=/home/$USER/Assisted-Asset-Cropper
+    cd $app && forever start bin/www
 
