@@ -136,7 +136,7 @@ module.exports = function(grunt) {
 	});
 
 	// Build and copy all the libs to the /public folder.
-	grunt.registerTask('libs', ['uglify']);
+	grunt.registerTask('libs', ['copy:bootstrap', 'uglify']);
 	// Build and copy all local public files
 	grunt.registerTask('public', ['less', 'copy-auth0-non-secrets']);
 
