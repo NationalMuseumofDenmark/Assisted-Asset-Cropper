@@ -1,5 +1,6 @@
-/frontend/public/fonts/
-/frontend/public/stylesheets/
-/settings.json
-/node_modules/
-/bower_components/
+frontend/public/fonts/
+frontend/public/stylesheets/
+frontend/public/javascripts/lib/
+settings.json
+node_modules/
+bower_components/
