@@ -16,6 +16,7 @@
 		<ol class="tasks">
 			<li
 				ng-repeat="task in job.tasks"
+				ng-if="task.progress<task.progressMax"
 				class="task">
 				<small>{{ task.description }}</small>
 				<div class="progress">
