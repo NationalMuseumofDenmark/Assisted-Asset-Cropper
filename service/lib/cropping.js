@@ -38,7 +38,7 @@ var PHOTOGRAPHER_FIELD = "{9b071045-118c-4f42-afa1-c3121783ac66}";
  * Helping function to determine if the type and value of a variable
  * is a nummeric integer or not.
  * @param  {number}  n
- * @return {Boolean} 
+ * @return {Boolean}
  */
 function isInteger(n) {
    return typeof(n) == "number" && isFinite(n) && n%1===0;
@@ -131,6 +131,11 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 			});
 			// When the response has ended - let's react.
 			response.on('end', function () {
+				tempMasterAssetFile.on('finish', function() {
+					jobOptions.masterAssetFilePath = tempMasterAssetFilePath;
+					deferred.resolve(jobOptions);
+				});
+
 				// We're all done.
 				state.updateJobTask(
 					req,
@@ -138,14 +143,9 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 					taskDescription,
 					responseLength,
 					responseLength
-				);
-
-				tempMasterAssetFile.on('finish', function() {
-					jobOptions.masterAssetFilePath = tempMasterAssetFilePath;
-					deferred.resolve(jobOptions);
+				).then(function() {
+					tempMasterAssetFile.end();
 				});
-
-				tempMasterAssetFile.end();
 			});
 		}).on('error', deferred.reject);
 
@@ -156,74 +156,71 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 	function performAssetCropping(options) {
 		var deferred = Q.defer();
 
-		var tempCroppedAssetFilePath = temp.path({
+		// Save this to the options so it can be deleted when done importing.
+		options.croppedAssetPath = temp.path({
 			prefix: 'cropping-' + options.selectionIndex +'-',
 			suffix: options.masterAsset.name
 		});
 
-		console.log('Cropping to', tempCroppedAssetFilePath);
-		state.updateJobTask(req,
-												options.jobId,
-												options.taskDescriptions.cropping,
-												15,
-												100);
+		console.log('Cropping to', options.croppedAssetPath);
+		var taskDescription = options.taskDescriptions.cropping;
+		return state.updateJobTask(req, options.jobId, taskDescription, 15, 100)
+		.then(function() {
+			var masterAssetSize = {
+				width: options.masterAsset[ASSET_WIDTH_PX_FIELD],
+				height: options.masterAsset[ASSET_HEIGHT_PX_FIELD]
+			};
 
-		var masterAssetSize = {
-			width: options.masterAsset[ASSET_WIDTH_PX_FIELD],
-			height: options.masterAsset[ASSET_HEIGHT_PX_FIELD]
-		};
+			// Scale the center x and y coornidates.
+			var centerX = parseInt(options.selection.center_x * masterAssetSize.width, 10);
+			var centerY = parseInt(options.selection.center_y * masterAssetSize.height, 10);
 
-		// Scale the center x and y coornidates.
-		var centerX = parseInt(options.selection.center_x * masterAssetSize.width, 10);
-		var centerY = parseInt(options.selection.center_y * masterAssetSize.height, 10);
+			var left = options.selection.center_x - options.selection.width/2;
+			var top = options.selection.center_y - options.selection.height/2;
 
-		var left = options.selection.center_x - options.selection.width/2;
-		var top = options.selection.center_y - options.selection.height/2;
+			left = parseInt(left * masterAssetSize.width, 10);
+			top = parseInt(top * masterAssetSize.height, 10);
 
-		left = parseInt(left * masterAssetSize.width, 10);
-		top = parseInt(top * masterAssetSize.height, 10);
+			var width = parseInt(options.selection.width * masterAssetSize.width, 10);
+			var height = parseInt(options.selection.height * masterAssetSize.height, 10);
 
-		var width = parseInt(options.selection.width * masterAssetSize.width, 10);
-		var height = parseInt(options.selection.height * masterAssetSize.height, 10);
+			var rotationAngle =options.selection.rotation / Math.PI / 2 * 360;
 
-		var rotationAngle =options.selection.rotation / Math.PI / 2 * 360;
+			var command = [
+				options.masterAssetFilePath,
+				'-compress', // No compression
+				'none',
+				'-virtual-pixel',
+				'black',
+				'+distort', // + is important, if using a -, the canvas is not extended.
+					'ScaleRotateTranslate',
+					[
+						centerX+','+centerY, // X,Y
+						1, // Scale
+						rotationAngle, // Angle
+						centerX+','+centerY // NewX,NewY
+					].join(' '),
+				'-crop',
+				width +'x'+ height +'!+'+ left +'+'+ top,
+				options.croppedAssetPath
+			];
 
-		var command = [
-			options.masterAssetFilePath,
-			'-compress', // No compression
-			'none',
-			'-virtual-pixel',
-			'black',
-			'+distort', // + is important, if using a -, the canvas is not extended.
-				'ScaleRotateTranslate',
-				[
-					centerX+','+centerY, // X,Y
-					1, // Scale
-					rotationAngle, // Angle
-					centerX+','+centerY // NewX,NewY
-				].join(' '),
-			'-crop',
-			width +'x'+ height +'!+'+ left +'+'+ top,
-			tempCroppedAssetFilePath
-		];
+			console.log('Executing command: '+command.join(' '));
 
-		console.log('Executing command: '+command.join(' '));
+			im.convert(command, function(err, stdout) {
+				if(err) {
+					deferred.reject(err);
+				} else {
+					state.updateJobTask(req, options.jobId,
+					                    options.taskDescriptions.cropping, 100, 100)
+						.then(function() {
+							deferred.resolve(options);
+						});
+				}
+			});
 
-		im.convert(command, function(err, stdout) {
-			if(err) {
-				deferred.reject(err);
-			} else {
-				state.updateJobTask(req,
-														options.jobId,
-														options.taskDescriptions.cropping,
-														100,
-														100);
-				options.croppedAssetPath = tempCroppedAssetFilePath;
-				deferred.resolve(options);
-			}
+			return deferred.promise;
 		});
-
-		return deferred.promise;
 	}
 
 
@@ -349,7 +346,7 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 			newAssetId + "/" +
 			"isvariantof/" +
 			masterAssetId;
-		
+
 		console.log("Relating master to it's cropping.");
 		cip.request(variant_master_path, {}).then(function( response ) {
 			// If this went well - let's link back.
@@ -499,11 +496,14 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 
 				var newAssetPromise = Q(options)
 					.then(performAssetCropping)
-					.then(importAssetCropping)
-					.then(assetSucessImported)
-					.then(updateCroppedAssetRelations)
-					.finally(function() {
-						deleteAssetCroppingFile(options);
+					.then(function(options) {
+						// The options now contains the newly created cropped image path.
+						return importAssetCropping(options)
+							.then(assetSucessImported)
+							.then(updateCroppedAssetRelations)
+							.finally(function() {
+								deleteAssetCroppingFile(options);
+							});
 					});
 
 				newAssetPromises.push(newAssetPromise);
