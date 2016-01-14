@@ -76,13 +76,7 @@
 		$rootScope.signout = function() {
 			// First - tell the user service to forget about the user.
 			user.forget();
-			$state.go('introduction');
-			/*
-			// Then ask for the user to authenticate.
-			user.get().then(function(user) {
-				$state.go('search');
-			});
-			*/
+			$state.go('search', {}, { reload: true });
 		};
 
 		$rootScope.messages = [];

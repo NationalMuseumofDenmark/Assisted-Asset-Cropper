@@ -25,7 +25,7 @@
 	</head>
 
 	<body>
-		<div ui-view></div>
+		<div ui-view ng-if="userHasAuthenticated"></div>
 		<div class="messages">
 			<div
 				ng-repeat="message in messages"

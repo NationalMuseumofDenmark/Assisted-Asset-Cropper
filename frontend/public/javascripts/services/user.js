@@ -1,8 +1,9 @@
 angular
 	.module('cropper')
 	.factory('user', [
-		'$q', 'store', 'jwtHelper', 'auth',
-		function($q, store, jwtHelper, auth) {
+		'$q', '$rootScope', 'store', 'jwtHelper', 'auth',
+		function($q, $rootScope, store, jwtHelper, auth) {
+			$rootScope.userHasAuthenticated = true;
 
 			function login() {
 				var deferred = $q.defer();
@@ -10,6 +11,7 @@ angular
 				auth.signin({
 					// No options at the moment ...
 				}, function(profile, token) {
+					$rootScope.userHasAuthenticated = true;
 					store.set('profile', profile);
 					store.set('token', token);
 					deferred.resolve({
@@ -57,6 +59,7 @@ angular
 				// Sign out and forget about the user.
 				forget: function() {
 					auth.signout();
+					$rootScope.userHasAuthenticated = false;
 					store.remove('profile');
 					store.remove('token');
 				}
