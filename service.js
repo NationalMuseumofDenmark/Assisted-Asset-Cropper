@@ -30,7 +30,6 @@ cip.setConfig({
 cip.setCredentials(settings.cip.username, settings.cip.password);
 
 var assets = require('./service/routes/assets');
-var state = require('./service/routes/state');
 var catalogs = require('./service/routes/catalogs');
 var cip_proxy = require('./service/routes/cip_proxy');
 
@@ -79,7 +78,6 @@ function jwtQuery2Header(req, res, next) {
 app.use(jwtQuery2Header);
 
 // Register the various application routes.
-app.use('/state', state);
 app.use('/asset', jwtCheck, assets);
 app.use('/catalogs', jwtCheck, catalogs);
 
