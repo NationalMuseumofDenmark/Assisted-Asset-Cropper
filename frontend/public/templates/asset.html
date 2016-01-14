@@ -1,71 +1,73 @@
-<div class="container asset" ng-class="'cropping-status-' + asset.metadata.cropping_status.id"
+<div class="asset" ng-class="'cropping-status-' + asset.metadata.cropping_status.id"
 	ng-click="dismiss()">
-	<div class="row controls">
-		<div class="col-md-9 text-center">
-			<div class="frame" ng-click="$event.stopPropagation();" ng-class="{
-				loaded: image.loaded
-			}">
-				<image-selection-canvas
-					src="{{asset.getThumbnailURL()}}"
-					selections="croppings">
-				</image-selection-canvas>
+	<div class="container">
+		<div class="row controls">
+			<div class="col-md-9 text-center">
+				<div class="frame" ng-click="$event.stopPropagation();" ng-class="{
+					loaded: image.loaded
+				}">
+					<image-selection-canvas
+						src="{{asset.getThumbnailURL()}}"
+						selections="croppings">
+					</image-selection-canvas>
+				</div>
 			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="panel panel-default" ng-click="$event.stopPropagation();">
-  			<div class="panel-body">
-  				<button class="btn btn-default" ng-click="previousAsset()">
-  					<span class="glyphicon glyphicon-chevron-left" />
-  					Forrige
-  				</button>
-  				<button class="btn btn-default pull-right" ng-click="nextAsset()">
-  					Næste
-  					<span class="glyphicon glyphicon-chevron-right" />
-  				</button>
-  			</div>
-  			<div class="panel-body">
-					<p id="cropping-status">
-						Status:
-						<span class="label">
-							{{ asset.metadata.cropping_status.displaystring }}
-						</span>
-					</p>
-					<!--h4 id="master-title">Cropped out of</h4>
-					<div id="master" class="sidebar-box">
-						<a href="{{ master_href }}"><img src="{{ master_image }}"></a>
-					</div-->
-					<div class="text-center" id="cropping-controls"
-						ng-if="asset.metadata.cropping_status.id===1">
-						<p>
-							<button
-								id="add-suggestion-button"
-								class="btn btn-success"
-								ng-click="addCropping()"
-								ng-disabled="is_busy">
-								Ny friskæring
-							</button>
-							<button
-								id="save-croppings-button"
-								class="btn btn-primary"
-								ng-click="saveCroppings()"
-								ng-disabled="is_busy">
-								<span class="glyphicon glyphicon-floppy-save"></span> Gem
-							</button>
+			<div class="col-md-3">
+				<div class="panel panel-default" ng-click="$event.stopPropagation();">
+	  			<div class="panel-body">
+	  				<button class="btn btn-default" ng-click="previousAsset()">
+	  					<span class="glyphicon glyphicon-chevron-left" />
+	  					Forrige
+	  				</button>
+	  				<button class="btn btn-default pull-right" ng-click="nextAsset()">
+	  					Næste
+	  					<span class="glyphicon glyphicon-chevron-right" />
+	  				</button>
+	  			</div>
+	  			<div class="panel-body">
+						<p id="cropping-status">
+							Status:
+							<span class="label">
+								{{ asset.metadata.cropping_status.displaystring }}
+							</span>
 						</p>
-					</div>
-					<div id="suggestions" class="sidebar-box clearfix">
-						<cropping-thumbnail
-							ng-repeat="cropping in croppings"
-							class="col-xs-6 col-sm-4 col-md-12">
-						</cropping-thumbnail>
-						<button class="btn"
-							id="fetch-suggestions"
-							ng-hide="croppings.length>0"
-							ng-click="loadSuggestedCroppings()"
-							ng-disabled="is_busy">
-							<span class="glyphicon glyphicon-transfer"></span>
-							Hent forslag
-						</button>
+						<!--h4 id="master-title">Cropped out of</h4>
+						<div id="master" class="sidebar-box">
+							<a href="{{ master_href }}"><img src="{{ master_image }}"></a>
+						</div-->
+						<div class="text-center" id="cropping-controls"
+							ng-if="asset.metadata.cropping_status.id===1||true">
+							<p>
+								<button
+									id="add-suggestion-button"
+									class="btn btn-success"
+									ng-click="addCropping()"
+									ng-disabled="is_busy">
+									Ny friskæring
+								</button>
+								<button
+									id="save-croppings-button"
+									class="btn btn-primary"
+									ng-click="saveCroppings()"
+									ng-disabled="is_busy">
+									<span class="glyphicon glyphicon-floppy-save"></span> Gem
+								</button>
+							</p>
+						</div>
+						<div id="suggestions" class="sidebar-box clearfix">
+							<cropping-thumbnail
+								ng-repeat="cropping in croppings"
+								class="col-xs-6 col-sm-4 col-md-12">
+							</cropping-thumbnail>
+							<button class="btn"
+								id="fetch-suggestions"
+								ng-hide="croppings.length>0"
+								ng-click="loadSuggestedCroppings()"
+								ng-disabled="is_busy">
+								<span class="glyphicon glyphicon-transfer"></span>
+								Hent forslag
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
