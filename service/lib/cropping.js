@@ -3,7 +3,6 @@ var cv = require('opencv'),
 		assert = require('assert'),
 		querystring = require('querystring'),
 		cip = require('../lib/cip'),
-		state = require('../lib/state'),
 		Q = require('q'),
     fs   = require('fs'),
     im = require('imagemagick'),
@@ -88,12 +87,8 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 	function downloadMasterAsset(jobOptions) {
 		var deferred = Q.defer();
 
-		var jobId = jobOptions.id;
 		var catalogAlias = jobOptions.catalogAlias;
 		var masterAsset = jobOptions.masterAsset;
-
-		var taskDescription = 'Downloading master asset.';
-		state.updateJobTask(req, jobId, taskDescription);
 
 		var downloadUrl = cip.buildURL([
 			'asset',
@@ -116,18 +111,8 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 
 			response.on('data', function (chunk) {
 				progress += chunk.length;
-
 				// TODO: Make sure that the file is actually written.
 				tempMasterAssetFile.write(chunk);
-
-				// Update the state.
-				state.updateJobTask(
-					req,
-					jobId,
-					taskDescription,
-					progress,
-					responseLength
-				);
 			});
 			// When the response has ended - let's react.
 			response.on('end', function () {
@@ -136,16 +121,8 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 					deferred.resolve(jobOptions);
 				});
 
-				// We're all done.
-				state.updateJobTask(
-					req,
-					jobId,
-					taskDescription,
-					responseLength,
-					responseLength
-				).then(function() {
-					tempMasterAssetFile.end();
-				});
+				// We're all done
+				tempMasterAssetFile.end();
 			});
 		}).on('error', deferred.reject);
 
@@ -164,63 +141,56 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 
 		console.log('Cropping to', options.croppedAssetPath);
 		var taskDescription = options.taskDescriptions.cropping;
-		return state.updateJobTask(req, options.jobId, taskDescription, 15, 100)
-		.then(function() {
-			var masterAssetSize = {
-				width: options.masterAsset[ASSET_WIDTH_PX_FIELD],
-				height: options.masterAsset[ASSET_HEIGHT_PX_FIELD]
-			};
+		var masterAssetSize = {
+			width: options.masterAsset[ASSET_WIDTH_PX_FIELD],
+			height: options.masterAsset[ASSET_HEIGHT_PX_FIELD]
+		};
 
-			// Scale the center x and y coornidates.
-			var centerX = parseInt(options.selection.center_x * masterAssetSize.width, 10);
-			var centerY = parseInt(options.selection.center_y * masterAssetSize.height, 10);
+		// Scale the center x and y coornidates.
+		var centerX = parseInt(options.selection.center_x * masterAssetSize.width, 10);
+		var centerY = parseInt(options.selection.center_y * masterAssetSize.height, 10);
 
-			var left = options.selection.center_x - options.selection.width/2;
-			var top = options.selection.center_y - options.selection.height/2;
+		var left = options.selection.center_x - options.selection.width/2;
+		var top = options.selection.center_y - options.selection.height/2;
 
-			left = parseInt(left * masterAssetSize.width, 10);
-			top = parseInt(top * masterAssetSize.height, 10);
+		left = parseInt(left * masterAssetSize.width, 10);
+		top = parseInt(top * masterAssetSize.height, 10);
 
-			var width = parseInt(options.selection.width * masterAssetSize.width, 10);
-			var height = parseInt(options.selection.height * masterAssetSize.height, 10);
+		var width = parseInt(options.selection.width * masterAssetSize.width, 10);
+		var height = parseInt(options.selection.height * masterAssetSize.height, 10);
 
-			var rotationAngle =options.selection.rotation / Math.PI / 2 * 360;
+		var rotationAngle =options.selection.rotation / Math.PI / 2 * 360;
 
-			var command = [
-				options.masterAssetFilePath,
-				'-compress', // No compression
-				'none',
-				'-virtual-pixel',
-				'black',
-				'+distort', // + is important, if using a -, the canvas is not extended.
-					'ScaleRotateTranslate',
-					[
-						centerX+','+centerY, // X,Y
-						1, // Scale
-						rotationAngle, // Angle
-						centerX+','+centerY // NewX,NewY
-					].join(' '),
-				'-crop',
-				width +'x'+ height +'!+'+ left +'+'+ top,
-				options.croppedAssetPath
-			];
+		var command = [
+			options.masterAssetFilePath,
+			'-compress', // No compression
+			'none',
+			'-virtual-pixel',
+			'black',
+			'+distort', // + is important, if using a -, the canvas is not extended.
+				'ScaleRotateTranslate',
+				[
+					centerX+','+centerY, // X,Y
+					1, // Scale
+					rotationAngle, // Angle
+					centerX+','+centerY // NewX,NewY
+				].join(' '),
+			'-crop',
+			width +'x'+ height +'!+'+ left +'+'+ top,
+			options.croppedAssetPath
+		];
 
-			console.log('Executing command: '+command.join(' '));
+		console.log('Executing command: '+command.join(' '));
 
-			im.convert(command, function(err, stdout) {
-				if(err) {
-					deferred.reject(err);
-				} else {
-					state.updateJobTask(req, options.jobId,
-					                    options.taskDescriptions.cropping, 100, 100)
-						.then(function() {
-							deferred.resolve(options);
-						});
-				}
-			});
-
-			return deferred.promise;
+		im.convert(command, function(err, stdout) {
+			if(err) {
+				deferred.reject(err);
+			} else {
+				deferred.resolve(options);
+			}
 		});
+
+		return deferred.promise;
 	}
 
 
@@ -296,24 +266,7 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 
 		var totalBytes = croppedAssetStat.size;
 		var uploadedBytes = 0;
-		croppedAssetStream.on('data', function(chunk) {
-			uploadedBytes += chunk.length;
-			state.updateJobTask(
-				options.req,
-				options.jobId,
-				options.taskDescriptions.uploading,
-				uploadedBytes,
-				totalBytes
-			);
-		}).on('end', function() {
-			state.updateJobTask(
-				options.req,
-				options.jobId,
-				options.taskDescriptions.uploading,
-				totalBytes,
-				totalBytes
-			);
-		}).on('error', deferred.reject);
+		croppedAssetStream.on('error', deferred.reject);
 
 		// See: https://github.com/mikeal/request#forms
 		var form = assetImportRequest.form();
@@ -450,73 +403,58 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 	}
 
 	function createSubAssets(jobOptions) {
-		var jobId = jobOptions.id;
 		var masterAsset = jobOptions.masterAsset;
 
-		//console.log('createSubAssetsfunction called');
-		return state.get(req).then(function(currentState) {
-			var newAssetPromises = [];
-			// Import the new selection into the new ones
-			for(var s in selections) {
-				var selection = selections[s];
+		var newAssetPromises = [];
+		// Import the new selection into the new ones
+		for(var s in selections) {
+			var selection = selections[s];
 
-				// TODO: Consider that we might want to parseFloat the object's value.
-				// console.log(selection);
+			// TODO: Consider that we might want to parseFloat the object's value.
+			// console.log(selection);
 
-				// Save this index in the information about the crop, such that this can
-				// be used in the crop's filename.
-				var options = {
-					req: req,
-					catalogAlias: catalogAlias,
-					masterAsset: masterAsset,
-					selection: selection,
-					selectionIndex: parseInt(s, 10),
-					selectionCount: selections.length,
-					masterAssetFilePath: jobOptions.masterAssetFilePath,
-					masterAssetContentType: jobOptions.masterAssetContentType,
-					jobId: jobId
-				};
+			// Save this index in the information about the crop, such that this can
+			// be used in the crop's filename.
+			var options = {
+				req: req,
+				catalogAlias: catalogAlias,
+				masterAsset: masterAsset,
+				selection: selection,
+				selectionIndex: parseInt(s, 10),
+				selectionCount: selections.length,
+				masterAssetFilePath: jobOptions.masterAssetFilePath,
+				masterAssetContentType: jobOptions.masterAssetContentType
+			};
 
-				options.taskDescriptions = {
-					cropping: 'Cropping selection #' +(options.selectionIndex+1),
-					uploading: 'Uploading selection #' +(options.selectionIndex+1)
-				};
+			options.taskDescriptions = {
+				cropping: 'Cropping selection #' +(options.selectionIndex+1),
+				uploading: 'Uploading selection #' +(options.selectionIndex+1)
+			};
 
-				for(var t in options.taskDescriptions) {
-					var taskDescription = options.taskDescriptions[t];
-					// Touch the job task.
-					currentState.updateJobTask(jobId, taskDescription);
-				}
-				currentState.save();
+			console.log('Importing cropping #',
+									options.selectionIndex + 1,
+									'of',
+									options.selectionCount);
 
-				console.log('Importing cropping #',
-										options.selectionIndex + 1,
-										'of',
-										options.selectionCount);
+			var newAssetPromise = Q(options)
+				.then(performAssetCropping)
+				.then(function(options) {
+					// The options now contains the newly created cropped image path.
+					return importAssetCropping(options)
+						.then(assetSucessImported)
+						.then(updateCroppedAssetRelations)
+						.finally(function() {
+							deleteAssetCroppingFile(options);
+						});
+				});
 
-				var newAssetPromise = Q(options)
-					.then(performAssetCropping)
-					.then(function(options) {
-						// The options now contains the newly created cropped image path.
-						return importAssetCropping(options)
-							.then(assetSucessImported)
-							.then(updateCroppedAssetRelations)
-							.finally(function() {
-								deleteAssetCroppingFile(options);
-							});
-					});
+			newAssetPromises.push(newAssetPromise);
+		}
 
-				newAssetPromises.push(newAssetPromise);
-			}
-
-			return Q.all(newAssetPromises)
-			.then(function(assets) {
-				state.changeJobStatus(req, jobId, 'success');
-				respond(assets);
-			})
-			.finally(function() {
-				return deleteMasterAssetFile(jobOptions);
-			});
+		return Q.all(newAssetPromises)
+		.then(respond)
+		.finally(function() {
+			return deleteMasterAssetFile(jobOptions);
 		});
 	}
 
@@ -528,26 +466,17 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 			masterAsset.id
 		].join('');
 
-		return state.createJob(req, jobDescription)
-		.then(function(jobId) {
-			state.changeJobStatus(req, jobId, 'started');
-
-			return Q({
-				id: jobId,
-				masterAsset: masterAsset,
-				catalogAlias: catalogAlias
-			}).then(downloadMasterAsset)
-				.then(createSubAssets) // TODO: Then clean up the master asset
-				.catch(function(err) {
-					// Change the status of the job.
-					state.changeJobStatus(req, jobId, 'failed');
-
-					// Print the error to the console.
-					console.error(err.stack || err || 'Error: No details available');
-					err.status = 500;
-					next(err);
-				}).done();
-		});
+		return Q({
+			masterAsset: masterAsset,
+			catalogAlias: catalogAlias
+		}).then(downloadMasterAsset)
+			.then(createSubAssets) // TODO: Then clean up the master asset
+			.catch(function(err) {
+				// Print the error to the console.
+				console.error(err.stack || err || 'Error: No details available');
+				err.status = 500;
+				next(err);
+			});
 	}
 
 	// Use the CIP to get the master asset and handle it.

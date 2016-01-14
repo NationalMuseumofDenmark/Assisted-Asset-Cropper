@@ -1,7 +1,6 @@
 var express = require('express'),
 		http = require('http'), // TODO: Consider using request instead.
 		cropping = require('../lib/cropping'),
-		state = require('../lib/state'),
 		cip = require('../lib/cip'),
 		assert = require('assert'),
 		request = require('request'),
@@ -135,50 +134,6 @@ router.get('/:catalog_alias/:id/suggestions/:size?', function(req, res, next) {
 		next(err);
 	});
 });
-
-/*
-router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, next) {
-	// Localizing parameters
-	var catalog_alias = req.params['catalog_alias'];
-	var id = parseInt(req.params['id'], 10);
-	var size = req.params['size'];
-	if(size !== undefined) {
-		size = parseInt(size, 10);
-	} else {
-		size = DEFAULT_THUMBNAIL_SIZE;
-	}
-	var state_images = [];
-
-	cip.client().then(function (client) {
-		cropping.suggest(client, catalog_alias, id, function(suggestions) {
-			var result;
-			for(var s in state_images) {
-				if(result) {
-					result = result.append(state_images[s]);
-				} else {
-					result = gm(state_images[s]);
-				}
-			}
-			result.stream(function streamOut (err, stdout, stderr) {
-				if (err) return next(err);
-					stdout.pipe(res);
-					// TODO: Delete all the images in state_images.
-					stdout.on('error', next);
-				});
-				// temp.cleanupSync();
-		}, function(response) {
-			var err = new Error( 'Cumulus responded with status code ' + response.statusCode );
-			console.error(response);
-			err.status = 503;
-			next(err);
-		}, {}, function(state, data) {
-			// Map every Open CV matrix to a temporary file.
-			state_images[state] = temp.path({suffix: '.jpg'});
-			data.save( state_images[state] );
-		});
-	});
-});
-*/
 
 // Get the croppings
 router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
