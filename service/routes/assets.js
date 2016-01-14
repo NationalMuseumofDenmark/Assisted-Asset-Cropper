@@ -148,7 +148,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 		size = DEFAULT_THUMBNAIL_SIZE;
 	}
 	var state_images = [];
-	
+
 	cip.client().then(function (client) {
 		cropping.suggest(client, catalog_alias, id, function(suggestions) {
 			var result;
@@ -180,7 +180,7 @@ router.get('/:catalog_alias/:id/suggestion-states/:size?', function(req, res, ne
 });
 */
 
-// Get the croppings 
+// Get the croppings
 router.post('/:catalog_alias/:id/croppings/save', function(req, res, next) {
 
 	assert(	"croppings" in req.body,
