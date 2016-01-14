@@ -25,7 +25,7 @@
 						placeholder="Søgestreng"
 						ng-model="term"
 						ng-keydown="searchTermKeydown($event.keyCode)">
-					
+
 					<div class="input-group-btn">
 						<button class="btn btn-default" type="button" id="catalog-selector" data-toggle="dropdown">
 							<span class="text">
@@ -53,6 +53,7 @@
 		</div>
 	</div>
 </div>
+
 <div class="container search-result"
 	infinite-scroll="loadMoreSearchResult()"
 	infinite-scroll-distance="1"
