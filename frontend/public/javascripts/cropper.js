@@ -191,5 +191,11 @@
 				updateState().then(keepUpdatingState);
 			}]
 		};
+	})
+	.directive('loadingDots', function() {
+	    return {
+	        restrict: 'E',
+	        templateUrl: '/templates/partials/loading-dots.html'
+	    };
 	});
 })();
