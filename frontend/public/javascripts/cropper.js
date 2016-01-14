@@ -48,7 +48,7 @@
 				}]
 			}
 		});
-	
+
 		// Initialize auth0
 		if(!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
 			console.error('Auth0 settings missing: Please re-grunt the app.');
@@ -99,7 +99,7 @@
 		$rootScope.removeMessage = function($index) {
 			$rootScope.messages.splice($index, 1);
 		};
-	
+
 		// If a state change error occurs due to Unauthorized, change to the signIn state.
 		/*
 		$rootScope.$on('$stateChangeError',
@@ -123,72 +123,32 @@
 			}
 		});
 	}])
-	.directive('stateJobs', function() {
+	.directive('jobs', function() {
 		return {
 			restrict: 'E',
-			templateUrl: 'templates/partials/state-jobs.html',
+			templateUrl: 'templates/partials/jobs.html',
 			replace: true,
-			controller: ['$rootScope', '$timeout', 'state',
-			function($rootScope, $timeout, state) {
-				var STATUS_LONG_POLL_TIMEOUT = 10000;
+			controller: ['$rootScope', '$timeout',
+			function($rootScope, $timeout) {
 				var AUTO_DISMISS_TIMEOUT = 3000;
 
-				$rootScope.state = {
-					busy: false,
-					jobs: []
-				};
+				$rootScope.jobs = [];
 
-				// TODO: Watch the state's jobs and put a timeout that dismisses jobs
-				// when they are done or has errors after some time.
-				var autoDismissTimeouts = {};
-				$rootScope.$watch('state.jobs', function(jobs) {
+				$rootScope.$watch('jobs', function(jobs) {
 					jobs.forEach(function(job) {
-						if(!autoDismissTimeouts[job.id] && job.status && job.status==='success') {
-							autoDismissTimeouts[job.id] = $timeout(function() {
-								$rootScope.dismissJob(job.id);
+						if(!job.timeout && (job.status === 'success' || job.status === 'failed')) {
+							job.timeout = $timeout(function() {
+								$rootScope.dismissJob(job);
 							}, AUTO_DISMISS_TIMEOUT);
 						}
 					});
-				});
+				}, true);
 
-				function overwriteState(s) {
-					$rootScope.status = s.status;
-					$rootScope.state.jobs = s.jobs;
-				}
-
-				$rootScope.dismissJob = function(id) {
-					state.dismissJob(id).then(overwriteState);
-				};
-
-				function updateState(longPoll) {
-					var statePromise, currentStateRevision;
-
-					if($rootScope.state && $rootScope.state.revision) {
-						currentStateRevision = $rootScope.state.revision;
-					}
-
-					if(longPoll) {
-						statePromise = state.longPoll(currentStateRevision);
-					} else {
-						statePromise = state.get();
-					}
-					// Update the root scope with the new status.
-					return statePromise.then(overwriteState);
-				}
-
-				function keepUpdatingState() {
-					// Update and keep updating.
-					return updateState(true)
-					.then(function() {
-						return keepUpdatingState();
-					}, function() {
-						// Keep on trying - even when getting errors ...
-						$timeout(keepUpdatingState, 5000);
+				$rootScope.dismissJob = function(job) {
+					$rootScope.jobs = $rootScope.jobs.filter(function(j) {
+						return j !== job;
 					});
-				}
-
-				// Update the status once and keep updating it.
-				updateState().then(keepUpdatingState);
+				};
 			}]
 		};
 	})

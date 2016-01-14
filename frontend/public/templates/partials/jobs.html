@@ -1,0 +1,19 @@
+<ul class="list-group jobs">
+	<li
+		ng-repeat="job in jobs"
+		class="list-group-item job"
+		ng-class="{
+			'list-group-item-info': job.status!=='failed' && job.status!=='success',
+			'list-group-item-success': job.status==='success',
+			'list-group-item-danger': job.status==='failed'
+		}">
+		{{job.description}}
+		<span
+			class="glyphicon glyphicon-remove pull-right"
+			aria-hidden="true"
+			ng-click="dismissJob(job)"
+			ng-if="job.status!=='busy'"></span>
+		<loading-dots class="pull-right"
+			ng-if="job.status==='busy'"></loading-dots>
+	</li>
+</ul>

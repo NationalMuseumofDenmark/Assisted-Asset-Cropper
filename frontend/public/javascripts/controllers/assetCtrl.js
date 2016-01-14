@@ -1,11 +1,12 @@
 (function() {
 	angular
 	.module('cropper')
-	.controller('assetCtrl', ['$scope', '$state', '$stateParams', '$http', 'assets', 'asset',
-		function($scope, $state, $stateParams, $http, assets, asset) {
+	.controller('assetCtrl', [
+		'$scope', '$state', '$rootScope', '$stateParams', '$http', 'assets', 'asset',
+		function($scope, $state, $rootScope, $stateParams, $http, assets, asset) {
 			$scope.catalog_alias = $stateParams.catalog_alias;
 			$scope.asset_id = $stateParams.asset_id;
-			
+
 			$scope.asset = asset;
 			$scope.is_busy = false;
 
@@ -69,7 +70,7 @@
 					}
 				}
 			}
-			
+
 			$scope.previousAsset = function() {
 				var currentIndex = getAssetIndex($scope.asset);
 				var previousAssetId = getPreviousAssetId(currentIndex);
@@ -79,7 +80,7 @@
 					});
 				}
 			};
-			
+
 			$scope.nextAsset = function() {
 				var currentIndex = getAssetIndex($scope.asset);
 				var nextAssetId = getNextAssetId(currentIndex);
@@ -90,57 +91,53 @@
 				}
 			};
 
-			var save_croppings_url = [
-				'',
-				'asset',
-				$scope.catalog_alias,
-				$scope.asset_id,
-				'croppings',
-				'save'
-				].join('/');
-
 			$scope.saveCroppings = function() {
 				$scope.is_busy = true;
+
 				console.log("Saving croppings!");
-				$http.post(save_croppings_url, {
+				var job = {
+					status: 'busy',
+					description: [
+						'Cropping',
+						$scope.croppings.length,
+						'selections from',
+						$scope.catalog_alias,
+						'#'+$scope.asset_id
+					].join(' ')
+				};
+				$rootScope.jobs.push(job);
+
+				var saveCroppingsURL = [
+					'',
+					'asset',
+					$scope.catalog_alias,
+					$scope.asset_id,
+					'croppings',
+					'save'
+					].join('/');
+
+				$http.post(saveCroppingsURL, {
 					croppings: $scope.croppings
 				}).then(function(response) {
 					$scope.is_busy = false;
 					var assets = response.data.assets;
 					console.log("Success!", response);
-					/*
-					$scope.showMessage( 'success', [
-						'Det lykkedes at gemme ',
-						assets.length,
-						' friskæringer af "',
-						$scope.asset.metadata.filename,
-						'" (#',
-						$scope.asset_id,
-						' i ',
-						$scope.catalog_alias,
-						' kataloget)'
-					] );
-					*/
-					//reloadAsset();
+					job.status = 'success';
 					$scope.nextAsset();
 				}, function(response) {
 					$scope.is_busy = false;
 					var message = [
-						'Der opstod en uventet fejl, da friskæringerne af "',
-						$scope.asset.metadata.filename,
-						'" (#',
-						$scope.asset_id,
-						' i ',
+						'Error cropping the asset',
 						$scope.catalog_alias,
-						' kataloget) skulle gemmes.'
+						'#' + $scope.asset_id
 					];
 					if(response.data && response.data.message) {
 						message.push(' (');
 						message.push(response.data.message);
 						message.push(')');
 					}
-					// TODO: Include response.message if it is defined.
-					$scope.showMessage( 'danger', message );
+					console.error(message.join(' '));
+					job.status = 'failed';
 					reloadAsset();
 				});
 			};
