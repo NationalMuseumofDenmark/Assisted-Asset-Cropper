@@ -68,21 +68,20 @@ var jwtCheck = jwt({
   audience: settings.auth0.clientID
 });
 
+// This method adds a JWT from the query params to the request headers.
+// We need this to communicate authentication when requesting images.
 function jwtQuery2Header(req, res, next) {
 	if(req.query.jwt) {
 		req.headers.authorization = 'Bearer '+req.query.jwt;
 	}
 	next();
 }
-
 app.use(jwtQuery2Header);
 
-app.use(jwtCheck);
-
 // Register the various application routes.
-app.use('/asset', assets);
 app.use('/state', state);
-app.use('/catalogs', catalogs);
+app.use('/asset', jwtCheck, assets);
+app.use('/catalogs', jwtCheck, catalogs);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
