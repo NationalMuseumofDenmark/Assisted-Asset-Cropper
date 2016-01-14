@@ -29,11 +29,12 @@ And use grunt to boot up the app
 ## Install the OpenCV depencency
 
 As a sudoer install git and install OpenCV using a repo cloned from GitHub.
+Currently the 3.0.0 version of OpenCV is not supported by the node-opencv package, see https://github.com/peterbraden/node-opencv/issues/273 and https://github.com/peterbraden/node-opencv/pull/259 for updates on this.
 
     sudo apt-get install git
     git clone https://github.com/jayrambhia/Install-OpenCV.git
-    cd Install-OpenCV/Ubuntu/
-    ./opencv_latest.sh
+    cd Install-OpenCV/Ubuntu/2.4/
+    ./opencv2_4_10.sh
 
 ## Install nginx and the imagemagick depencency
 
