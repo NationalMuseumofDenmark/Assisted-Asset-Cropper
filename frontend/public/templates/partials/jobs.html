@@ -12,7 +12,12 @@
 			class="glyphicon glyphicon-remove pull-right"
 			aria-hidden="true"
 			ng-click="dismissJob(job)"
-			ng-if="job.status!=='busy'"></span>
+			ng-if="job.status==='failed'"></span>
+		<span
+			class="glyphicon glyphicon-ok pull-right"
+			aria-hidden="true"
+			ng-click="dismissJob(job)"
+			ng-if="job.status==='success'"></span>
 		<loading-dots class="pull-right"
 			ng-if="job.status==='busy'"></loading-dots>
 	</li>
