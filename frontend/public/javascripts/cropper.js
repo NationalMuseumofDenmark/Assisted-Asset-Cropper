@@ -130,7 +130,7 @@
 
 				$rootScope.$watch('jobs', function(jobs) {
 					jobs.forEach(function(job) {
-						if(!job.timeout && (job.status === 'success' || job.status === 'failed')) {
+						if(!job.timeout && job.status === 'success') {
 							job.timeout = $timeout(function() {
 								$rootScope.dismissJob(job);
 							}, AUTO_DISMISS_TIMEOUT);
