@@ -4,8 +4,8 @@ var cache = require('memory-cache'),
 
 var settings = require('../../settings.json');
 
-// Refresh session every hour
-SESSION_TIMEOUT = 1000 * 60 * 60;
+// Refresh session every 15 minutes.
+SESSION_TIMEOUT = 1000 * 60 * 15;
 
 var CROPPING_STATUS_FIELD = '{bf7a30ac-e53b-4147-95e0-aea8c71340ca}',
 		FILENAME_FIELD = 'name';
