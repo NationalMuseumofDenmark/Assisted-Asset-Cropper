@@ -75,7 +75,6 @@ CIPClient.prototype.request = function(operation, data, withoutJSessionID) {
 	}
 
 	return promisedBefore.then(function() {
-		console.log('CIP request to', operation);
 		var deferred = Q.defer();
 
 		if(!data) {
