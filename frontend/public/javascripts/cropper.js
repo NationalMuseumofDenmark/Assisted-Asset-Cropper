@@ -69,7 +69,7 @@
 				[Hammer.Tap, {time: 250}],
 				[Hammer.Pan, {}]
 			]
-    });
+		});
 	}])
 	.run(['$rootScope', '$state', 'user', function($rootScope, $state, user) {
 
@@ -147,9 +147,9 @@
 		};
 	})
 	.directive('loadingDots', function() {
-	    return {
-	        restrict: 'E',
-	        templateUrl: '/templates/partials/loading-dots.html'
-	    };
+		return {
+			restrict: 'E',
+			templateUrl: '/templates/partials/loading-dots.html'
+		};
 	});
 })();
