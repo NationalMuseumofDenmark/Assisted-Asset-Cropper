@@ -5,7 +5,8 @@ var express = require('express'),
 
 router.get('/', function(req, res, next) {
 	// Localizing parameters
-	cip.request('metadata/getcatalogs').then(function(response) {
+	cip.request('metadata/getcatalogs')
+    .then(function(response) {
 		var catalogs = [];
 		if(response.catalogs) {
 			// Add in the aliases on the catalogs.
@@ -15,7 +16,7 @@ router.get('/', function(req, res, next) {
 			});
 		}
 		res.send(catalogs);
-	}, console.error);
+	}, next);
 });
 
 module.exports = router;
