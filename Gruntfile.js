@@ -101,7 +101,7 @@ module.exports = function(grunt) {
 						'bower_components/bootstrap/js/dropdown.js',
 						// Angular Google Analytics
 						'bower_components/angulartics/src/angulartics.js',
-						'bower_components/angulartics/src/angulartics-ga.js',
+						'bower_components/angulartics/src/angulartics-ga-cordova-google-analytics-plugin.js',
 						// Auth0 and dependencies
 						'bower_components/a0-angular-storage/dist/angular-storage.js',
 						'bower_components/angular-jwt/dist/angular-jwt.js',
@@ -148,5 +148,3 @@ module.exports = function(grunt) {
 
 	require('time-grunt')(grunt);
 };
-
-

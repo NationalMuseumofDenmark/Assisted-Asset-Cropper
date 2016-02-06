@@ -4,7 +4,7 @@
 		'ui.router',
 		'infinite-scroll',
 		'angulartics',
-		'angulartics.google.analytics',
+		'angulartics.google.analytics.cordova',
 		'auth0',
 		'angular-storage',
 		'angular-jwt',
