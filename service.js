@@ -100,7 +100,7 @@ if (app.get('env') === 'development') {
 			message: err.message,
 			error: err
 		});
-		console.error(err.message, err.stack);
+		console.error(err.stack);
 	});
 } else {
 	// production error handler
