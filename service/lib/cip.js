@@ -1,10 +1,11 @@
 var cache = require('memory-cache'),
-    request = require('request'),
+	request = require('request'),
 		Q = require('q');
 
 var settings = require('../../settings.json');
 
-var CACHE_TIME = 1000 * 60 * 5;
+// Refresh session every hour
+SESSION_TIMEOUT = 1000 * 60 * 60;
 
 var CROPPING_STATUS_FIELD = '{bf7a30ac-e53b-4147-95e0-aea8c71340ca}',
 		FILENAME_FIELD = 'name';
@@ -19,28 +20,40 @@ CIPClient.prototype.setConfig = function(config) {
 	};
 };
 
+CIPClient.prototype.keepSessionFresh = function() {
+	var timeNow = (new Date()).getTime();
+	var noSession = !this.jsessionid || !this.sessionLastUpdated;
+
+	if(noSession || this.sessionLastUpdated + SESSION_TIMEOUT < timeNow) {
+		return this.request('session/open', {
+			user: this.username,
+			password: this.password,
+			serveraddress: 'localhost',
+			apiversion: 5
+		}, true).then(function(response) {
+			this.jsessionid = response.jsessionid;
+			this.sessionLastUpdated = (new Date()).getTime();
+		}.bind(this));
+	} else {
+		return Q();
+	}
+};
+
 CIPClient.prototype.setCredentials = function(username, password) {
 	this.username = username;
 	this.password = password;
 	this.jsessionid = null;
-	var cip = this;
+	this.sessionLastUpdated = null;
 
-	return this.request('session/open', {
-		user: username,
-		password: password,
-		serveraddress: 'localhost',
-		apiversion: 5
-	}).then(function(response) {
-		cip.jsessionid = response.jsessionid;
-	});
+	return this.keepSessionFresh();
 };
 
-CIPClient.prototype.buildURL = function(operation, querystring) {
+CIPClient.prototype.buildURL = function(operation, querystring, withoutJSessionID) {
 	if(typeof(operation) === 'object') {
 		operation = operation.join('/');
 	}
 	var url = this.config.baseURL + operation;
-	if(this.jsessionid) {
+	if(this.jsessionid && !withoutJSessionID) {
 		url += ';jsessionid=' + this.jsessionid;
 	}
 	if(typeof(querystring) === 'object') {
@@ -53,31 +66,48 @@ CIPClient.prototype.buildURL = function(operation, querystring) {
 	return url;
 };
 
-CIPClient.prototype.request = function(operation, data) {
-	var deferred = Q.defer();
-
-	if(!data) {
-		data = {};
+CIPClient.prototype.request = function(operation, data, withoutJSessionID) {
+	var promisedBefore;
+	if(withoutJSessionID) {
+		promisedBefore = Q();
+	} else {
+		promisedBefore = this.keepSessionFresh();
 	}
-	var url = this.buildURL(operation);
 
-	var r = request.post({
-		url: url,
-		form: data,
-		json: true
-	}, function (error, response, body) {
-		if (!error) {
-			deferred.resolve(body);
-		} else {
-			deferred.reject({
-				error: error,
-				response: response,
-				body: body
-			});
+	return promisedBefore.then(function() {
+		console.log('CIP request to', operation);
+		var deferred = Q.defer();
+
+		if(!data) {
+			data = {};
 		}
-	});
+		var url = this.buildURL(operation, undefined, withoutJSessionID);
 
-	return deferred.promise;
+		var r = request.post({
+			url: url,
+			form: data,
+			json: true
+		}, function (error, response, body) {
+			if (!error && response.statusCode < 400) {
+				deferred.resolve(body);
+			} else {
+				if(!error) {
+					var msg = 'Error from CIP';
+
+					msg += ' (status '+ response.statusCode + ')';
+					if(body) {
+						msg += ': '+ body;
+					}
+					error = new Error(msg);
+				}
+				error.response = response;
+				error.body = body;
+				deferred.reject(error);
+			}
+		});
+
+		return deferred.promise;
+	}.bind(this));
 };
 
 CIPClient.prototype.wrap_proxy = function( url ) {
