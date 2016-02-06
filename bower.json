@@ -15,16 +15,19 @@
     "tests"
   ],
   "dependencies": {
-    "a0-angular-storage": "~0.0.11",
-    "angular": "~1.4.0",
-    "angular-gestures": "~0.3.1",
-    "angular-jwt": "~0.0.9",
-    "angular-ui-router": "~0.2.13",
-    "angulartics": "~0.18.0",
-    "auth0-angular": "~4.0.5",
-    "auth0-lock": "~7.9.4",
+    "a0-angular-storage": "^0.0.13",
+    "angular": "^1.5.0",
+    "angular-gestures": "^0.3.1",
+    "angular-jwt": "^0.0.9",
+    "angular-ui-router": "^0.2.17",
+    "angulartics": "~1.0.3",
+    "auth0-angular": "^4.1.0",
+    "auth0-lock": "^8.2.3",
     "bootstrap": "~3.3.4",
-    "ngInfiniteScroll": "~1.2.0",
-    "victor": "~0.2.6"
+    "ngInfiniteScroll": "^1.2.2",
+    "victor": "^1.1.0"
+  },
+  "resolutions": {
+    "angular": "^1.5.0"
   }
 }
