@@ -20,6 +20,7 @@ cip.setConfig({
 		"Danmarks Middelalder og Renæssance": "DMR",
 		"Danmarks Nyere Tid": "DNT",
 		"Etnografisk samling": "ES",
+		"Frilandsmuseet": "FLM",
 		"Frihedsmuseet": "FHM",
 		"Den Kgl. Mønt- og Medaljesamling": "KMM",
 		"Musikmuseet": "MUM",
