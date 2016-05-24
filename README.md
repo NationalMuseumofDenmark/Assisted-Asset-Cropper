@@ -4,6 +4,8 @@ A web-application enabling assisted cropping of assets from a Canto Cumulus CIP 
 
 The application is written using the Node.js Express framework.
 
+![Screenshot](/screenshot.png?raw=true)
+
 The following is a guide getting you up to speed, which requires some dependencies - please read the "Installing dependencies" section below, if you haven't got the node runtime or want to deploy this on a clean server.
 
 ## Easy setup
