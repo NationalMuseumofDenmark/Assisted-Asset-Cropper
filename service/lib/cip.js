@@ -16,7 +16,8 @@ CIPClient.prototype.setConfig = function(config) {
 	this.config = {
 		baseURL: config.baseURL,
 		catalogAliases: config.catalogAliases,
-		layoutAlias: config.layoutAlias
+		layoutAlias: config.layoutAlias,
+		serverAddress: config.serverAddress
 	};
 };
 
@@ -28,7 +29,7 @@ CIPClient.prototype.keepSessionFresh = function() {
 		return this.request('session/open', {
 			user: this.username,
 			password: this.password,
-			serveraddress: 'localhost',
+			serveraddress: this.config.serverAddress,
 			apiversion: 5
 		}, true).then(function(response) {
 			this.jsessionid = response.jsessionid;
