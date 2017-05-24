@@ -92,11 +92,9 @@ CIPClient.prototype.request = function(operation, data, withoutJSessionID) {
 				deferred.resolve(body);
 			} else {
 				if(!error) {
-					var msg = 'Error from CIP';
-
-					msg += ' (status '+ response.statusCode + ')';
-					if(body) {
-						msg += ': '+ body;
+					var msg = 'Error from CIP (status '+ response.statusCode + ')';
+					if(body && body.message) {
+						msg += ': '+ body.message;
 					}
 					error = new Error(msg);
 				}
