@@ -26,7 +26,8 @@ cip.setConfig({
 		"Musikmuseet": "MUM",
 		"Cropper": "Cropper"
 	},
-	layoutAlias: 'Registrering'
+	layoutAlias: 'Registrering',
+	serverAddress: 'ppcumulus.natmus.int'
 });
 cip.setCredentials(settings.cip.username, settings.cip.password);
 
