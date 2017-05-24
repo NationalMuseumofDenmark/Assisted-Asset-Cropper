@@ -9,11 +9,11 @@ router.get('/', function(req, res, next) {
     .then(function(response) {
 		var catalogs = [];
 		if(response.catalogs) {
-			// Add in the aliases on the catalogs.
-			catalogs = response.catalogs.map(function(catalog) {
+			// Add in the aliases on the catalogs - filter out those without alias.
+			catalogs = response.catalogs.map(catalog => {
 				catalog.alias = cip.config.catalogAliases[catalog.name];
 				return catalog;
-			});
+			}).filter(catalog => catalog.alias);
 		}
 		res.send(catalogs);
 	}, next);
