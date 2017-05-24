@@ -20,12 +20,14 @@ cip.setConfig({
 		"Cropper": "Cropper",
 		"Danmarks Middelalder og Renæssance": "DMR",
 		"Danmarks Nyere Tid": "DNT",
+		"Danmarks Oldtid": "DO",
 		"Den Kgl. Mønt- og Medaljesamling": "KMM",
 		"Etnografisk samling": "ES",
 		"Frihedsmuseet": "FHM",
 		"Frilandsmuseet": "FLM",
 		"Musikmuseet": "MUM",
-		"Orlogsmuseet": "OR"
+		"Orlogsmuseet": "OM",
+		"Tøjhusmuseet": "THM"
 	},
 	layoutAlias: 'Registrering',
 	serverAddress: 'ppcumulus.natmus.int'
