@@ -122,7 +122,7 @@ CIPClient.prototype.search = function(catalogAlias, term) {
 	], {
 		querystring: querystring,
 		quicksearchstring: term,
-		sortby: CROPPING_STATUS_FIELD+":descending",
+		sortby: CROPPING_STATUS_FIELD + ":descending",
 		table: 'AssetRecords',
 		collection: ''
 	});

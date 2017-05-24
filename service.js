@@ -17,14 +17,15 @@ cip.setConfig({
 		"Alle": "ALL",
 		"Antiksamlingen": "AS",
 		"Bevaringsafdelingen": "BA",
+		"Cropper": "Cropper",
 		"Danmarks Middelalder og Renæssance": "DMR",
 		"Danmarks Nyere Tid": "DNT",
-		"Etnografisk samling": "ES",
-		"Frilandsmuseet": "FLM",
-		"Frihedsmuseet": "FHM",
 		"Den Kgl. Mønt- og Medaljesamling": "KMM",
+		"Etnografisk samling": "ES",
+		"Frihedsmuseet": "FHM",
+		"Frilandsmuseet": "FLM",
 		"Musikmuseet": "MUM",
-		"Cropper": "Cropper"
+		"Orlogsmuseet": "OR"
 	},
 	layoutAlias: 'Registrering',
 	serverAddress: 'ppcumulus.natmus.int'
