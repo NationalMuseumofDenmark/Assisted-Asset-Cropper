@@ -116,13 +116,17 @@ exports.performCropping = function(req, res, next, catalogAlias, masterAssetId, 
 			});
 			// When the response has ended - let's react.
 			response.on('end', function () {
-				tempMasterAssetFile.on('finish', function() {
-					jobOptions.masterAssetFilePath = tempMasterAssetFilePath;
-					deferred.resolve(jobOptions);
-				});
-
-				// We're all done
-				tempMasterAssetFile.end();
+				if(response.statusCode === 200) {
+					tempMasterAssetFile.on('finish', function() {
+						jobOptions.masterAssetFilePath = tempMasterAssetFilePath;
+						deferred.resolve(jobOptions);
+					});
+					// We're all done
+					tempMasterAssetFile.end();
+				} else {
+					const err = new Error('Error fetching master asset from the CIP');
+					deferred.reject(err);
+				}
 			});
 		}).on('error', deferred.reject);
 
